@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Main-Class: twitterfsd
+Implementation-Version: 1.0.0
+Class-Path: .
+
