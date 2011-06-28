@@ -39,9 +39,6 @@ public class WriteRequest extends Request {
             setResponseHeader(ENOTSUP, 0);
             return;
        }
-       
-       Locale loc = Locale.getDefault();
-
         try{
             /*
              * ファイルとして書かれたステータスを twitter にポストする。
