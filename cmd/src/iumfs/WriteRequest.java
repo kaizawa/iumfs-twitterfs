@@ -17,6 +17,7 @@ package iumfs;
 
 import java.io.IOException;
 import java.io.FileNotFoundException;
+import java.util.Locale;
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -38,13 +39,17 @@ public class WriteRequest extends Request {
             setResponseHeader(ENOTSUP, 0);
             return;
        }
+       
+       Locale loc = Locale.getDefault();
 
         try{
             /*
              * ファイルとして書かれたステータスを twitter にポストする。
              */
             Twitter twitter = TWFactory.getInstance();
-            status = twitter.updateStatus(getData(0, size).toString());
+            String msg = new String(getData(0,size));
+            status = twitter.updateStatus(msg);
+            System.out.println(msg);
             logger.fine("Status updated");        
             /*
              * レスポンスヘッダをセット
@@ -58,4 +63,3 @@ public class WriteRequest extends Request {
         }
     }
 }
-
