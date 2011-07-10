@@ -15,14 +15,6 @@
  */
 package iumfs;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.channels.FileChannel;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -36,6 +28,7 @@ import java.util.logging.Logger;
  *
  */
 public class twitterfsd {
+    static final String version = "0.1.0";  // version
     private static Logger logger = Logger.getLogger(twitterfsd.class.getName());
     private static final int maxThreads = 4;
     static List<File> entries = new ArrayList<File>();

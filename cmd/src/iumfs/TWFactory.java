@@ -90,6 +90,5 @@ public class TWFactory {
         }
         Prefs.put("accessToken", accessToken.getToken());
         Prefs.put("accessTokenSecret", accessToken.getTokenSecret());
-        System.out.println("------------ successfully set access token ----------------");        
     }
 }

@@ -28,7 +28,7 @@ import twitter4j.TwitterException;
 public class ReadRequest extends Request {
 
     /**
-     * HDFS 上のファイルをオープンし、結果をレスポンスヘッダをセットする
+     * Twitter の TL を読み込み結果をレスポンスヘッダをセットする
      * 未実装
      */
     @Override
@@ -44,7 +44,8 @@ public class ReadRequest extends Request {
             for(Status status : statuses){
                 String text = status.getText();
                 // ret = fsdis.read(getOffset(), wbbuf.array(), Request.RESPONSE_HEADER_SIZE, (int) getSize());
-                logger.fine("read offset=" + getOffset() + ",size=" + getSize());
+                logger.fine("read offset=" + getOffset() + ",size=" + getSize() + " : " + text );
+                logger.fine(status.getId() + ":");
             }
             
             /*
