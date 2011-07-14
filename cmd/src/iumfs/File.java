@@ -207,9 +207,9 @@ public class File {
         SimpleDateFormat simpleFormat = new SimpleDateFormat("MM/dd HH:mm:ss");  
   
         sb.append(simpleFormat.format(createdDate));
-        sb.append(" ");
+        sb.append(" [");
         sb.append(status.getUser().getName());
-        sb.append(" ");
+        sb.append("] ");
         sb.append(status.getText());
         sb.append("\n");
         return sb.toString();
