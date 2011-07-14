@@ -87,7 +87,8 @@ public class RequestFactory {
             buf.get(user);
             buf.get(pass);
 
-            logger.finer("request_type=" + request_type + ", size=" + size + ", offset=" + offset + ", datasize=" + datasize + ", pathname=" + (new String(pathname)).trim() + ", basename=" + (new String(basepath)).trim());
+            logger.finer("request_type=" + request_type + ", size=" + size + ", offset=" + offset + ", datasize=" + datasize);
+            logger.finer("pathname=" + (new String(pathname)).trim() + ", basename=" + (new String(basepath)).trim());
 
             /*
              *  TODO: リクエストによって確保する Buffer のサイズを可変にしてもいいかも..

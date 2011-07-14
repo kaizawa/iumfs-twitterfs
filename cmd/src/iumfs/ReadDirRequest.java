@@ -16,6 +16,7 @@
 package iumfs;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 /**
  *  READDIR リクエストを表すクラス
@@ -32,32 +33,36 @@ class ReadDirRequest extends Request {
          * まず最初にヘッダ分だけバッファの位置を進めておく。
          * ヘッダはデータ長がわかってから改めてセットする
          */
-	wbbuf.position(Request.RESPONSE_HEADER_SIZE);
+        wbbuf.position(Request.RESPONSE_HEADER_SIZE);
+        try {
+            for (File file : twitterfsd.fileMap.values()) {
+                int namelen = file.getName().getBytes("UTF-8").length;
+                namelen++; // null terminate 用。
 
-        for (File file : twitterfsd.entries) {
-            int namelen = file.getPath().getBytes().length;
-            namelen++; // null terminate 用。
-
+                /*
+                 * 受け取り側の driver でのアライメント対策のため reclen
+                 * (レコード長）は必ず 8 の倍数になるようにする。
+                 * typedef struct iumfs_dirent
+                 * {
+                 *   int64_t           i_reclen;
+                 *   char              i_name[1];
+                 * } iumfs_dirent_t; *
+                 */
+                int reclen = (8 + 1 + (namelen) + 7) & ~7;
+                logger.finer("name=" + file.getName() + ",namelen=" + namelen + ",reclen=" + reclen);
+                wbbuf.putLong(reclen);
+                for (byte b : file.getName().getBytes("UTF-8")) {
+                    wbbuf.put(b);
+                }
+                wbbuf.put((byte) 0); // null terminate           
             /*
-             * 受け取り側の driver でのアライメント対策のため reclen
-             * (レコード長）は必ず 8 の倍数になるようにする。
-             * typedef struct iumfs_dirent
-             * {
-             *   int64_t           i_reclen;
-             *   char              i_name[1];
-             * } iumfs_dirent_t; *
-             */
-            int reclen = (8 + 1 + (namelen) + 7) & ~7;
-            logger.finer("name="+file.getPath()+",namelen="+namelen+",reclen="+reclen);
-            wbbuf.putLong(reclen);
-            for (byte b : file.getPath().getBytes()) {
-                wbbuf.put(b);
+                 * Position を reclen 分だけ進めるためにパディングする
+                 */
+                wbbuf.position(wbbuf.position() + (reclen - 8 - namelen));
             }
-            wbbuf.put((byte)0); // null terminate           
-            /*
-             * Position を reclen 分だけ進めるためにパディングする
-             */
-            wbbuf.position(wbbuf.position() + (reclen - 8 - namelen));
+        } catch (UnsupportedEncodingException ex) {
+            ex.printStackTrace();
+            System.exit(1);
         }
         /*
          * レスポンスヘッダをセット

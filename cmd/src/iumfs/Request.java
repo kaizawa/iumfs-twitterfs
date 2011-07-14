@@ -144,7 +144,7 @@ public abstract class Request {
     public String getFullPath() {
         if (fullPath == null) {
             fullPath = getBasepath() + getPathname();
-            logger.log(Level.FINER, "FullPath={0}", fullPath);
+            logger.finer("FullPath = " + fullPath);
         }
         return fullPath;
     }

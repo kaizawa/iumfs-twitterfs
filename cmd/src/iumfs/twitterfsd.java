@@ -16,8 +16,12 @@
 package iumfs;
 
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-
+import twitter4j.ResponseList;
+import twitter4j.Status;
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
 
 /** 
  * User mode daemon for HDFS
@@ -28,10 +32,11 @@ import java.util.logging.Logger;
  *
  */
 public class twitterfsd {
+
     static final String version = "0.1.0";  // version
-    private static Logger logger = Logger.getLogger(twitterfsd.class.getName());
+    private static final Logger logger = Logger.getLogger(twitterfsd.class.getName());
     private static final int maxThreads = 4;
-    static List<File> entries = new ArrayList<File>();
+    static Map<String, File> fileMap = new HashMap<String, File>();
 
     public static void main(String args[]) {
         twitterfsd fsd = new twitterfsd();
@@ -39,14 +44,14 @@ public class twitterfsd {
         fsd.startDaemonThreads();
     }
 
-    public void init(){
-        entries.add(new File("post"));
-        entries.add(new File("home"));
+    public void init() {
+        fileMap.put("/post", new File("post", false));
+        fileMap.put("/home", new File("home", true));
     }
 
     public void startDaemonThreads() {
-        for(int i = 0 ; i < maxThreads ; i++){
+        for (int i = 0; i < maxThreads; i++) {
             new DaemonThread().start();
         }
     }
-}            
+}

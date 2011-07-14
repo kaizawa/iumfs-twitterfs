@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 package iumfs;
+
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 import twitter4j.ResponseList;
 import twitter4j.Status;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import twitter4j.Paging;
 import twitter4j.TwitterException;
 
 /**
@@ -33,30 +36,42 @@ public class ReadRequest extends Request {
      */
     @Override
     public void process() {
-        int ret = 0;
-        try {
-            Twitter twitter = TWFactory.getInstance();
-            ResponseList<Status> statuses =  twitter.getHomeTimeline();
-            /*
-             * ファイルの指定オフセット/サイズのデータを書き込み用バッファに読み込む
-             */
-            int numRead;
-            for(Status status : statuses){
-                String text = status.getText();
-                // ret = fsdis.read(getOffset(), wbbuf.array(), Request.RESPONSE_HEADER_SIZE, (int) getSize());
-                logger.fine("read offset=" + getOffset() + ",size=" + getSize() + " : " + text );
-                logger.fine(status.getId() + ":");
-            }
-            
-            /*
-             * レスポンスヘッダをセット
-             */
-            setResponseHeader(SUCCESS, ret);
+        long read_size = 0;
 
-        } catch (TwitterException ex) {
-            logger.fine("TwitterException happend when reading hdfs. offset=" + getOffset() + ",size=" + getSize());
-            ex.printStackTrace();
-            setResponseHeader(ENOENT, 0);            
+        long offset = getOffset(); // ファイルシステムから要求されたファイルオフセット
+        long size = getSize(); // ファイルシステムから要求されたサイズ
+
+        File file = twitterfsd.fileMap.get(getPathname());
+
+        /*
+         * 既知の File エントリ以外はファイルサイズを 1 とする。
+         */
+        if (file == null) {
+            setResponseHeader(ENOENT, 0);
+            return;
         }
+        
+        try {
+            //バッファーの書き込み位置を レスポンスヘッダ分だけずらしておく。 
+            wbbuf.clear();
+            wbbuf.position(Request.RESPONSE_HEADER_SIZE);
+            // 読み込む
+            read_size = file.read(wbbuf, size, offset);
+        } catch (TwitterException ex) {
+            ex.printStackTrace();
+            setResponseHeader(ENOENT, 0);
+            return;
+        } catch (UnsupportedEncodingException ex) {
+            ex.printStackTrace();
+            setResponseHeader(ENOENT, 0);
+            return;
+        }
+
+        logger.fine("read_size = " + read_size);
+        /*
+         * レスポンスヘッダをセット
+         */
+        setResponseHeader(SUCCESS, read_size);
+        return;
     }
 }

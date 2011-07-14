@@ -1,0 +1,29 @@
+package iumfs;
+
+import java.util.logging.Formatter;
+import java.util.Calendar;
+import java.util.logging.LogRecord;
+
+public final class SingleLineLogFormatter extends Formatter {
+
+    /**
+     * ログフォーマットを指定
+     */    
+    @Override
+    public synchronized String format(final LogRecord rec) {
+        StringBuffer line =  new StringBuffer();
+        
+        line.append(String.format("%tD %<tT.%<tL", rec.getMillis()));
+        line.append(" ");
+        line.append(rec.getThreadID());
+        line.append(" ");
+        line.append(rec.getLevel().toString());
+        line.append(" ");
+        line.append(rec.getSourceClassName());
+        line.append(" ");
+        line.append(rec.getMessage());
+        line.append("\n");
+        
+        return line.toString();
+    }
+}

@@ -35,6 +35,8 @@ import twitter4j.auth.RequestToken;
  */
 public class TWFactory {
 
+    private static Logger logger = Logger.getLogger(twitterfsd.class.getName());
+    
     static TwitterFactory factory = new TwitterFactory();
 
     /**
@@ -46,8 +48,8 @@ public class TWFactory {
         if (Prefs.get("accessToken").isEmpty()) {
             getAccessToken();
         }
-        System.out.println("Token&Secret: " +  Prefs.get("accessToken") + " " + Prefs.get("accessTokenSecret"));
-        System.out.println("OauthConsum&Secret: " + Prefs.get("OAuthConsumerKey") + " " +  Prefs.get("consumerSecret"));
+        logger.finest("Token&Secret: " +  Prefs.get("accessToken") + " " + Prefs.get("accessTokenSecret"));
+        logger.finest("OauthConsum&Secret: " + Prefs.get("OAuthConsumerKey") + " " +  Prefs.get("consumerSecret"));
         
         AccessToken accessToken = new AccessToken(Prefs.get("accessToken"), Prefs.get("accessTokenSecret"));
         Twitter twitter = factory.getInstance();
