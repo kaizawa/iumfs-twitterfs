@@ -51,10 +51,8 @@ public class DaemonThread extends Thread {
 
         logger.info("Started");
 
-        int count = 0;        
         while (true) {
             try {
-                count++;
                 /*
                  * iumfs デバイスからリクエストデータを読み込む
                  */
@@ -64,7 +62,7 @@ public class DaemonThread extends Thread {
                     System.exit(1);
                 }
 
-                logger.fine("device returns " + len + " bytes " + count);
+                logger.finer("device returns " + len + " bytes ");
 
                 /*
                  * リクエストオブジェクトを生成
@@ -84,7 +82,7 @@ public class DaemonThread extends Thread {
                  * デバイスに書き込み
                  */
                 ch.write(req.getResponseBuffer());
-                logger.fine("request for " + req.getClass().getName() + " finished.");
+                logger.finer("request for " + req.getClass().getName() + " finished.");
             } catch (IOException ex) {
                 /*
                  * ここでキャッチされるのはデバイスドライバとの read/write 処理の

@@ -42,10 +42,12 @@ public class File {
     private long atime; //最終アクセス時間 (msec)
     private long ctime; //変更時間(msec)
     private long mtime; //変更時間 (msec)
+    private long interval;
 
-    File(String name, boolean istimeline) {
+    File(String name, boolean istimeline, long interval) {
         this.name = name;
         this.istimeline = istimeline;
+        this.interval = interval;
         init();
     }
     
@@ -96,7 +98,7 @@ public class File {
             for (Status status : statuses)
             
             {
-                logger.fine("Read Status id = " + status.getId());
+                logger.finer("Read Status id = " + status.getId());
                 file_size += statusToFormattedString(status).length();
                 status_list.add(0, status);
                 //最も古い(リストの最後)ステータスを起点の ID(base_id)とする。
@@ -320,7 +322,7 @@ public class File {
             //最初のステータス(最新)を最終読み込みステータスとする。            
             last_id = statuses.get(0).getId();              
             for (Status status : statuses) {
-                logger.fine("Read Status id=" + status.getId());
+                logger.finer("Read Status id=" + status.getId());
                 logger.finest(statusToFormattedString(status));
                 file_size += statusToFormattedString(status).getBytes("UTF-8").length;
                 status_list.add(status);
@@ -386,5 +388,20 @@ public class File {
     public void setMtime(long mtime) {
         this.mtime = mtime;
     }
+
+    /**
+     * @return the interval
+     */
+    public long getInterval() {
+        return interval;
+    }
+
+    /**
+     * @param interval the interval to set
+     */
+    public void setInterval(long interval) {
+        this.interval = interval;
+    }
+
 
 }

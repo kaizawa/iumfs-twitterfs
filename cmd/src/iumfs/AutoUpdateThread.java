@@ -15,6 +15,9 @@
  */
 package iumfs;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,20 +30,21 @@ public class AutoUpdateThread extends Thread {
     protected static Logger logger = Logger.getLogger(twitterfsd.class.getName());
 
     public void run() {
-        while (true) {
-            try {
-                Thread.sleep(60000);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(AutoUpdateThread.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            logger.fine("AutoUpdateThread wake") ;
-            for (File file : twitterfsd.fileMap.values()) {
-                if (file.isTimeline() == false) {
-                    continue;
-                }
-                file.getTimeline();
-                logger.fine("Got " + file.getName() + " timeline");
+
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+
+        for (final File file : twitterfsd.fileMap.values()) {
+            if (file.isTimeline() == true) {
+                executor.scheduleAtFixedRate(new Runnable() {
+
+                    public void run() {
+                        file.getTimeline();
+                        logger.fine("Got " + file.getName() + " timeline");
+                    }
+                }, file.getInterval(), file.getInterval(), TimeUnit.MILLISECONDS);
             }
         }
+
+
     }
 }

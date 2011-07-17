@@ -16,6 +16,9 @@
 package iumfs;
 
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import twitter4j.ResponseList;
@@ -33,7 +36,7 @@ import twitter4j.TwitterException;
  */
 public class twitterfsd {
 
-    static final String version = "0.1.1";  // version
+    static final String version = "0.1.2";  // version
     private static final Logger logger = Logger.getLogger(twitterfsd.class.getName());
     private static final int maxThreads = 4;
     static Map<String, File> fileMap = new HashMap<String, File>();
@@ -45,15 +48,15 @@ public class twitterfsd {
     }
 
     public void init() {
-        fileMap.put("/post", new File("post", false));
-        fileMap.put("/home", new File("home", true));
-        fileMap.put("/mentions", new File("mentions", true));
-        fileMap.put("/public", new File("public", true));
-        fileMap.put("/friends", new File("friends", true));
-        fileMap.put("/retweeted_by_me", new File("retweeted_by_me", true));
-        fileMap.put("/user", new File("user", true));
-        fileMap.put("/retweeted_to_me", new File("retweeted_to_me", true));        
-        fileMap.put("/retweets_of_me", new File("retweets_of_me", true));        
+        fileMap.put("/post", new File("post", false, 0));
+        fileMap.put("/home", new File("home", true, 15000));
+        fileMap.put("/mentions", new File("mentions", true, 300000));
+        fileMap.put("/public", new File("public", true, 300000));
+        fileMap.put("/friends", new File("friends", true, 300000));
+        fileMap.put("/retweeted_by_me", new File("retweeted_by_me", true, 30000));
+        fileMap.put("/user", new File("user", true, 120000));
+        fileMap.put("/retweeted_to_me", new File("retweeted_to_me", true, 300000));        
+        fileMap.put("/retweets_of_me", new File("retweets_of_me", true, 300000));        
     }
 
     public void startDaemonThreads() {
@@ -63,6 +66,22 @@ public class twitterfsd {
         }
          */
         new DaemonThread().start();        
-        new AutoUpdateThread().start();
+        startAutoupdateThreads();
+    }
+    
+    public void startAutoupdateThreads(){
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+
+        for (final File file : twitterfsd.fileMap.values()) {
+            if (file.isTimeline() == true) {
+                executor.scheduleAtFixedRate(new Runnable() {
+
+                    public void run() {
+                        file.getTimeline();
+                        logger.fine("Got " + file.getName() + " timeline");
+                    }
+                }, file.getInterval(), file.getInterval(), TimeUnit.MILLISECONDS);
+            }
+        }        
     }
 }
