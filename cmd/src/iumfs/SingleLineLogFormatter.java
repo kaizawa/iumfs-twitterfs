@@ -20,7 +20,9 @@ public final class SingleLineLogFormatter extends Formatter {
         line.append(rec.getLevel().toString());
         line.append(" ");
         line.append(rec.getSourceClassName());
-        line.append(" ");
+        line.append(".");
+        line.append(rec.getSourceMethodName());
+        line.append(": ");        
         line.append(rec.getMessage());
         line.append("\n");
         

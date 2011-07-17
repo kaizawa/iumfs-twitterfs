@@ -30,6 +30,7 @@ import twitter4j.TwitterException;
 class GetAttrRequest extends Request {
 
     final public static int ATTR_DATA_LEN = 72; // long x 9 フィールド
+    File file = null;
 
     /**
      * twitterfs ファイルシステム上の仮想エントリに対するファイルの属性情報
@@ -41,6 +42,9 @@ class GetAttrRequest extends Request {
          * レスポンスヘッダをセット
          */
         setResponseHeader(0, GetAttrRequest.ATTR_DATA_LEN);
+        
+        file = twitterfsd.fileMap.get(getPathname());
+        
         /*
          * ファイル属性をバッファにセット
          * typedef struct iumfs_vattr
@@ -60,12 +64,12 @@ class GetAttrRequest extends Request {
         wbbuf.putLong(getPermission());
         wbbuf.putLong(getFileSize());
         wbbuf.putLong(getFileType());
-        wbbuf.putLong(now.getTime() / 1000);
-        wbbuf.putLong((now.getTime() % 1000) * 1000);
-        wbbuf.putLong(now.getTime());
-        wbbuf.putLong((now.getTime() % 1000) * 1000);
-        wbbuf.putLong(now.getTime() / 1000);
-        wbbuf.putLong((now.getTime() % 1000) * 1000);
+        wbbuf.putLong(file.getMtime() / 1000);        
+        wbbuf.putLong((file.getMtime() % 1000) * 1000);        
+        wbbuf.putLong(file.getAtime());
+        wbbuf.putLong((file.getAtime() % 1000) * 1000);
+        wbbuf.putLong(file.getCtime() / 1000);
+        wbbuf.putLong((file.getCtime() % 1000) * 1000);
     }
 
     /*
@@ -85,8 +89,6 @@ class GetAttrRequest extends Request {
      * 基本は 名前(未実装)+時間(未実装)+テキスト+改行文字を足したもの。
      */
     private long getFileSize() {
-        File file = twitterfsd.fileMap.get(getPathname());
-        
         /*
          * 既知の File エントリ以外はファイルサイズを 1 とする。
          */

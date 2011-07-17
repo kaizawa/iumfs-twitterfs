@@ -30,7 +30,6 @@ import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
 public class File {
-
     private String name;
     private boolean istimeline;
     private long file_size = 0;
@@ -40,31 +39,56 @@ public class File {
     protected static Logger logger = Logger.getLogger(twitterfsd.class.getName());
     private List<Status> status_list = new ArrayList<Status>();
     private static final int MAX_STATUSES = 200;
+    private long atime; //最終アクセス時間 (msec)
+    private long ctime; //作成時間(msec)
+    private long mtime; //変更時間 (msec)
 
     File(String name, boolean istimeline) {
         this.name = name;
         this.istimeline = istimeline;
         init();
     }
+    
+    private void init(){
+        /*
+         * もしタイムラインファイルだったら最初に Twitter から読み込む。
+         * (起点となる Status の ID(base_id) を得るため)
+         */
+       if(isTimeline())
+            initialLoad();
+        Date now = new Date();
+       setAtime(now.getTime());
+       setCtime(now.getTime());
+       setMtime(now.getTime());       
+    }
 
-    private void init() {
+    private void initialLoad() {
         ResponseList<Status> statuses;
         Twitter twitter = TWFactory.getInstance();
         try {
             /*
-             * 最初の読み込み. 1ページ分(最大20件)だけうけとり、最も古いステータスを
-             * 起点の ID(base_id)とする。
+             * 最初の読み込み. 1ページ分(最大20件)だけうけとる。
              */
             statuses = twitter.getHomeTimeline();
-            for (Status status : statuses) {
+            if(statuses.size() > 0) {
+                //最も新しい(リストの先頭)ステータスを最終読み込みステータス(last_id)とする。
+                last_id = statuses.get(0).getId();            
+            }
+            for (Status status : statuses)
+            
+            {
+                logger.fine("Read Status id = " + status.getId());
                 file_size += statusToFormattedString(status).length();
                 status_list.add(0, status);
-                base_id = last_id = status.getId();
+                //最も古い(リストの最後)ステータスを起点の ID(base_id)とする。
+                base_id = status.getId();
             }
             logger.fine("Initial Read " + statuses.size() + " Statuses");
             logger.fine("File size is " + file_size);
         } catch (TwitterException ex) {
             Logger.getLogger(twitterfsd.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
+            logger.info(ex.getRateLimitStatus().getResetTime().toString());
             System.exit(1);
         }
     }
@@ -113,9 +137,6 @@ public class File {
         Twitter twitter = TWFactory.getInstance();
         logger.fine("last_id is " + last_id);
 
-        getTimeline(MAX_STATUSES, last_id);
-
-
         /*
          *  OLD                                       NEW
          * Status|Status|......|Status|Status|Status|Status|
@@ -123,8 +144,8 @@ public class File {
          * ------offset-----------><---size----->
          *                     ^
          *                     |prev_offset
-         *                         ^
-         *                         |curr_offset
+         *                            ^
+         *                            |curr_offset
          */
         for (Status status : status_list) {
             prev_offset = curr_offset;
@@ -134,32 +155,31 @@ public class File {
             long status_length = bytes.length;            
             rel_offset = 0;
 
-            logger.finer("ID: " + status.getId());
-            logger.finer("status_length = " + status_length);
+            logger.fine("Read status_list id=" + status.getId() + " status_length = " + status_length);
             logger.finest(str);
 
-            // ステータスの文字数+1文字(改行)を足して現在のオフセットと考える。
+            // 以前のオフセットにステータスの文字数を足して現在のオフセットと考える。
             curr_offset += status_length;
             if (curr_offset < offset) {
-                logger.fine("offset not yet reached");
+                logger.finer("offset not yet reached");
                 //まだオフセットに到達していない。
                 continue;
             } else if (prev_offset >= offset) {
-                logger.fine("prev_offset >= offset");
+                logger.finer("prev_offset >= offset");
                 /*
                  * すでにオフセットを越えている
                  * ステータス境界のオフセット値を0に。
                  */
                 rel_offset = 0;
             } else {
-                logger.fine("prev_offset < offset");
+                logger.finer("prev_offset < offset");
                 /*
                  * このステータスでオフセットを越える。
                  * ステータス境界のオフセット値を計算
                  */
                 rel_offset = offset - prev_offset;
             }
-            logger.fine("rel_offset = " + rel_offset);
+            logger.finer("rel_offset = " + rel_offset);
 
             if (curr_size + status_length >= size) {
                 /*
@@ -168,13 +188,13 @@ public class File {
                  * は読み込まない。
                  */
                 copy_size = size - curr_size - rel_offset;
-                logger.fine("copy_Size = " + copy_size + ". No need to read more Status");
+                logger.finer("copy_Size = " + copy_size + ". No need to read more Status");
             } else {
                 /*
                  * この時点でまだ必要サイズに満たない。すべてバッファにコピー
                  */
                 copy_size = bytes.length - rel_offset;
-                logger.fine("copy_Size = " + copy_size + ". need to read more Status");
+                logger.finer("copy_Size = " + copy_size + ". need to read more Status");
             }
             /*
              * バッファに書き込む
@@ -183,12 +203,13 @@ public class File {
             buf.put("\n".getBytes("UTF-8"));
             curr_size += copy_size + "\n".getBytes("UTF-8").length;
             if (curr_size >= size) {
-                logger.fine("currSize >= size");
+                logger.finer("currSize >= size");
                 break;
             }
-            logger.fine("currSize < size. continue for statement.");
+            logger.finer("curr_size < size. continue for statement.");
         }
-        return curr_offset;
+        logger.fine("curr_size = " + curr_size);
+        return curr_size;
     }
 
     /**
@@ -207,12 +228,18 @@ public class File {
         SimpleDateFormat simpleFormat = new SimpleDateFormat("MM/dd HH:mm:ss");  
   
         sb.append(simpleFormat.format(createdDate));
+        sb.append(" ");        
+        sb.append(status.getUser().getScreenName());        
         sb.append(" [");
         sb.append(status.getUser().getName());
         sb.append("] ");
         sb.append(status.getText());
         sb.append("\n");
         return sb.toString();
+    }
+    
+    public void getTimeline(){
+        getTimeline(MAX_STATUSES, last_id);
     }
 
     /**
@@ -233,12 +260,14 @@ public class File {
 
     /**
      * Twitter から指定ページ内のタイムラインを読み出す。
+     * リストを変更するので排他的に呼ばれる必要がある。
+     * 
      * @param page
      * @param count
      * @param since
      * @return 
      */
-    public int getTimeline(int page, int count, long since) {
+    synchronized public int getTimeline(int page, int count, long since) {
         ResponseList<Status> statuses;
         Twitter twitter = TWFactory.getInstance();
         try {
@@ -248,13 +277,23 @@ public class File {
                 // これ以上ステータスは無いようだ。
                 return 0;
             }
+            //最初のステータス(最新)を最終読み込みステータスとする。            
+            last_id = statuses.get(0).getId();              
             for (Status status : statuses) {
+                logger.fine("Read Status id=" + status.getId());
+                logger.finest(statusToFormattedString(status));
                 file_size += statusToFormattedString(status).getBytes("UTF-8").length;
-                status_list.add(0, status);
+                status_list.add(status);
             }
+            logger.fine("new file_size is " + file_size);
+            java.util.Collections.sort(status_list);
+            /*
+             * TL が更新されているので mtime(更新時間)を変更する。
+             */
+            setMtime(new Date().getTime());
             return statuses.size();
         } catch (TwitterException ex) {
-            Logger.getLogger(File.class.getName()).log(Level.SEVERE, null, ex);
+            logger.severe("Got Twitter Exception statusCode = " + ex.getStatusCode());
             return 0;
         } catch (UnsupportedEncodingException ex) {
             ex.printStackTrace();
@@ -262,4 +301,47 @@ public class File {
             return 0;
         }
     }
+
+    /**
+     * @return the atime
+     */
+    public long getAtime() {
+        return atime;
+    }
+
+    /**
+     * @param atime the atime to set
+     */
+    public void setAtime(long atime) {
+        this.atime = atime;
+    }
+
+    /**
+     * @return the ctime
+     */
+    public long getCtime() {
+        return ctime;
+    }
+
+    /**
+     * @param ctime the ctime to set
+     */
+    public void setCtime(long ctime) {
+        this.ctime = ctime;
+    }
+
+    /**
+     * @return the mtime
+     */
+    public long getMtime() {
+        return mtime;
+    }
+
+    /**
+     * @param mtime the mtime to set
+     */
+    public void setMtime(long mtime) {
+        this.mtime = mtime;
+    }
+
 }

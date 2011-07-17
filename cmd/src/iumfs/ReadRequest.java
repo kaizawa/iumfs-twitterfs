@@ -22,6 +22,7 @@ import twitter4j.Status;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Date;
 import twitter4j.Paging;
 import twitter4j.TwitterException;
 
@@ -40,7 +41,9 @@ public class ReadRequest extends Request {
 
         long offset = getOffset(); // ファイルシステムから要求されたファイルオフセット
         long size = getSize(); // ファイルシステムから要求されたサイズ
-
+        
+        logger.fine("offset = " + offset + "size = " + size);
+        
         File file = twitterfsd.fileMap.get(getPathname());
 
         /*
@@ -55,8 +58,10 @@ public class ReadRequest extends Request {
             //バッファーの書き込み位置を レスポンスヘッダ分だけずらしておく。 
             wbbuf.clear();
             wbbuf.position(Request.RESPONSE_HEADER_SIZE);
-            // 読み込む
+            //読み込む
             read_size = file.read(wbbuf, size, offset);
+            //最終アクセス時間を変更
+            file.setAtime(new Date().getTime());
         } catch (TwitterException ex) {
             ex.printStackTrace();
             setResponseHeader(ENOENT, 0);

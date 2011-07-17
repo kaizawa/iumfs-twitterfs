@@ -51,8 +51,10 @@ public class DaemonThread extends Thread {
 
         logger.info("Started");
 
+        int count = 0;        
         while (true) {
             try {
+                count++;
                 /*
                  * iumfs デバイスからリクエストデータを読み込む
                  */
@@ -62,7 +64,7 @@ public class DaemonThread extends Thread {
                     System.exit(1);
                 }
 
-                logger.fine("device returns " + len + " bytes");
+                logger.fine("device returns " + len + " bytes " + count);
 
                 /*
                  * リクエストオブジェクトを生成

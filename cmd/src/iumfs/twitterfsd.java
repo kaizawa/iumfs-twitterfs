@@ -50,8 +50,12 @@ public class twitterfsd {
     }
 
     public void startDaemonThreads() {
+        /*
         for (int i = 0; i < maxThreads; i++) {
             new DaemonThread().start();
         }
+         */
+        new DaemonThread().start();        
+        new AutoUpdateThread().start();
     }
 }
