@@ -47,6 +47,13 @@ public class twitterfsd {
     public void init() {
         fileMap.put("/post", new File("post", false));
         fileMap.put("/home", new File("home", true));
+        fileMap.put("/mentions", new File("mentions", true));
+        fileMap.put("/public", new File("public", true));
+        fileMap.put("/friends", new File("friends", true));
+        fileMap.put("/retweeted_by_me", new File("retweeted_by_me", true));
+        fileMap.put("/user", new File("user", true));
+        fileMap.put("/retweeted_to_me", new File("retweeted_to_me", true));        
+        fileMap.put("/retweets_of_me", new File("retweets_of_me", true));        
     }
 
     public void startDaemonThreads() {

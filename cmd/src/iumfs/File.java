@@ -63,13 +63,32 @@ public class File {
     }
 
     private void initialLoad() {
-        ResponseList<Status> statuses;
+        ResponseList<Status> statuses = null;
         Twitter twitter = TWFactory.getInstance();
         try {
             /*
              * 最初の読み込み. 1ページ分(最大20件)だけうけとる。
              */
-            statuses = twitter.getHomeTimeline();
+            if(name.equals("home"))
+                statuses = twitter.getHomeTimeline();
+            else if(name.equals("mentions"))
+                statuses = twitter.getMentions();
+            else if(name.equals("public"))
+                statuses = twitter.getPublicTimeline();
+            else if(name.equals("friends"))
+                statuses = twitter.getFriendsTimeline();
+            else if(name.equals("retweeted_by_me"))
+                statuses = twitter.getRetweetedByMe();
+            else if(name.equals("user"))
+                statuses = twitter.getUserTimeline();
+            else if(name.equals("retweeted_to_me"))            
+                statuses = twitter.getRetweetedToMe();
+            else if(name.equals("retweets_of_me"))                        
+                statuses = twitter.getRetweetsOfMe();
+            else {
+                logger.severe("Unknown timeline(\"" + name + "\") specified.");
+                System.exit(1);
+            }            
             if(statuses.size() > 0) {
                 //最も新しい(リストの先頭)ステータスを最終読み込みステータス(last_id)とする。
                 last_id = statuses.get(0).getId();            
@@ -268,10 +287,31 @@ public class File {
      * @return 
      */
     synchronized public int getTimeline(int page, int count, long since) {
-        ResponseList<Status> statuses;
+        ResponseList<Status> statuses = null;
         Twitter twitter = TWFactory.getInstance();
         try {
-            statuses = twitter.getHomeTimeline(new Paging(page, count, since));
+            String timeline = getName();
+            if(name.equals("home"))
+                statuses = twitter.getHomeTimeline(new Paging(page, count, since));
+            else if(name.equals("mentions"))
+                statuses = twitter.getMentions(new Paging(page, count, since));
+            else if(name.equals("public"))
+                statuses = twitter.getPublicTimeline();
+            else if(name.equals("friends"))
+                statuses = twitter.getFriendsTimeline(new Paging(page, count, since));
+            else if(name.equals("retweeted_by_me"))
+                statuses = twitter.getRetweetedByMe(new Paging(page, count, since));                
+            else if(name.equals("user"))
+                statuses = twitter.getUserTimeline(new Paging(page, count, since));
+            else if(name.equals("retweeted_to_me"))            
+                statuses = twitter.getRetweetedToMe(new Paging(page, count, since));
+            else if(name.equals("retweets_of_me"))                        
+                statuses = twitter.getRetweetsOfMe(new Paging(page, count, since));
+            else {
+                logger.severe("Unknown timeline(\"" + name + "\") specified.");
+                System.exit(1);
+            }
+
             logger.fine("Got " + statuses.size() + " Statuses in page " + page);
             if (statuses.size() == 0) {
                 // これ以上ステータスは無いようだ。
