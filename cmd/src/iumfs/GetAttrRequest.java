@@ -28,9 +28,9 @@ import twitter4j.TwitterException;
  *  GETATTR リクエストを表すクラス
  */
 class GetAttrRequest extends Request {
-
     final public static int ATTR_DATA_LEN = 72; // long x 9 フィールド
     File file = null;
+    private static final long start_time = new Date().getTime();
 
     /**
      * twitterfs ファイルシステム上の仮想エントリに対するファイルの属性情報
@@ -39,12 +39,24 @@ class GetAttrRequest extends Request {
     @Override
     public void process() {
         /*
-         * レスポンスヘッダをセット
+         * 対応した File オブジェクトを得る。
          */
-        setResponseHeader(0, GetAttrRequest.ATTR_DATA_LEN);
-        
         file = twitterfsd.fileMap.get(getPathname());
         
+        if(file == null && isDir() == false) {
+            /*
+             * 既知のファイル名でなく、ディレクトリでもない。
+             * 不明なファイルの要求。ENOENT を返す。
+             */
+            setResponseHeader(ENOENT, 0);
+            return;
+        }
+        
+        /*
+         * レスポンスヘッダをセット
+         */
+        setResponseHeader(0, GetAttrRequest.ATTR_DATA_LEN);        
+
         /*
          * ファイル属性をバッファにセット
          * typedef struct iumfs_vattr
@@ -64,12 +76,21 @@ class GetAttrRequest extends Request {
         wbbuf.putLong(getPermission());
         wbbuf.putLong(getFileSize());
         wbbuf.putLong(getFileType());
-        wbbuf.putLong(file.getMtime() / 1000);        
-        wbbuf.putLong((file.getMtime() % 1000) * 1000);        
-        wbbuf.putLong(file.getAtime());
-        wbbuf.putLong((file.getAtime() % 1000) * 1000);
-        wbbuf.putLong(file.getCtime() / 1000);
-        wbbuf.putLong((file.getCtime() % 1000) * 1000);
+        if (file == null) {
+            wbbuf.putLong(start_time / 1000);
+            wbbuf.putLong((start_time % 1000) * 1000);
+            wbbuf.putLong(start_time / 1000);
+            wbbuf.putLong((start_time % 1000) * 1000);
+            wbbuf.putLong(start_time / 1000);
+            wbbuf.putLong((start_time % 1000) * 1000);
+        } else {
+            wbbuf.putLong(file.getMtime() / 1000);
+            wbbuf.putLong((file.getMtime() % 1000) * 1000);
+            wbbuf.putLong(file.getAtime() / 1000);
+            wbbuf.putLong((file.getAtime() % 1000) * 1000);
+            wbbuf.putLong(file.getCtime() / 1000);
+            wbbuf.putLong((file.getCtime() % 1000) * 1000);
+        }
     }
 
     /*
@@ -78,12 +99,13 @@ class GetAttrRequest extends Request {
      * それ以外は通常ファイルとみなす。
      */
     private long getFileType() {
-        if(isDir())
+        if (isDir()) {
             return Request.VDIR;
-        else
+        } else {
             return Request.VREG;
+        }
     }
-    
+
     /*
      * 起点となるステータス(homeBaseId)からのタイムラインのサイズを計算する。
      * 基本は 名前(未実装)+時間(未実装)+テキスト+改行文字を足したもの。
@@ -92,30 +114,32 @@ class GetAttrRequest extends Request {
         /*
          * 既知の File エントリ以外はファイルサイズを 1 とする。
          */
-        if(file == null){
+        if (file == null) {
             return 1;
         }
         return file.getFileSize();
     }
-    
-    private long getPermission(){
-        if(isDir())
-            return (long) 0000755; 
-        else
-            return (long) 0000644;
+
+    private long getPermission() {
+        if (isDir()) {
+            return (long) 0040755; //directory
+        } else {
+            return (long) 0100644; // regular file
+        }
     }
-    
+
     /**
      * リクエストされているディレクトリエントリがディレクトリであるかどうかを判定する。
      * 名前が . 、..、もしくは / だったらディレクトリ。
      * @return true if file is directory.
      */
-    private boolean isDir(){
-        if( getPathname().equals("/") == true ||
-                getPathname().equals(".") == true ||
-                getPathname().equals("..") == true ) 
+    private boolean isDir() {
+        if (getPathname().equals("/") == true
+                || getPathname().equals(".") == true
+                || getPathname().equals("..") == true) {
             return true;
-        else 
+        } else {
             return false;
+        }
     }
 }
