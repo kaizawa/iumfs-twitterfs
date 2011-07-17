@@ -29,7 +29,7 @@ public class AutoUpdateThread extends Thread {
     public void run() {
         while (true) {
             try {
-                Thread.sleep(10000);
+                Thread.sleep(12000);
             } catch (InterruptedException ex) {
                 Logger.getLogger(AutoUpdateThread.class.getName()).log(Level.SEVERE, null, ex);
             }

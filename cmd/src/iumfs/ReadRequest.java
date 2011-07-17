@@ -42,7 +42,7 @@ public class ReadRequest extends Request {
         long offset = getOffset(); // ファイルシステムから要求されたファイルオフセット
         long size = getSize(); // ファイルシステムから要求されたサイズ
         
-        logger.fine("offset = " + offset + "size = " + size);
+        logger.fine("offset = " + offset + " size = " + size);
         
         File file = twitterfsd.fileMap.get(getPathname());
 

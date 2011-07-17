@@ -40,7 +40,7 @@ public class File {
     private List<Status> status_list = new ArrayList<Status>();
     private static final int MAX_STATUSES = 200;
     private long atime; //最終アクセス時間 (msec)
-    private long ctime; //作成時間(msec)
+    private long ctime; //変更時間(msec)
     private long mtime; //変更時間 (msec)
 
     File(String name, boolean istimeline) {
@@ -56,7 +56,7 @@ public class File {
          */
        if(isTimeline())
             initialLoad();
-        Date now = new Date();
+       Date now = new Date();
        setAtime(now.getTime());
        setCtime(now.getTime());
        setMtime(now.getTime());       
@@ -288,12 +288,15 @@ public class File {
             logger.fine("new file_size is " + file_size);
             java.util.Collections.sort(status_list);
             /*
-             * TL が更新されているので mtime(更新時間)を変更する。
+             * TL が更新されているので mtime, ctime(更新時間)を変更する。
              */
-            setMtime(new Date().getTime());
+            Date now = new Date();
+            setMtime(now.getTime());
+            setCtime(now.getTime());            
             return statuses.size();
         } catch (TwitterException ex) {
             logger.severe("Got Twitter Exception statusCode = " + ex.getStatusCode());
+            ex.printStackTrace();
             return 0;
         } catch (UnsupportedEncodingException ex) {
             ex.printStackTrace();
