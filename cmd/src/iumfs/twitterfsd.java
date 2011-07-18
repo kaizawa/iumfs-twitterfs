@@ -49,14 +49,14 @@ public class twitterfsd {
 
     public void init() {
         fileMap.put("/post", new File("post", false, 0));
-        fileMap.put("/home", new File("home", true, 15000));
-        fileMap.put("/mentions", new File("mentions", true, 300000));
-        fileMap.put("/public", new File("public", true, 300000));
+        fileMap.put("/home", new File("home", true, 20000));
+        fileMap.put("/mentions", new File("mentions", true, 120000));
+        fileMap.put("/public", new File("public", true, 600000));
         fileMap.put("/friends", new File("friends", true, 300000));
-        fileMap.put("/retweeted_by_me", new File("retweeted_by_me", true, 30000));
-        fileMap.put("/user", new File("user", true, 120000));
-        fileMap.put("/retweeted_to_me", new File("retweeted_to_me", true, 300000));        
-        fileMap.put("/retweets_of_me", new File("retweets_of_me", true, 300000));        
+        fileMap.put("/retweeted_by_me", new File("retweeted_by_me", true, 600000));
+        fileMap.put("/user", new File("user", true, 300000));
+        fileMap.put("/retweeted_to_me", new File("retweeted_to_me", true, 600000));        
+        fileMap.put("/retweets_of_me", new File("retweets_of_me", true, 600000));        
     }
 
     public void startDaemonThreads() {
@@ -78,7 +78,6 @@ public class twitterfsd {
 
                     public void run() {
                         file.getTimeline();
-                        logger.fine("Got " + file.getName() + " timeline");
                     }
                 }, file.getInterval(), file.getInterval(), TimeUnit.MILLISECONDS);
             }
