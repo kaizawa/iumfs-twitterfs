@@ -35,7 +35,6 @@ public class File {
     private long file_size = 0;
     private long last_id = 0;
     private long base_id = 0;
-    private long since_id = 0;
     protected static Logger logger = Logger.getLogger(twitterfsd.class.getName());
     private List<Status> status_list = new ArrayList<Status>();
     private static final int MAX_STATUSES = 200;
@@ -43,6 +42,7 @@ public class File {
     private long ctime; //変更時間(msec)
     private long mtime; //変更時間 (msec)
     private long interval;
+    private boolean initial_read = true;
 
     File(String name, boolean istimeline, long interval) {
         this.name = name;
@@ -50,68 +50,22 @@ public class File {
         this.interval = interval;
         init();
     }
-    
-    private void init(){
+
+    private void init() {
         /*
          * もしタイムラインファイルだったら最初に Twitter から読み込む。
          * (起点となる Status の ID(base_id) を得るため)
          */
-       if(isTimeline())
-            initialLoad();
-       Date now = new Date();
-       setAtime(now.getTime());
-       setCtime(now.getTime());
-       setMtime(now.getTime());       
-    }
-
-    private void initialLoad() {
-        ResponseList<Status> statuses = null;
-        Twitter twitter = TWFactory.getInstance();
-        try {
+        if (isTimeline()) {
             /*
              * 最初の読み込み. 1ページ分(最大20件)だけうけとる。
              */
-            if(name.equals("home"))
-                statuses = twitter.getHomeTimeline();
-            else if(name.equals("mentions"))
-                statuses = twitter.getMentions();
-            else if(name.equals("public"))
-                statuses = twitter.getPublicTimeline();
-            else if(name.equals("friends"))
-                statuses = twitter.getFriendsTimeline();
-            else if(name.equals("retweeted_by_me"))
-                statuses = twitter.getRetweetedByMe();
-            else if(name.equals("user"))
-                statuses = twitter.getUserTimeline();
-            else if(name.equals("retweeted_to_me"))            
-                statuses = twitter.getRetweetedToMe();
-            else if(name.equals("retweets_of_me"))                        
-                statuses = twitter.getRetweetsOfMe();
-            else {
-                logger.severe("Unknown timeline(\"" + name + "\") specified.");
-                System.exit(1);
-            }            
-            if(statuses.size() > 0) {
-                //最も新しい(リストの先頭)ステータスを最終読み込みステータス(last_id)とする。
-                last_id = statuses.get(0).getId();            
-            }
-            for (Status status : statuses)
-            
-            {
-                logger.finer("Read Status id = " + status.getId());
-                file_size += statusToFormattedString(status).length();
-                status_list.add(0, status);
-                //最も古い(リストの最後)ステータスを起点の ID(base_id)とする。
-                base_id = status.getId();
-            }
-            logger.fine("Initial Read " + statuses.size() + " Statuses");
-            logger.fine("File size is " + file_size);
-        } catch (TwitterException ex) {
-            Logger.getLogger(twitterfsd.class.getName()).log(Level.SEVERE, null, ex);
-            ex.printStackTrace();
-            logger.info(ex.getRateLimitStatus().getResetTime().toString());
-            System.exit(1);
+            getTimeline(1, 20, 1);
         }
+        Date now = new Date();
+        setAtime(now.getTime());
+        setCtime(now.getTime());
+        setMtime(now.getTime());
     }
 
     public String getName() {
@@ -159,24 +113,25 @@ public class File {
         logger.fine("last_id is " + last_id);
 
         /*
-         *  OLD                                       NEW
-         * Status|Status|......|Status|Status|Status|Status|
+         * OLD                                                         NEW
+         * Status             |Status                      |Status     
+         * --------offset------------------->|<----------size------------->
          *                     
-         * ------offset-----------><---size----->
-         *                     ^
-         *                     |prev_offset
-         *                            ^
-         *                            |curr_offset
+         * ----prev_offset--->|
+         *                    |<-rel_offset->|
+         *                    
+         * ------------------curr_offset------------------>|
+         *                                   |<-copy_size->|
          */
         for (Status status : status_list) {
             prev_offset = curr_offset;
             String str = statusToFormattedString(status);
             byte[] bytes = str.getBytes("UTF-8");
             long copy_size = 0;
-            long status_length = bytes.length;            
+            long status_length = bytes.length;
             rel_offset = 0;
 
-            logger.fine("Read status_list id=" + status.getId() + " status_length = " + status_length);
+            logger.finer("Read status_list id=" + status.getId() + " status_length = " + status_length);
             logger.finest(str);
 
             // 以前のオフセットにステータスの文字数を足して現在のオフセットと考える。
@@ -245,12 +200,12 @@ public class File {
          * フォr-マットを追加。User 名や時間など。
          */
         StringBuffer sb = new StringBuffer();
-        Date createdDate = status.getCreatedAt();  
-        SimpleDateFormat simpleFormat = new SimpleDateFormat("MM/dd HH:mm:ss");  
-  
+        Date createdDate = status.getCreatedAt();
+        SimpleDateFormat simpleFormat = new SimpleDateFormat("MM/dd HH:mm:ss");
+
         sb.append(simpleFormat.format(createdDate));
-        sb.append(" ");        
-        sb.append(status.getUser().getScreenName());        
+        sb.append(" ");
+        sb.append(status.getUser().getScreenName());
         sb.append(" [");
         sb.append(status.getUser().getName());
         sb.append("] ");
@@ -258,7 +213,7 @@ public class File {
         sb.append("\n");
         return sb.toString();
     }
-    
+
     public void getTimeline(){
         getTimeline(MAX_STATUSES, last_id);
     }
@@ -273,10 +228,18 @@ public class File {
     public void getTimeline(int count, long since) {
         int cnt = 0;
         int page = 1;// ページは 1 から始まる。
+        /*
+         * 最後に読み込んだステータスまで読み込む。ただし、最高 4 ページをとする。
+         * public だと最大 80 ステータス。他は 800 ステータスに相当。
+         *   20 * 4 = 80
+         *   200 * 4 = 800
+         * 特に public ではギャップが生じてしまうがしょうがない。(でないと、ずっと
+         * 取得しつづけることになってしまう)
+         */
         do {
             cnt = getTimeline(page, count, since);
             page++;
-        } while (cnt > 0);
+        } while (cnt > 0 && page < 5);
     }
 
     /**
@@ -302,31 +265,42 @@ public class File {
             else if(name.equals("friends"))
                 statuses = twitter.getFriendsTimeline(new Paging(page, count, since));
             else if(name.equals("retweeted_by_me"))
-                statuses = twitter.getRetweetedByMe(new Paging(page, count, since));                
+                statuses = twitter.getRetweetedByMe(new Paging(page, count, since));
             else if(name.equals("user"))
                 statuses = twitter.getUserTimeline(new Paging(page, count, since));
-            else if(name.equals("retweeted_to_me"))            
+            else if(name.equals("retweeted_to_me"))
                 statuses = twitter.getRetweetedToMe(new Paging(page, count, since));
-            else if(name.equals("retweets_of_me"))                        
+            else if(name.equals("retweets_of_me"))
                 statuses = twitter.getRetweetsOfMe(new Paging(page, count, since));
             else {
                 logger.severe("Unknown timeline(\"" + name + "\") specified.");
                 System.exit(1);
             }
+            logger.fine("Got " + name + " timeline, "
+                    + statuses.size() + " Statuses in page " + page);
 
-            logger.fine("Got " + statuses.size() + " Statuses in page " + page);
             if (statuses.size() == 0) {
                 // これ以上ステータスは無いようだ。
                 return 0;
             }
             //最初のステータス(最新)を最終読み込みステータスとする。            
-            last_id = statuses.get(0).getId();              
+            last_id = statuses.get(0).getId();
             for (Status status : statuses) {
                 logger.finer("Read Status id=" + status.getId());
                 logger.finest(statusToFormattedString(status));
                 file_size += statusToFormattedString(status).getBytes("UTF-8").length;
                 status_list.add(status);
             }
+            if (initial_read) {
+                /*
+                 * 一番最初の読み込み時の最も古い(リストの最後)ステータスを起点の 
+                 * ID(base_id)とする。                            
+                 */
+                base_id = statuses.get(statuses.size() - 1).getId();
+                logger.fine("base_id = " + base_id);
+                initial_read = false;
+            }
+
             logger.fine("new file_size is " + file_size);
             java.util.Collections.sort(status_list);
             /*
@@ -334,7 +308,7 @@ public class File {
              */
             Date now = new Date();
             setMtime(now.getTime());
-            setCtime(now.getTime());            
+            setCtime(now.getTime());
             return statuses.size();
         } catch (TwitterException ex) {
             logger.severe("Got Twitter Exception statusCode = " + ex.getStatusCode());
@@ -402,6 +376,4 @@ public class File {
     public void setInterval(long interval) {
         this.interval = interval;
     }
-
-
 }
