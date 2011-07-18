@@ -49,7 +49,7 @@ public class DaemonThread extends Thread {
         FileChannel ch = raf.getChannel();
         logger.fine("Successfully open device.");
 
-        logger.info("Started");
+        logger.fine("Started");
 
         while (true) {
             try {
