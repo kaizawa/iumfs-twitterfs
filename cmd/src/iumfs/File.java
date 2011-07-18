@@ -38,6 +38,7 @@ public class File {
     protected static Logger logger = Logger.getLogger(twitterfsd.class.getName());
     private List<Status> status_list = new ArrayList<Status>();
     private static final int MAX_STATUSES = 200;
+    private static final int MAX_PAGES = 5;
     private long atime; //最終アクセス時間 (msec)
     private long ctime; //変更時間(msec)
     private long mtime; //変更時間 (msec)
@@ -51,7 +52,7 @@ public class File {
         init();
     }
 
-    private void init() {
+    private void init(){
         /*
          * もしタイムラインファイルだったら最初に Twitter から読み込む。
          * (起点となる Status の ID(base_id) を得るため)
@@ -176,8 +177,7 @@ public class File {
              * バッファに書き込む
              */
             buf.put(bytes, (int) rel_offset, (int) copy_size);
-            buf.put("\n".getBytes("UTF-8"));
-            curr_size += copy_size + "\n".getBytes("UTF-8").length;
+            curr_size += copy_size;
             if (curr_size >= size) {
                 logger.finer("currSize >= size");
                 break;
@@ -206,11 +206,11 @@ public class File {
         sb.append(simpleFormat.format(createdDate));
         sb.append(" ");
         sb.append(status.getUser().getScreenName());
-        sb.append(" [");
+        sb.append("[");
         sb.append(status.getUser().getName());
-        sb.append("] ");
+        sb.append("] \n");
         sb.append(status.getText());
-        sb.append("\n");
+        sb.append("\n\n");
         return sb.toString();
     }
 
@@ -239,7 +239,7 @@ public class File {
         do {
             cnt = getTimeline(page, count, since);
             page++;
-        } while (cnt > 0 && page < 5);
+        } while ((cnt == count && page < MAX_PAGES) || (cnt == 20 && page < MAX_PAGES));
     }
 
     /**
