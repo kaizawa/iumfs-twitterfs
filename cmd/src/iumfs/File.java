@@ -35,7 +35,7 @@ public class File {
     private long file_size = 0;
     private long last_id = 0;
     private long base_id = 0;
-    protected static Logger logger = Logger.getLogger(twitterfsd.class.getName());
+    protected static final Logger logger = Logger.getLogger(twitterfsd.class.getName());
     private List<Status> status_list = new ArrayList<Status>();
     private static final int MAX_STATUSES = 200;
     private static final int MAX_PAGES = 5;
@@ -102,6 +102,7 @@ public class File {
      * @throws TwitterException
      * @throws UnsupportedEncodingException 
      */
+    @SuppressWarnings("LoggerStringConcat")
     public long read(ByteBuffer buf, long size, long offset)
             throws TwitterException, UnsupportedEncodingException {
         long curr_size = 0;
@@ -111,7 +112,6 @@ public class File {
         int page = 0;
 
         Twitter twitter = TWFactory.getInstance();
-        logger.fine("last_id is " + last_id);
 
         /*
          * OLD                                                         NEW
@@ -199,7 +199,7 @@ public class File {
         /*
          * フォr-マットを追加。User 名や時間など。
          */
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         Date createdDate = status.getCreatedAt();
         SimpleDateFormat simpleFormat = new SimpleDateFormat("MM/dd HH:mm:ss");
 
@@ -251,6 +251,7 @@ public class File {
      * @param since
      * @return 
      */
+    @SuppressWarnings({"LoggerStringConcat", "CallToThreadDumpStack"})
     synchronized public int getTimeline(int page, int count, long since) {
         ResponseList<Status> statuses = null;
         Twitter twitter = TWFactory.getInstance();
