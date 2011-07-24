@@ -46,7 +46,6 @@ public class WriteRequest extends Request {
             Twitter twitter = TWFactory.getInstance();
             String msg = new String(getData(0,size));
             status = twitter.updateStatus(msg);
-            System.out.println(msg);
             logger.fine("Status updated");        
             /*
              * レスポンスヘッダをセット
