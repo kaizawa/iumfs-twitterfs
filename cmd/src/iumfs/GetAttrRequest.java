@@ -28,6 +28,7 @@ import twitter4j.TwitterException;
  *  GETATTR リクエストを表すクラス
  */
 class GetAttrRequest extends Request {
+
     final public static int ATTR_DATA_LEN = 72; // long x 9 フィールド
     File file = null;
     private static final long start_time = new Date().getTime();
@@ -38,58 +39,68 @@ class GetAttrRequest extends Request {
      */
     @Override
     public void process() {
-        /*
-         * 対応した File オブジェクトを得る。
-         */
-        file = twitterfsd.fileMap.get(getPathname());
-        
-        if(file == null && isDir() == false) {
+        try {
             /*
-             * 既知のファイル名でなく、ディレクトリでもない。
-             * 不明なファイルの要求。ENOENT を返す。
+             * 対応した File オブジェクトを得る。
              */
-            setResponseHeader(ENOENT, 0);
-            return;
-        }
-        
-        /*
-         * レスポンスヘッダをセット
-         */
-        setResponseHeader(0, GetAttrRequest.ATTR_DATA_LEN);        
+            file = twitterfsd.fileMap.get(getPathname());
 
-        /*
-         * ファイル属性をバッファにセット
-         * typedef struct iumfs_vattr
-         * {
-         *   uint64_t  i_mode; // ファイルモード
-         *   uint64_t  i_size; // ファイルサイズ
-         *   int64_t   i_type; // ファイルタイプ
-         *   int64_t   mtime_sec; // 変更時間(sec)
-         *   int64_t   mtime_nsec;// 変更時間(nsec)
-         *   int64_t   atime_sec; // 属性変更時間(sec)
-         *   int64_t   atime_nsec;// 属性変更時間(nsec)
-         *   int64_t   ctime_sec; // 作成時間(sec)
-         *   int64_t   ctime_nsec;// 作成時間(nsec)
-         * } iumfs_vattr_t;
-         */
-        Date now = new Date();
-        wbbuf.putLong(getPermission());
-        wbbuf.putLong(getFileSize());
-        wbbuf.putLong(getFileType());
-        if (file == null) {
-            wbbuf.putLong(start_time / 1000);
-            wbbuf.putLong((start_time % 1000) * 1000);
-            wbbuf.putLong(start_time / 1000);
-            wbbuf.putLong((start_time % 1000) * 1000);
-            wbbuf.putLong(start_time / 1000);
-            wbbuf.putLong((start_time % 1000) * 1000);
-        } else {
-            wbbuf.putLong(file.getMtime() / 1000);
-            wbbuf.putLong((file.getMtime() % 1000) * 1000);
-            wbbuf.putLong(file.getAtime() / 1000);
-            wbbuf.putLong((file.getAtime() % 1000) * 1000);
-            wbbuf.putLong(file.getCtime() / 1000);
-            wbbuf.putLong((file.getCtime() % 1000) * 1000);
+            if (file == null && isDir() == false) {
+                /*
+                 * 既知のファイル名でなく、ディレクトリでもない。
+                 * 不明なファイルの要求。ENOENT を返す。
+                 */
+                setResponseHeader(ENOENT, 0);
+                return;
+            }
+
+            /*
+             * レスポンスヘッダをセット
+             */
+            setResponseHeader(0, GetAttrRequest.ATTR_DATA_LEN);
+
+            /*
+             * ファイル属性をバッファにセット
+             * typedef struct iumfs_vattr
+             * {
+             *   uint64_t  i_mode; // ファイルモード
+             *   uint64_t  i_size; // ファイルサイズ
+             *   int64_t   i_type; // ファイルタイプ
+             *   int64_t   mtime_sec; // 変更時間(sec)
+             *   int64_t   mtime_nsec;// 変更時間(nsec)
+             *   int64_t   atime_sec; // 属性変更時間(sec)
+             *   int64_t   atime_nsec;// 属性変更時間(nsec)
+             *   int64_t   ctime_sec; // 作成時間(sec)
+             *   int64_t   ctime_nsec;// 作成時間(nsec)
+             * } iumfs_vattr_t;
+             */
+            Date now = new Date();
+            wbbuf.putLong(getPermission());
+            wbbuf.putLong(getFileSize());
+            wbbuf.putLong(getFileType());
+            if (file == null) {
+                wbbuf.putLong(start_time / 1000);
+                wbbuf.putLong((start_time % 1000) * 1000);
+                wbbuf.putLong(start_time / 1000);
+                wbbuf.putLong((start_time % 1000) * 1000);
+                wbbuf.putLong(start_time / 1000);
+                wbbuf.putLong((start_time % 1000) * 1000);
+            } else {
+                wbbuf.putLong(file.getMtime() / 1000);
+                wbbuf.putLong((file.getMtime() % 1000) * 1000);
+                wbbuf.putLong(file.getAtime() / 1000);
+                wbbuf.putLong((file.getAtime() % 1000) * 1000);
+                wbbuf.putLong(file.getCtime() / 1000);
+                wbbuf.putLong((file.getCtime() % 1000) * 1000);
+            }
+        } catch (RuntimeException ex) {
+            /*
+             * 実行時例外が発生した際には EIO(IOエラー)にマップ。
+             * なんにしてもちゃんとエラーで返すことが大事。
+             */
+            ex.printStackTrace();
+            setResponseHeader(EIO, 0);
+            return;
         }
     }
 

@@ -36,7 +36,7 @@ import twitter4j.TwitterException;
  */
 public class twitterfsd {
 
-    static final String version = "0.1.5";  // version
+    static final String version = "0.1.6";  // version
     private static final Logger logger = Logger.getLogger(twitterfsd.class.getName());
     private static final int maxThreads = 4;
     static Map<String, File> fileMap = new HashMap<String, File>();

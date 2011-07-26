@@ -37,24 +37,24 @@ public class ReadRequest extends Request {
      */
     @Override
     public void process() {
-        long read_size = 0;
-
-        long offset = getOffset(); // ファイルシステムから要求されたファイルオフセット
-        long size = getSize(); // ファイルシステムから要求されたサイズ
-        
-        logger.fine("offset = " + offset + " size = " + size);
-        
-        File file = twitterfsd.fileMap.get(getPathname());
-
-        /*
-         * 既知の File エントリ以外はファイルサイズを 1 とする。
-         */
-        if (file == null) {
-            setResponseHeader(ENOENT, 0);
-            return;
-        }
-        
         try {
+            long read_size = 0;
+
+            long offset = getOffset(); // ファイルシステムから要求されたファイルオフセット
+            long size = getSize(); // ファイルシステムから要求されたサイズ
+
+            logger.fine("offset = " + offset + " size = " + size);
+
+            File file = twitterfsd.fileMap.get(getPathname());
+
+            /*
+             * 既知の File エントリ以外はファイルサイズを 1 とする。
+             */
+            if (file == null) {
+                setResponseHeader(ENOENT, 0);
+                return;
+            }
+
             //バッファーの書き込み位置を レスポンスヘッダ分だけずらしておく。 
             wbbuf.clear();
             wbbuf.position(Request.RESPONSE_HEADER_SIZE);
@@ -62,6 +62,12 @@ public class ReadRequest extends Request {
             read_size = file.read(wbbuf, size, offset);
             //最終アクセス時間を変更
             file.setAtime(new Date().getTime());
+            logger.fine("read_size = " + read_size);
+            /*
+             * レスポンスヘッダをセット
+             */
+            setResponseHeader(SUCCESS, read_size);
+            return;
         } catch (TwitterException ex) {
             ex.printStackTrace();
             setResponseHeader(ENOENT, 0);
@@ -70,13 +76,14 @@ public class ReadRequest extends Request {
             ex.printStackTrace();
             setResponseHeader(ENOENT, 0);
             return;
+        } catch (RuntimeException ex) {
+            /*
+             * 実行時例外発生時は EIO(IOエラー)にマップ。
+             * なんにしてもちゃんとエラーで返すことが大事。
+             */
+            ex.printStackTrace();
+            setResponseHeader(EIO, 0);
+            return;
         }
-
-        logger.fine("read_size = " + read_size);
-        /*
-         * レスポンスヘッダをセット
-         */
-        setResponseHeader(SUCCESS, read_size);
-        return;
     }
 }

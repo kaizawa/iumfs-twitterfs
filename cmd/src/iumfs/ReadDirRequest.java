@@ -29,12 +29,13 @@ class ReadDirRequest extends Request {
      */
     @Override
     public void process() {
-        /*
-         * まず最初にヘッダ分だけバッファの位置を進めておく。
-         * ヘッダはデータ長がわかってから改めてセットする
-         */
-        wbbuf.position(Request.RESPONSE_HEADER_SIZE);
         try {
+            /*
+             * まず最初にヘッダ分だけバッファの位置を進めておく。
+             * ヘッダはデータ長がわかってから改めてセットする
+             */
+            wbbuf.position(Request.RESPONSE_HEADER_SIZE);
+
             for (File file : twitterfsd.fileMap.values()) {
                 int namelen = file.getName().getBytes("UTF-8").length;
                 namelen++; // null terminate 用。
@@ -55,18 +56,26 @@ class ReadDirRequest extends Request {
                     wbbuf.put(b);
                 }
                 wbbuf.put((byte) 0); // null terminate           
-            /*
+                /*
                  * Position を reclen 分だけ進めるためにパディングする
                  */
                 wbbuf.position(wbbuf.position() + (reclen - 8 - namelen));
             }
+            /*
+             * レスポンスヘッダをセット
+             */
+            setResponseHeader(SUCCESS, wbbuf.position() - Request.RESPONSE_HEADER_SIZE);
         } catch (UnsupportedEncodingException ex) {
             ex.printStackTrace();
             System.exit(1);
+        } catch (RuntimeException ex) {
+            /*
+             * 実行時例外が発生した際には EIO(IOエラー)にマップ。
+             * なんにしてもちゃんとエラーで返すことが大事。
+             */
+            ex.printStackTrace();
+            setResponseHeader(EIO, 0);
+            return;
         }
-        /*
-         * レスポンスヘッダをセット
-         */
-        setResponseHeader(SUCCESS, wbbuf.position() - Request.RESPONSE_HEADER_SIZE);
     }
 }

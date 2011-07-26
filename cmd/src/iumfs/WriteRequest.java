@@ -29,24 +29,25 @@ import twitter4j.auth.AccessToken;
 public class WriteRequest extends Request {
 
     @Override
-   public void process() {
-       long offset = getOffset();
-       long size = getSize();
-       long filesize = 0;
-       Status status;
-       
-       if(getPathname().equals("/post") == false){
-            setResponseHeader(ENOTSUP, 0);
-            return;
-       }
-        try{
+    public void process() {
+        try {
+            long offset = getOffset();
+            long size = getSize();
+            long filesize = 0;
+            Status status;
+
+            if (getPathname().equals("/post") == false) {
+                setResponseHeader(ENOTSUP, 0);
+                return;
+            }
+
             /*
              * ファイルとして書かれたステータスを twitter にポストする。
              */
             Twitter twitter = TWFactory.getInstance();
-            String msg = new String(getData(0,size));
+            String msg = new String(getData(0, size));
             status = twitter.updateStatus(msg);
-            logger.fine("Status updated");        
+            logger.fine("Status updated");
             /*
              * レスポンスヘッダをセット
              */
@@ -55,6 +56,14 @@ public class WriteRequest extends Request {
             ex.printStackTrace();
             logger.fine("TwitterException when writing");
             setResponseHeader(EEXIST, 0);
+            return;
+        } catch (RuntimeException ex) {
+            /*
+             * 実行時例外が発生した際には EIO(IOエラー)にマップ。
+             * なんにしてもちゃんとエラーで返すことが大事。
+             */
+            ex.printStackTrace();
+            setResponseHeader(EIO, 0);
             return;
         }
     }
