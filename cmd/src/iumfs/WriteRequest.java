@@ -28,6 +28,8 @@ import twitter4j.auth.AccessToken;
  */
 public class WriteRequest extends Request {
 
+    private static final String CONT = "(cont) ";
+
     @Override
     public void process() {
         try {
@@ -42,11 +44,56 @@ public class WriteRequest extends Request {
             }
 
             /*
-             * ファイルとして書かれたステータスを twitter にポストする。
+             * ファイルとして書かれた文字列を得る。
              */
             Twitter twitter = TWFactory.getInstance();
-            String msg = new String(getData(0, size));
-            status = twitter.updateStatus(msg);
+            String whole_msg = new String(getData(0, size));
+            logger.finer("Orig Text:" + whole_msg);
+            logger.finest("whole_msg.length() = " + whole_msg.length());
+            int left = whole_msg.length();
+            /*
+             * 文字列を 140 文字づつステータスとしてポスト.
+             * 二回目以降のポストには「(cont)」という文字を先頭につけて
+             * つづきの文章であることを表す。
+             */
+            int begin = 0;
+            int end = 0;
+            int post_len = 0;
+            while (left > 0) {
+                logger.finer("left = " + left);
+                logger.finer("begin = " + begin);                
+                if (begin == 0) {
+                    post_len = Math.min(140, left);
+                    end = begin + post_len;
+                } else {
+                    post_len = Math.min(140, left + CONT.length());
+                    end = begin + post_len - CONT.length();
+                }
+                String msg = whole_msg.substring(begin, end);
+                /*
+                 * 最初の投稿以外は必ず頭に「(cont)」をつける。
+                 */
+                if (begin != 0) {
+                    msg = CONT.concat(msg);
+                }
+                status = twitter.updateStatus(msg);                 
+                logger.finer("post_len = " + post_len);
+                logger.finer("msg.length() = " + msg.length());
+                logger.finest("Text: " + msg);
+                /*
+                 * 残りの文字列長(left)と次の読取位置(begin)を計算
+                 * 二回目以降は「(cont)」が着いているのでその分だけカウントを減らす。
+                 */
+                if (begin == 0) {
+                    // 最初
+                    left -= post_len; 
+                    begin += post_len;
+                } else {
+                    // 二回目以降
+                    left -= (post_len - CONT.length()); 
+                    begin += post_len - CONT.length();
+                }
+            }
             logger.fine("Status updated");
             /*
              * レスポンスヘッダをセット
