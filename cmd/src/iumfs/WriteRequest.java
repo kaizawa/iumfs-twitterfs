@@ -15,13 +15,9 @@
  */
 package iumfs;
 
-import java.io.IOException;
-import java.io.FileNotFoundException;
-import java.util.Locale;
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
-import twitter4j.auth.AccessToken;
 
 /**
  * <p>Write リクエストを表すクラス</p>
@@ -37,7 +33,7 @@ public class WriteRequest extends Request {
             long size = getSize();
             long filesize = 0;
             Status status;
-
+            
             if (getPathname().equals("/post") == false) {
                 setResponseHeader(ENOTSUP, 0);
                 return;
@@ -53,52 +49,18 @@ public class WriteRequest extends Request {
             int left = whole_msg.length();
             /*
              * 文字列を 140 文字づつステータスとしてポスト.
-             * 二回目以降のポストには「(cont)」という文字を先頭につけて
-             * つづきの文章であることを表す。
              */
-            int begin = 0;
-            int end = 0;
-            int post_len = 0;
-            while (left > 0) {
-                logger.finer("left = " + left);
-                logger.finer("begin = " + begin);                
-                if (begin == 0) {
-                    post_len = Math.min(140, left);
-                    end = begin + post_len;
-                } else {
-                    post_len = Math.min(140, left + CONT.length());
-                    end = begin + post_len - CONT.length();
-                }
-                String msg = whole_msg.substring(begin, end);
-                /*
-                 * 最初の投稿以外は必ず頭に「(cont)」をつける。
-                 */
-                if (begin != 0) {
-                    msg = CONT.concat(msg);
-                }
-                status = twitter.updateStatus(msg);                 
-                logger.finer("post_len = " + post_len);
-                logger.finer("msg.length() = " + msg.length());
+            MessageSeparator sep = new MessageSeparator(whole_msg);
+            while (sep.hasNext()) {
+                String msg = (String)sep.next();
+                status = twitter.updateStatus((String)sep.next());          
                 logger.finest("Text: " + msg);
-                /*
-                 * 残りの文字列長(left)と次の読取位置(begin)を計算
-                 * 二回目以降は「(cont)」が着いているのでその分だけカウントを減らす。
-                 */
-                if (begin == 0) {
-                    // 最初
-                    left -= post_len; 
-                    begin += post_len;
-                } else {
-                    // 二回目以降
-                    left -= (post_len - CONT.length()); 
-                    begin += post_len - CONT.length();
-                }
+                logger.fine("Status updated");
             }
-            logger.fine("Status updated");
             /*
              * レスポンスヘッダをセット
              */
-            setResponseHeader(SUCCESS, 0);
+            setResponseHeader(SUCCESS, 0);            
         } catch (TwitterException ex) {
             ex.printStackTrace();
             logger.fine("TwitterException when writing");
