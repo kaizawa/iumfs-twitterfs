@@ -31,7 +31,7 @@ public class MessageSeparator implements Iterator {
     int postlen = 0;    
     int left = 0;
     protected static Logger logger = Logger.getLogger(twitterfsd.class.getName());
-    private static final String CONT = "(cont) ";
+    private static final String CONT = "(contd) ";
 
     public MessageSeparator(String whole_msg) {
         this.whole_msg = whole_msg;
@@ -54,12 +54,12 @@ public class MessageSeparator implements Iterator {
         end = begin + msglen;        
         postlen = msglen + hdrlen;
         logger.finer("begin=" + begin + ",end=" + end );
-        String msg = whole_msg.substring(begin, end);
-        msg = begin == 0 ? msg : CONT.concat(msg);        
-        logger.finest(msg);
+        String str = whole_msg.substring(begin, end);
+        str = begin == 0 ? str : CONT.concat(str);        
+        logger.finest(str);
         begin += msglen;
         left -= msglen;
-        return msg;
+        return str;
     }
 
     @Override
