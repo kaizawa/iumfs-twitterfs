@@ -33,7 +33,6 @@ public class ReadRequest extends Request {
 
     /**
      * Twitter の TL を読み込み結果をレスポンスヘッダをセットする
-     * 未実装
      */
     @Override
     public void process() {

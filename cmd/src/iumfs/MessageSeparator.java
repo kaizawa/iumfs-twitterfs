@@ -28,7 +28,6 @@ public class MessageSeparator implements Iterator {
     private String whole_msg;
     int begin = 0;
     int end = 0;
-    int postlen = 0;    
     int left = 0;
     protected static Logger logger = Logger.getLogger(twitterfsd.class.getName());
     private static final String CONT = "(contd) ";
@@ -46,11 +45,19 @@ public class MessageSeparator implements Iterator {
             return false;
     }
 
+    /*
+     * Return next block of status mesasge.
+     * Length of returns string is less than equal to 140 charactors.
+     */
     @Override
     public Object next() {
+        int hdrlen; // Length of prefix(="contd"). zero if needless.
+        int msglen; // body part of message length.
+        int postlen;// total message length
+
         logger.finer("left=" + left);
-        int hdrlen = begin == 0 ? 0 : CONT.length();
-        int msglen = Math.min(140-hdrlen, left);
+        hdrlen = begin == 0 ? 0 : CONT.length();
+        msglen = Math.min(140-hdrlen, left);
         end = begin + msglen;        
         postlen = msglen + hdrlen;
         logger.finer("begin=" + begin + ",end=" + end );
