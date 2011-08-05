@@ -15,15 +15,8 @@
  */
 package iumfs;
 
-import twitter4j.Twitter;
-import twitter4j.TwitterFactory;
-import twitter4j.ResponseList;
-import twitter4j.Status;
-
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
-import twitter4j.Paging;
 import twitter4j.TwitterException;
 
 /**
