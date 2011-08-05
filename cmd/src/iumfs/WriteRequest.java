@@ -53,7 +53,7 @@ public class WriteRequest extends Request {
             MessageSeparator sep = new MessageSeparator(whole_msg);
             while (sep.hasNext()) {
                 String msg = (String)sep.next();
-                status = twitter.updateStatus((String)sep.next());          
+                status = twitter.updateStatus(msg);          
                 logger.finest("Text: " + msg);
                 logger.fine("Status updated");
             }
