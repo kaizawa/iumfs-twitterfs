@@ -20,8 +20,11 @@ import java.util.logging.Logger;
 import java.lang.Math;
 
 /**
- *
- * @author ka78231
+ * Separate long message (more than 140 char) into small chank(less than or
+ * equal to 140 char).
+ * 2nd and later chank has "(contd)" prefix which indicates that it is
+ * a part of continual messages.
+ * 
  */
 public class MessageSeparator implements Iterator {    
     private MessageSeparator(){}
@@ -46,7 +49,7 @@ public class MessageSeparator implements Iterator {
     }
 
     /*
-     * Return next block of status mesasge.
+     * Return next chank of mesasge.
      * Length of returns string is less than equal to 140 charactors.
      */
     @Override
