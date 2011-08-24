@@ -30,6 +30,7 @@ import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
 public class File {
+
     private String name;
     private boolean istimeline;
     private long file_size = 0;
@@ -42,8 +43,9 @@ public class File {
     private long atime; //最終アクセス時間 (msec)
     private long ctime; //変更時間(msec)
     private long mtime; //変更時間 (msec)
-    private long interval;
+    private long interval = 0L;
     private boolean initial_read = true;
+    private boolean stream_api = false; // Switch for use Stream API
 
     File(String name, boolean istimeline, long interval) {
         this.name = name;
@@ -52,7 +54,14 @@ public class File {
         init();
     }
 
-    private void init(){
+    File(String name, boolean istimeline, boolean stream_api) {
+        this.name = name;
+        this.istimeline = istimeline;
+        this.stream_api = stream_api;
+        init();
+    }
+
+    private void init() {
         /*
          * もしタイムラインファイルだったら最初に Twitter から読み込む。
          * (起点となる Status の ID(base_id) を得るため)
@@ -195,7 +204,7 @@ public class File {
      * @param status ステータス。
      * @return フォーマットされたテキスト
      */
-    public String statusToFormattedString(Status status) {
+    public static String statusToFormattedString(Status status) {
         /*
          * フォr-マットを追加。User 名や時間など。
          */
@@ -214,7 +223,7 @@ public class File {
         return sb.toString();
     }
 
-    public void getTimeline(){
+    public void getTimeline() {
         getTimeline(MAX_STATUSES, last_id);
     }
 
@@ -257,23 +266,23 @@ public class File {
         Twitter twitter = TWFactory.getInstance();
         try {
             String timeline = getName();
-            if(name.equals("home"))
+            if (name.equals("home")) {
                 statuses = twitter.getHomeTimeline(new Paging(page, count, since));
-            else if(name.equals("mentions"))
+            } else if (name.equals("mentions")) {
                 statuses = twitter.getMentions(new Paging(page, count, since));
-            else if(name.equals("public"))
+            } else if (name.equals("public")) {
                 statuses = twitter.getPublicTimeline();
-            else if(name.equals("friends"))
+            } else if (name.equals("friends")) {
                 statuses = twitter.getFriendsTimeline(new Paging(page, count, since));
-            else if(name.equals("retweeted_by_me"))
+            } else if (name.equals("retweeted_by_me")) {
                 statuses = twitter.getRetweetedByMe(new Paging(page, count, since));
-            else if(name.equals("user"))
+            } else if (name.equals("user")) {
                 statuses = twitter.getUserTimeline(new Paging(page, count, since));
-            else if(name.equals("retweeted_to_me"))
+            } else if (name.equals("retweeted_to_me")) {
                 statuses = twitter.getRetweetedToMe(new Paging(page, count, since));
-            else if(name.equals("retweets_of_me"))
+            } else if (name.equals("retweets_of_me")) {
                 statuses = twitter.getRetweetsOfMe(new Paging(page, count, since));
-            else {
+            } else {
                 logger.severe("Unknown timeline(\"" + name + "\") specified.");
                 System.exit(1);
             }
@@ -376,5 +385,43 @@ public class File {
      */
     public void setInterval(long interval) {
         this.interval = interval;
+    }
+
+    /**
+     * @return the stream_api
+     */
+    public boolean isStream_api() {
+        return stream_api;
+    }
+
+    /**
+     * @param stream_api the stream_api to set
+     */
+    public void setStream_api(boolean stream_api) {
+        this.stream_api = stream_api;
+    }
+
+    synchronized public void addStatusToList(Status status) {
+        try {
+            logger.finer("Read Status id=" + status.getId());
+            logger.finest(statusToFormattedString(status));
+            file_size += statusToFormattedString(status).getBytes("UTF-8").length;
+            status_list.add(status);
+            last_id = status.getId();            
+
+            logger.fine("new file_size is " + file_size);
+            java.util.Collections.sort(status_list);
+            /*
+             * TL が更新されているので mtime, ctime(更新時間)を変更する。
+             */
+            Date now = new Date();
+            setMtime(now.getTime());
+            setCtime(now.getTime());
+            return;
+        } catch (UnsupportedEncodingException ex) {
+            ex.printStackTrace();
+            System.exit(1);
+            return;
+        }
     }
 }
