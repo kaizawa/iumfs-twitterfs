@@ -43,11 +43,10 @@ public class TWFactory {
      * Return instance of Twitter class which has AccessToken been set.
      * @return twitter instance of Twitter class
      */
-    public static Twitter getInstance() {
-        AccessToken accessToken = getAccessToken();
+    public static Twitter getInstance() {        
         Twitter twitter = factory.getInstance();
         twitter.setOAuthConsumer(Prefs.get("OAuthConsumerKey"), Prefs.get("consumerSecret"));
-        twitter.setOAuthAccessToken(accessToken);
+        twitter.setOAuthAccessToken(getAccessToken());
         return twitter;
     }
 
