@@ -22,6 +22,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import twitter4j.DirectMessage;
 import twitter4j.ResponseList;
 import twitter4j.Status;
 import twitter4j.StatusDeletionNotice;
@@ -30,6 +31,9 @@ import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterStream;
 import twitter4j.TwitterStreamFactory;
+import twitter4j.User;
+import twitter4j.UserList;
+import twitter4j.UserStreamListener;
 
 /** 
  * User mode daemon for HDFS
@@ -77,7 +81,7 @@ public class twitterfsd {
     public void startAutoupdateThreads() {
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-        StatusListener listener = new StatusListener() {
+        StatusListener listener = new UserStreamListener() {
             @Override            
             public void onStatus(Status status) {
                 try {
@@ -96,11 +100,43 @@ public class twitterfsd {
             @Override
             public void onTrackLimitationNotice(int numberOfLimitedStatuses) {}
             @Override            
-            public void onException(Exception ex) {
-                ex.printStackTrace();
-            }
+            public void onException(Exception ex) {}
             @Override
             public void onScrubGeo(long l, long l1) {}
+            @Override
+            public void onDeletionNotice(long l, long l1) {}
+            @Override
+            public void onFriendList(long[] longs) {}
+            @Override
+            public void onFavorite(User user, User user1, Status status) {}
+            @Override
+            public void onUnfavorite(User user, User user1, Status status) {}
+            @Override
+            public void onFollow(User user, User user1) {}
+            @Override
+            public void onRetweet(User user, User user1, Status status) {}
+            @Override
+            public void onDirectMessage(DirectMessage dm) {}
+            @Override
+            public void onUserListMemberAddition(User user, User user1, UserList ul) {}
+            @Override
+            public void onUserListMemberDeletion(User user, User user1, UserList ul) {}
+            @Override
+            public void onUserListSubscription(User user, User user1, UserList ul) {}
+            @Override
+            public void onUserListUnsubscription(User user, User user1, UserList ul) {}
+            @Override
+            public void onUserListCreation(User user, UserList ul) {}
+            @Override
+            public void onUserListUpdate(User user, UserList ul) {}
+            @Override
+            public void onUserListDeletion(User user, UserList ul) {}
+            @Override
+            public void onUserProfileUpdate(User user) {}
+            @Override
+            public void onBlock(User user, User user1) {}
+            @Override
+            public void onUnblock(User user, User user1) {}
         };
 
         /*
@@ -117,7 +153,7 @@ public class twitterfsd {
                     twitterStream.setOAuthConsumer(Prefs.get("OAuthConsumerKey"), Prefs.get("consumerSecret"));                                        
                     twitterStream.setOAuthAccessToken(TWFactory.getAccessToken());
                     twitterStream.addListener(listener);
-                    twitterStream.sample();                    
+                    twitterStream.user();                    
                 } else {
                     /*
                      * 定期的に取得
