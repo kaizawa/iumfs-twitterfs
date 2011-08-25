@@ -104,6 +104,9 @@ public class File {
      * Twitter から指定オフセットから指定バイト数分だけのステータス情報を得る。
      * オフセットの起点はデーモン起動時に取得した一番古いステータス
      * 
+     * list が更新されているときに読み込まれないよう synchronized にしている。
+     * TODO: CopyOnWriteArrayListを使えばいいが、単純には sort ができなくので後で検討
+     * 
      * @param buf
      * @param size
      * @param offset
@@ -112,7 +115,7 @@ public class File {
      * @throws UnsupportedEncodingException 
      */
     @SuppressWarnings("LoggerStringConcat")
-    public long read(ByteBuffer buf, long size, long offset)
+    public synchronized long read(ByteBuffer buf, long size, long offset)
             throws TwitterException, UnsupportedEncodingException {
         long curr_size = 0;
         long curr_offset = 0;
