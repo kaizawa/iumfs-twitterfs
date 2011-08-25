@@ -113,7 +113,7 @@ public class twitterfsd {
                      * Stream API (現在は HOME のみ)
                      * TwitterStream.sample() の中でスレッドが生成される
                      */
-                    TwitterStream twitterStream = new TwitterStreamFactory().getInstance();
+                    TwitterStream twitterStream = new TwitterStreamFactory().getInstance(TWFactory.getAccessToken());
                     twitterStream.addListener(listener);
                     twitterStream.sample();                    
                 } else {

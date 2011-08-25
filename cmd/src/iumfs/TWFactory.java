@@ -44,21 +44,14 @@ public class TWFactory {
      * @return twitter instance of Twitter class
      */
     public static Twitter getInstance() {
-
-        if (Prefs.get("accessToken").isEmpty()) {
-            getAccessToken();
-        }
-        logger.finest("Token&Secret: " +  Prefs.get("accessToken") + " " + Prefs.get("accessTokenSecret"));
-        logger.finest("OauthConsum&Secret: " + Prefs.get("OAuthConsumerKey") + " " +  Prefs.get("consumerSecret"));
-        
-        AccessToken accessToken = new AccessToken(Prefs.get("accessToken"), Prefs.get("accessTokenSecret"));
+        AccessToken accessToken = getAccessToken();
         Twitter twitter = factory.getInstance();
         twitter.setOAuthConsumer(Prefs.get("OAuthConsumerKey"), Prefs.get("consumerSecret"));
         twitter.setOAuthAccessToken(accessToken);
         return twitter;
     }
 
-    public static void getAccessToken() {
+    public static void retrieveAccessToken() {
         AccessToken accessToken = null;
         Twitter twitter = factory.getInstance();
         twitter.setOAuthConsumer(Prefs.get("OAuthConsumerKey"), Prefs.get("consumerSecret"));
@@ -92,5 +85,17 @@ public class TWFactory {
         }
         Prefs.put("accessToken", accessToken.getToken());
         Prefs.put("accessTokenSecret", accessToken.getTokenSecret());
+    }
+    
+    public static AccessToken getAccessToken(){
+        AccessToken accessToken = null;
+        if (Prefs.get("accessToken").isEmpty()) {
+            retrieveAccessToken();
+        }
+        logger.finest("Token&Secret: " +  Prefs.get("accessToken") + " " + Prefs.get("accessTokenSecret"));
+        logger.finest("OauthConsum&Secret: " + Prefs.get("OAuthConsumerKey") + " " +  Prefs.get("consumerSecret"));
+        
+        accessToken = new AccessToken(Prefs.get("accessToken"), Prefs.get("accessTokenSecret"));        
+        return accessToken;
     }
 }
