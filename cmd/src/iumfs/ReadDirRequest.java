@@ -15,16 +15,16 @@
  */
 package iumfs;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Collection;
 
 /**
  *  READDIR リクエストを表すクラス
  */
-class ReadDirRequest extends Request {
+public abstract class ReadDirRequest extends Request {
 
     /**
-     * <p>twitterfs 上の仮想ディレクトリエントリを読み込み、結果をレスポンス
+     * <p>仮想ディレクトリエントリを読み込み、結果をレスポンス
      * ヘッダをセットする</p>
      */
     @Override
@@ -36,8 +36,8 @@ class ReadDirRequest extends Request {
              */
             wbbuf.position(Request.RESPONSE_HEADER_SIZE);
 
-            for (File file : twitterfsd.fileMap.values()) {
-                int namelen = file.getName().getBytes("UTF-8").length;
+            for (File f : getFileList()) {
+                int namelen = f.getName().getBytes("UTF-8").length;
                 namelen++; // null terminate 用。
 
                 /*
@@ -50,9 +50,9 @@ class ReadDirRequest extends Request {
                  * } iumfs_dirent_t; *
                  */
                 int reclen = (8 + 1 + (namelen) + 7) & ~7;
-                logger.finer("name=" + file.getName() + ",namelen=" + namelen + ",reclen=" + reclen);
+//                logger.finer("name=" + file.getName() + ",namelen=" + namelen + ",reclen=" + reclen);
                 wbbuf.putLong(reclen);
-                for (byte b : file.getName().getBytes("UTF-8")) {
+                for (byte b : f.getName().getBytes("UTF-8")) {
                     wbbuf.put(b);
                 }
                 wbbuf.put((byte) 0); // null terminate           
@@ -64,7 +64,7 @@ class ReadDirRequest extends Request {
             /*
              * レスポンスヘッダをセット
              */
-            setResponseHeader(SUCCESS, wbbuf.position() - Request.RESPONSE_HEADER_SIZE);
+            setResponseHeader(SUCCESS, wbbuf.position() - RESPONSE_HEADER_SIZE);
         } catch (UnsupportedEncodingException ex) {
             ex.printStackTrace();
             System.exit(1);
@@ -77,5 +77,7 @@ class ReadDirRequest extends Request {
             setResponseHeader(EIO, 0);
             return;
         }
-    }
+    }        
+    
+    abstract public Collection<File> getFileList();
 }

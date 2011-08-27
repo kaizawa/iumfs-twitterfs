@@ -15,21 +15,15 @@
  */
 package iumfs;
 
-import java.io.IOException;
-import java.util.logging.Logger;
-
 /**
  * <p>MKDIR リクエストを表すクラス</p>
  */
-class MkdirRequest extends Request{
+public abstract class MkdirRequest extends Request{
     /**
-     * <p>TWITTERFS 上にディレクトリを作成する。未サポート</p>
+     * <p>ディレクトリを作成する。未サポート</p>
      */
     @Override
     public void process() {
-        /*
-         * サポートしていない
-         */
         setResponseHeader(ENOTSUP, 0);        
     }
 }

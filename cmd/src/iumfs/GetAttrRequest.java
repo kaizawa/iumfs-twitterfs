@@ -15,22 +15,14 @@
  */
 package iumfs;
 
-import java.io.UnsupportedEncodingException;
-import java.util.*;
-import java.util.logging.Logger;
-import twitter4j.Paging;
-import twitter4j.ResponseList;
-import twitter4j.Status;
-import twitter4j.Twitter;
-import twitter4j.TwitterException;
+import java.util.Date;
 
 /**
  *  GETATTR リクエストを表すクラス
  */
-class GetAttrRequest extends Request {
+public abstract class GetAttrRequest extends Request {
 
     final public static int ATTR_DATA_LEN = 72; // long x 9 フィールド
-    File file = null;
     private static final long start_time = new Date().getTime();
 
     /**
@@ -43,7 +35,7 @@ class GetAttrRequest extends Request {
             /*
              * 対応した File オブジェクトを得る。
              */
-            file = twitterfsd.fileMap.get(getPathname());
+            file = getFile(getPathname());
 
             if (file == null && isDir() == false) {
                 /*

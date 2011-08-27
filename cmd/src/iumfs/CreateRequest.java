@@ -18,21 +18,18 @@ package iumfs;
 
 import java.io.IOException;
 import java.util.logging.Logger;
-import iumfs.*;
-import iumfs.Request;
 
 /**
  * <p>CREATE リクエストを表すクラス<br>
  * 未サポート.
  * </p>
  */
-class CreateRequest extends Request {
+public abstract class CreateRequest extends Request {
     /**
      * <p>FileSystem.create を実行する</p>
      * <p>
      * </p>
      */
-    @Override
     public void process() {
         setResponseHeader(ENOTSUP, 0);         
     }
