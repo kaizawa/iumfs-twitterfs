@@ -15,16 +15,13 @@
  */
 package iumfs;
 
-import java.io.IOException;
-
 /**
  *  RMDIRリクエストを表すクラス
  */
-class RmdirRequest extends Request {
+public abstract class RmdirRequest extends Request {
 
     /**
      * ディレクトリを削除する。
-     * 未サポート
      */
     @Override
     public void process() {

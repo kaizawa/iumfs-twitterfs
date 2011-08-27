@@ -15,56 +15,27 @@
  */
 package iumfs;
 
-import twitter4j.Status;
-import twitter4j.Twitter;
-import twitter4j.TwitterException;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * <p>Write リクエストを表すクラス</p>
  */
-public class WriteRequest extends Request {
+public abstract class WriteRequest extends Request {
 
     private static final String CONT = "(cont) ";
 
     @Override
     public void process() {
         try {
-            long offset = getOffset();
-            long size = getSize();
-            long filesize = 0;
-            Status status;
             
-            if (getPathname().equals("/post") == false) {
-                setResponseHeader(ENOTSUP, 0);
-                return;
-            }
+            File file = getFile(getPathname());
+            file.write(getData(), getSize(), getOffset());
 
-            /*
-             * ファイルとして書かれた文字列を得る。
-             */
-            Twitter twitter = TWFactory.getInstance();
-            String whole_msg = new String(getData(0, size));
-            logger.finer("Orig Text:" + whole_msg);
-            logger.finest("whole_msg.length() = " + whole_msg.length());
-            int left = whole_msg.length();
-            /*
-             * 文字列を 140 文字づつステータスとしてポスト.
-             */
-            MessageSeparator sep = new MessageSeparator(whole_msg);
-            while (sep.hasNext()) {
-                String msg = (String)sep.next();
-                status = twitter.updateStatus(msg);          
-                logger.finest("Text: " + msg);
-                logger.fine("Status updated");
-            }
             /*
              * レスポンスヘッダをセット
              */
             setResponseHeader(SUCCESS, 0);            
-        } catch (TwitterException ex) {
-            ex.printStackTrace();
-            logger.fine("TwitterException when writing");
-            setResponseHeader(EEXIST, 0);
             return;
         } catch (RuntimeException ex) {
             /*
@@ -74,6 +45,14 @@ public class WriteRequest extends Request {
             ex.printStackTrace();
             setResponseHeader(EIO, 0);
             return;
-        }
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+            setResponseHeader(ENOENT, 0);
+            return;
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            setResponseHeader(EIO, 0);
+            return;
+        }        
     }
 }

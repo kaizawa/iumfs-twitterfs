@@ -18,19 +18,23 @@ package iumfs;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.CharBuffer;
 import java.util.logging.Logger;
 
 /**
- * <p>デバイスドライバから受け取った データを元に、適切なリクエストクラスの
- * インスタンスを返すファクトリ</p>
+ * <p>
+ * デバイスドライバから受け取った データを元に、適切なリクエストクラスの
+ * インスタンスを返すファクトリの抽象クラス。実装はファイルシステム毎に行う。
+ * </p>
  * TODO: Instance をプールしておいて、効率的に利用する
  */
-public class RequestFactory {
+public abstract class RequestFactory {
 
-    private static Logger logger = Logger.getLogger(twitterfsd.class.getName());
+//    private static Logger logger = Logger.getLogger(Main.class.getName());
+    
+    protected RequestFactory(){};
+    
 
-    public static Request getInstance(ByteBuffer buf) {
+    public Request getInstance(ByteBuffer buf) {
         /*
          * デバイスドライバ から デーモンに渡されるリクエスト構造体
          *  8+1184+1024+8+8+8=2240 bytes
@@ -72,7 +76,7 @@ public class RequestFactory {
 
         try {
             buf.rewind();
-            logger.finer("Buf info pos=" + buf.position() + " limit=" + buf.limit());
+//            logger.finer("Buf info pos=" + buf.position() + " limit=" + buf.limit());
             /*
              * 元構造体の ByteBuffer から、各メンバの値を取り出す
              */
@@ -86,44 +90,9 @@ public class RequestFactory {
             buf.get(server);
             buf.get(user);
             buf.get(pass);
-
-            logger.finer("request_type=" + request_type + ", size=" + size + ", offset=" + offset + ", datasize=" + datasize);
-            logger.finer("pathname=" + (new String(pathname)).trim() + ", basename=" + (new String(basepath)).trim());
-
-            /*
-             *  TODO: リクエストによって確保する Buffer のサイズを可変にしてもいいかも..
-             *  そうすると使いまわしはできなくなるが？
-             */
-            switch ((int) request_type) {
-                case Request.READ_REQUEST:
-                    req = new ReadRequest();
-                    break;
-                case Request.READDIR_REQUEST:
-                    req = new ReadDirRequest();
-                    break;
-                case Request.GETATTR_REQUEST:
-                    req = new GetAttrRequest();
-                    break;
-                case Request.WRITE_REQUEST:
-                    req = new WriteRequest();
-                    break;
-                 case Request.CREATE_REQUEST:
-                    req = new CreateRequest();
-                    break;
-                 case Request.REMOVE_REQUEST:
-                    req = new RemoveRequest();
-                    break;
-                 case Request.MKDIR_REQUEST:
-                    req = new MkdirRequest();
-                    break;
-                 case Request.RMDIR_REQUEST:
-                    req = new RmdirRequest();
-                    break;
-                default:
-                    logger.warning("Unknown request: " + request_type);
-                    throw new UnknownRequestException();
-            }
-            logger.finer("ByteOrder=" + ByteOrder.nativeOrder());
+            req = createInstance(request_type);
+            
+//            logger.finer("ByteOrder=" + ByteOrder.nativeOrder());
             req.setByteOrder(ByteOrder.nativeOrder());
             req.setOffset(offset);
             req.setPathname((new String(pathname)).trim()); // 後ろの空白文字を削除
@@ -141,7 +110,7 @@ public class RequestFactory {
                 buf.get(data);
                 req.setData(data);
             }
-            logger.finer("request type=" + req.getClass().getName());            
+//            logger.finer("request type=" + req.getClass().getName());            
             return req;
         } catch (BufferUnderflowException ex) {
             ex.printStackTrace();
@@ -152,6 +121,8 @@ public class RequestFactory {
         }
         return null;
     }
+
+    protected abstract Request createInstance(long request_type);
 }
 
 

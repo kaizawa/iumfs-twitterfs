@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Kazuyoshi Aizawa
+ * Copyright 2011 Kazuyoshi Aizawa
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package iumfs;
+package iumfs.twitterfs;
+
+import iumfs.File;
+import iumfs.RmdirRequest;
 
 /**
- * <p>MKDIR リクエストを表すクラス</p>
+ *  RMDIRリクエストを表すクラス
  */
-public abstract class MkdirRequest extends Request{
-    /**
-     * <p>ディレクトリを作成する。未サポート</p>
-     */
+class TwitterfsRmdirRequest extends RmdirRequest {
     @Override
-    public void process() {
-        setResponseHeader(ENOTSUP, 0);        
+    public File getFile(String pathName) {
+        return Main.fileMap.get(pathName);
     }
 }

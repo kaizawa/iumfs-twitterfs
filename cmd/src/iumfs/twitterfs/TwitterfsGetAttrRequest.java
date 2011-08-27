@@ -13,16 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package iumfs;
+package iumfs.twitterfs;
 
-import java.util.Date;
+import iumfs.File;
+import iumfs.GetAttrRequest;
+import java.util.*;
 
 /**
  *  GETATTR リクエストを表すクラス
  */
-public abstract class GetAttrRequest extends Request {
+class TwitterfsGetAttrRequest extends GetAttrRequest {
 
     final public static int ATTR_DATA_LEN = 72; // long x 9 フィールド
+    File file = null;
     private static final long start_time = new Date().getTime();
 
     /**
@@ -35,7 +38,7 @@ public abstract class GetAttrRequest extends Request {
             /*
              * 対応した File オブジェクトを得る。
              */
-            file = getFile(getPathname());
+            file = Main.fileMap.get(getPathname());
 
             if (file == null && isDir() == false) {
                 /*
@@ -49,7 +52,7 @@ public abstract class GetAttrRequest extends Request {
             /*
              * レスポンスヘッダをセット
              */
-            setResponseHeader(0, GetAttrRequest.ATTR_DATA_LEN);
+            setResponseHeader(0, TwitterfsGetAttrRequest.ATTR_DATA_LEN);
 
             /*
              * ファイル属性をバッファにセット
@@ -103,9 +106,9 @@ public abstract class GetAttrRequest extends Request {
      */
     private long getFileType() {
         if (isDir()) {
-            return Request.VDIR;
+            return TwitterfsRequest.VDIR;
         } else {
-            return Request.VREG;
+            return TwitterfsRequest.VREG;
         }
     }
 
@@ -144,5 +147,10 @@ public abstract class GetAttrRequest extends Request {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public File getFile(String pathName) {
+        return Main.fileMap.get(pathName);
     }
 }

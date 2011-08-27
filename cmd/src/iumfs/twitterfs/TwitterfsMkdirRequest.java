@@ -13,17 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package iumfs;
+package iumfs.twitterfs;
+
+import iumfs.File;
+import java.io.IOException;
+import java.util.logging.Logger;
+import iumfs.MkdirRequest;
 
 /**
  * <p>MKDIR リクエストを表すクラス</p>
  */
-public abstract class MkdirRequest extends Request{
+class TwitterfsMkdirRequest extends MkdirRequest{
     /**
-     * <p>ディレクトリを作成する。未サポート</p>
+     * <p>TWITTERFS 上にディレクトリを作成する。未サポート</p>
      */
     @Override
     public void process() {
+        /*
+         * サポートしていない
+         */
         setResponseHeader(ENOTSUP, 0);        
+    }
+
+    @Override
+    public File getFile(String pathName) {
+        return Main.fileMap.get(pathName);
     }
 }

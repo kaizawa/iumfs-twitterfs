@@ -1,4 +1,4 @@
-package iumfs;
+package iumfs.twitterfs;
 
 import java.util.logging.Formatter;
 import java.util.Calendar;

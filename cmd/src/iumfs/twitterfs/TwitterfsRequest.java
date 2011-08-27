@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Kazuyoshi Aizawa
+ * Copyright 2011 Kazuyoshi Aizawa
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package iumfs;
+package iumfs.twitterfs;
+
+import iumfs.File;
+import iumfs.Request;
+import java.util.logging.Logger;
 
 /**
- * <p>MKDIR リクエストを表すクラス</p>
+ * iumfs のコントロールデバイスドライバから渡されるリクエスト
+ * （READ/READDIR/GETATTR/MKDIR/RMDIR/DELETE/CREATE)を表現
+ * したクラス。
  */
-public abstract class MkdirRequest extends Request{
-    /**
-     * <p>ディレクトリを作成する。未サポート</p>
-     */
-    @Override
-    public void process() {
-        setResponseHeader(ENOTSUP, 0);        
-    }
+public abstract class TwitterfsRequest extends Request{
+
+    protected static Logger logger = Logger.getLogger(Main.class.getName());
 }

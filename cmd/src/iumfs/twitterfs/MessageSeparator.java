@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package iumfs;
+package iumfs.twitterfs;
 
 import java.util.Iterator;
 import java.util.logging.Logger;
@@ -32,7 +32,7 @@ public class MessageSeparator implements Iterator {
     int begin = 0;
     int end = 0;
     int left = 0;
-    protected static Logger logger = Logger.getLogger(twitterfsd.class.getName());
+    protected static Logger logger = Logger.getLogger(Main.class.getName());
     private static final String CONT = "(contd) ";
 
     public MessageSeparator(String whole_msg) {
