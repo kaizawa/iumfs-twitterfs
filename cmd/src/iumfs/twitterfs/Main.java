@@ -49,6 +49,7 @@ public class Main {
         fileMap.put("/user", new TwitterfsFile("user", true, 300000));
         fileMap.put("/retweeted_to_me", new TwitterfsFile("retweeted_to_me", true, 600000));
         fileMap.put("/retweets_of_me", new TwitterfsFile("retweets_of_me", true, 600000));
+        fileMap.put("/", new TwitterfsFile("", true));
     }
 
     public void startDaemonThreads() {

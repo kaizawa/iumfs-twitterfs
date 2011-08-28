@@ -35,7 +35,7 @@ public abstract class ReadDirRequest extends Request {
              * ヘッダはデータ長がわかってから改めてセットする
              */
             wbbuf.position(Request.RESPONSE_HEADER_SIZE);
-
+            
             for (File f : getFileList()) {
                 int namelen = f.getName().getBytes("UTF-8").length;
                 namelen++; // null terminate 用。
@@ -50,7 +50,7 @@ public abstract class ReadDirRequest extends Request {
                  * } iumfs_dirent_t; *
                  */
                 int reclen = (8 + 1 + (namelen) + 7) & ~7;
-//                logger.finer("name=" + file.getName() + ",namelen=" + namelen + ",reclen=" + reclen);
+                logger.finer("name=" + file.getName() + ",namelen=" + namelen + ",reclen=" + reclen);
                 wbbuf.putLong(reclen);
                 for (byte b : f.getName().getBytes("UTF-8")) {
                     wbbuf.put(b);

@@ -38,7 +38,7 @@ public abstract class ReadRequest extends Request {
             long offset = getOffset(); // ファイルシステムから要求されたファイルオフセット
             long size = getSize(); // ファイルシステムから要求されたサイズ
 
-//            logger.fine("offset = " + offset + " size = " + size);
+            logger.fine("offset = " + offset + " size = " + size);
 
             File file = getFile(getPathname());
             if (file == null) {
@@ -53,7 +53,7 @@ public abstract class ReadRequest extends Request {
             read_size = file.read(wbbuf, getSize(), getOffset());
             //最終アクセス時間を変更
             file.setAtime(new Date().getTime());
-//            logger.fine("read_size = " + read_size);
+            logger.fine("read_size = " + read_size);
             /*
              * レスポンスヘッダをセット
              */

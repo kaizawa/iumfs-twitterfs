@@ -117,4 +117,20 @@ abstract public class File {
     public void setMtime(long mtime) {
         this.mtime = mtime;
     }
+    
+    /**
+     * Get filetype like VDIR, VREG
+     * @return filetype
+     */
+    abstract public long getFileType();
+    /**
+     * Get prmission of this file
+     * @return permission
+     */
+    abstract public long getPermission();
+    /**
+     * Check if this file represents directory.
+     * @return 
+     */
+    abstract public boolean isDir(); 
 }

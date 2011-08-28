@@ -69,6 +69,7 @@ public abstract class Request {
     private long dataoffset;
     private byte[] data;
     private long flags;
+    protected static Logger logger = Logger.getLogger("iumfs");
     
     protected File file;
 

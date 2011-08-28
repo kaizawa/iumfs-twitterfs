@@ -29,7 +29,7 @@ import java.util.logging.Logger;
  */
 public abstract class RequestFactory {
 
-//    private static Logger logger = Logger.getLogger(Main.class.getName());
+    private static Logger logger = Logger.getLogger("iumfs");
     
     protected RequestFactory(){};
     
@@ -76,7 +76,7 @@ public abstract class RequestFactory {
 
         try {
             buf.rewind();
-//            logger.finer("Buf info pos=" + buf.position() + " limit=" + buf.limit());
+            logger.finer("Buf info pos=" + buf.position() + " limit=" + buf.limit());
             /*
              * 元構造体の ByteBuffer から、各メンバの値を取り出す
              */
@@ -90,9 +90,13 @@ public abstract class RequestFactory {
             buf.get(server);
             buf.get(user);
             buf.get(pass);
-            req = createInstance(request_type);
             
-//            logger.finer("ByteOrder=" + ByteOrder.nativeOrder());
+            logger.finer("request_type=" + request_type + ", size=" + size + ", offset=" + offset + ", datasize=" + datasize);
+            logger.finer("pathname=" + (new String(pathname)).trim() + ", basename=" + (new String(basepath)).trim());
+            logger.finest("ByteOrder=" + ByteOrder.nativeOrder());
+            
+            req = createInstance(request_type);
+
             req.setByteOrder(ByteOrder.nativeOrder());
             req.setOffset(offset);
             req.setPathname((new String(pathname)).trim()); // 後ろの空白文字を削除
@@ -110,7 +114,7 @@ public abstract class RequestFactory {
                 buf.get(data);
                 req.setData(data);
             }
-//            logger.finer("request type=" + req.getClass().getName());            
+            logger.finer("new Request class=" + req.getClass().getName());            
             return req;
         } catch (BufferUnderflowException ex) {
             ex.printStackTrace();
@@ -122,6 +126,9 @@ public abstract class RequestFactory {
         return null;
     }
 
+    /** 
+     * Create FS dependent Request class.
+     */
     protected abstract Request createInstance(long request_type);
 }
 

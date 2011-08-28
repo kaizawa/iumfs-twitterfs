@@ -17,6 +17,7 @@ package iumfs.twitterfs;
 
 import iumfs.File;
 import iumfs.NotSupportedException;
+import iumfs.Request;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -47,7 +48,7 @@ import twitter4j.UserStreamListener;
 public class TwitterfsFile extends File {
 
     private static final String CONT = "(cont) ";
-    private boolean istimeline;
+    private boolean is_timeline;
     private long last_id = 0;
     private long base_id = 0;
     protected static final Logger logger = Logger.getLogger(Main.class.getName());
@@ -57,17 +58,34 @@ public class TwitterfsFile extends File {
     private long interval = 0L;
     private boolean initial_read = true;
     private boolean stream_api = false; // Switch for use Stream API
-
-    TwitterfsFile(String name, boolean istimeline, long interval) {
+    
+    TwitterfsFile(String name, boolean istimeline){
         super(name);
-        this.istimeline = istimeline;
+        init();
+    }
+    
+    /**
+     * Constractor for normal timeline file
+     * @param name
+     * @param istimeline
+     * @param interval 
+     */
+    TwitterfsFile(String name, boolean is_timeline, long interval) {
+        super(name);
+        this.is_timeline = is_timeline;
         this.interval = interval;
         init();
     }
 
-    TwitterfsFile(String name, boolean istimeline, boolean stream_api) {
+    /**
+     * Constractor for timile file which will use Stream API
+     * @param name
+     * @param istimeline
+     * @param stream_api 
+     */
+    TwitterfsFile(String name, boolean is_timeline, boolean stream_api) {
         super(name);
-        this.istimeline = istimeline;
+        this.is_timeline = is_timeline;
         this.stream_api = stream_api;
         init();
         startAutoUpdateThreads();
@@ -78,7 +96,7 @@ public class TwitterfsFile extends File {
          * もしタイムラインファイルだったら最初に Twitter から読み込む。
          * (起点となる Status の ID(base_id) を得るため)
          */
-        if (isTimeline()) {
+        if (isTimeline() && ! isStream_api()) {
             /*
              * 最初の読み込み. 1ページ分(最大20件)だけうけとる。
              */
@@ -98,7 +116,7 @@ public class TwitterfsFile extends File {
             @Override
             public void onStatus(Status status) {
                 try {
-                    logger.finer("Read Status id=" + status.getId());
+                    logger.log(Level.FINER, "Read Status id={0}", status.getId());
                     logger.finest(TwitterfsFile.statusToFormattedString(status));
                     setFileSize(getFileSize() + TwitterfsFile.statusToFormattedString(status).getBytes("UTF-8").length);
                     addStatusToList(status);
@@ -184,7 +202,7 @@ public class TwitterfsFile extends File {
     }
 
     public boolean isTimeline() {
-        return istimeline;
+        return is_timeline;
     }
 
     public long getFileSize() {
@@ -241,7 +259,7 @@ public class TwitterfsFile extends File {
                 long status_length = bytes.length;
                 rel_offset = 0;
 
-                logger.finer("Read status_list id=" + status.getId() + " status_length = " + status_length);
+                logger.log(Level.FINER, "Read status_list id={0} status_length = {1}", new Object[]{status.getId(), status_length});
                 logger.finest(str);
 
                 // 以前のオフセットにステータスの文字数を足して現在のオフセットと考える。
@@ -525,6 +543,43 @@ public class TwitterfsFile extends File {
              * なんにしてもちゃんとエラーで返すことが大事。
              */
             throw new IOException();
+        }
+    }
+    
+    /*
+     * ファイルタイプを返す。
+     * ファイル名で判定し、'/', ',', '..' だったらディレクトリとみなし
+     * それ以外は通常ファイルとみなす。
+     */
+    public long getFileType() {
+        if (isDir()) {
+            return Request.VDIR;
+        } else {
+            return Request.VREG;
+        }
+    }
+
+
+    public long getPermission() {
+        if (isDir()) {
+            return (long) 0040755; //directory
+        } else {
+            return (long) 0100644; // regular file
+        }
+    }
+
+    /**
+     * リクエストされているディレクトリエントリがディレクトリであるかどうかを判定する。
+     * 名前が . 、..、もしくは / だったらディレクトリ。
+     * @return true if file is directory.
+     */
+    public boolean isDir() {
+        if (getPathname().equals("/") == true
+                || getPathname().equals(".") == true
+                || getPathname().equals("..") == true) {
+            return true;
+        } else {
+            return false;
         }
     }
 }

@@ -16,9 +16,6 @@
 
 package iumfs;
 
-import java.io.IOException;
-import java.util.logging.Logger;
-
 /**
  * <p>CREATE リクエストを表すクラス<br>
  * 未サポート.
