@@ -23,7 +23,7 @@ import java.util.Date;
 
 abstract public class File {
     private String name;
-    private long file_size = 0;
+    protected long file_size = 0;
     private long atime; // Last access time (msec)
     private long ctime; // Modify time(csec)
     private long mtime; // Modify time(msec)
