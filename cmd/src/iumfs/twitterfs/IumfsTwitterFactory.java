@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package iumfs;
+package iumfs.twitterfs;
 
 import java.awt.Desktop;
 import java.io.BufferedReader;
@@ -33,9 +33,9 @@ import twitter4j.auth.RequestToken;
 /**
  * factory class for Twitter
  */
-public class TWFactory {
+public class IumfsTwitterFactory {
 
-    private static Logger logger = Logger.getLogger(twitterfsd.class.getName());
+    private static Logger logger = Logger.getLogger(Main.class.getName());
     
     static TwitterFactory factory = new TwitterFactory();
 
@@ -78,9 +78,9 @@ public class TWFactory {
                 }
             }
         } catch (IOException ex) {
-            Logger.getLogger(TWFactory.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(IumfsTwitterFactory.class.getName()).log(Level.SEVERE, null, ex);
         } catch (TwitterException ex) {
-            Logger.getLogger(TWFactory.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(IumfsTwitterFactory.class.getName()).log(Level.SEVERE, null, ex);
         }
         Prefs.put("accessToken", accessToken.getToken());
         Prefs.put("accessTokenSecret", accessToken.getTokenSecret());

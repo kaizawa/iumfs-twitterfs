@@ -15,7 +15,6 @@
  */
 package iumfs;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.logging.Level;
@@ -28,7 +27,6 @@ import java.util.Arrays;
  * したクラス。
  */
 public abstract class Request {
-
     final public static int MAX_USER_LEN = 40; // 必ず 8 の倍数
     final public static int MAX_PASS_LEN = 40; // 必ず 8 の倍数
     final public static int MAX_SERVER_LEN = 80; // 必ず 8 の倍数
@@ -48,11 +46,6 @@ public abstract class Request {
     final public static int VDIR = 2; // ディレクトリ
     final public static int RESPONSE_HEADER_SIZE = 24; // long x 3 フィールド
     final public static int REQUEST_HEADER_SIZE = 2248; // iumfs.h より
-
-    /*
-     * ログ
-     */
-    protected static Logger logger = Logger.getLogger(twitterfsd.class.getName());
 
     /*
      * 制御デバイスに返すステータス
@@ -76,6 +69,9 @@ public abstract class Request {
     private long dataoffset;
     private byte[] data;
     private long flags;
+    protected static Logger logger = Logger.getLogger("iumfs");
+    
+    protected File file;
 
     public long getFlags() {
         return flags;
@@ -144,7 +140,6 @@ public abstract class Request {
     public String getFullPath() {
         if (fullPath == null) {
             fullPath = getBasepath() + getPathname();
-            logger.finer("FullPath = " + fullPath);
         }
         return fullPath;
     }
@@ -197,7 +192,7 @@ public abstract class Request {
      * @return buffer new array start from given position.
      */ 
     public byte[] getData(long from, long to) {
-        logger.log(Level.FINER, "from={0}to={1}", new Object[]{from, to});        
         return Arrays.copyOfRange(data, (int)from, (int)to);
     }
+    abstract public File getFile(String pathName);    
 }

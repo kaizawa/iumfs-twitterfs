@@ -15,22 +15,16 @@
  */
 package iumfs;
 
-import java.io.UnsupportedEncodingException;
-import java.util.*;
-import java.util.logging.Logger;
-import twitter4j.Paging;
-import twitter4j.ResponseList;
-import twitter4j.Status;
-import twitter4j.Twitter;
-import twitter4j.TwitterException;
+import java.util.Date;
+import java.util.logging.Level;
+import javax.imageio.stream.FileCacheImageInputStream;
 
 /**
  *  GETATTR リクエストを表すクラス
  */
-class GetAttrRequest extends Request {
+public abstract class GetAttrRequest extends Request {
 
     final public static int ATTR_DATA_LEN = 72; // long x 9 フィールド
-    File file = null;
     private static final long start_time = new Date().getTime();
 
     /**
@@ -43,9 +37,9 @@ class GetAttrRequest extends Request {
             /*
              * 対応した File オブジェクトを得る。
              */
-            file = twitterfsd.fileMap.get(getPathname());
+            file = getFile(getPathname());
 
-            if (file == null && isDir() == false) {
+            if (file == null && file.isDir() == false) {
                 /*
                  * 既知のファイル名でなく、ディレクトリでもない。
                  * 不明なファイルの要求。ENOENT を返す。
@@ -75,9 +69,9 @@ class GetAttrRequest extends Request {
              * } iumfs_vattr_t;
              */
             Date now = new Date();
-            wbbuf.putLong(getPermission());
-            wbbuf.putLong(getFileSize());
-            wbbuf.putLong(getFileType());
+            wbbuf.putLong(file.getPermission());
+            wbbuf.putLong(file.getFileSize());
+            wbbuf.putLong(file.getFileType());
             if (file == null) {
                 wbbuf.putLong(start_time / 1000);
                 wbbuf.putLong((start_time % 1000) * 1000);
@@ -93,6 +87,8 @@ class GetAttrRequest extends Request {
                 wbbuf.putLong(file.getCtime() / 1000);
                 wbbuf.putLong((file.getCtime() % 1000) * 1000);
             }
+            logger.finer("Permission=" + file.getPermission() + " ,FileSize=" + file.getFileSize() + ", FileType=" + file.getFileType());
+            
         } catch (RuntimeException ex) {
             /*
              * 実行時例外が発生した際には EIO(IOエラー)にマップ。
@@ -101,56 +97,6 @@ class GetAttrRequest extends Request {
             ex.printStackTrace();
             setResponseHeader(EIO, 0);
             return;
-        }
-    }
-
-    /*
-     * ファイルタイプを返す。
-     * ファイル名で判定し、'/', ',', '..' だったらディレクトリとみなし
-     * それ以外は通常ファイルとみなす。
-     */
-    private long getFileType() {
-        if (isDir()) {
-            return Request.VDIR;
-        } else {
-            return Request.VREG;
-        }
-    }
-
-    /*
-     * 起点となるステータス(homeBaseId)からのタイムラインのサイズを計算する。
-     * 基本は 名前(未実装)+時間(未実装)+テキスト+改行文字を足したもの。
-     */
-    private long getFileSize() {
-        /*
-         * 既知の File エントリ以外はファイルサイズを 1 とする。
-         */
-        if (file == null) {
-            return 1;
-        }
-        return file.getFileSize();
-    }
-
-    private long getPermission() {
-        if (isDir()) {
-            return (long) 0040755; //directory
-        } else {
-            return (long) 0100644; // regular file
-        }
-    }
-
-    /**
-     * リクエストされているディレクトリエントリがディレクトリであるかどうかを判定する。
-     * 名前が . 、..、もしくは / だったらディレクトリ。
-     * @return true if file is directory.
-     */
-    private boolean isDir() {
-        if (getPathname().equals("/") == true
-                || getPathname().equals(".") == true
-                || getPathname().equals("..") == true) {
-            return true;
-        } else {
-            return false;
         }
     }
 }

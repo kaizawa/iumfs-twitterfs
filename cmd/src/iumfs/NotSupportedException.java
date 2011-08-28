@@ -16,14 +16,9 @@
 package iumfs;
 
 /**
- * <p>MKDIR リクエストを表すクラス</p>
+ * UnknownRequestException thatis thrown by iumfsd daemon
+ * when it detects un-supported request type.
  */
-public abstract class MkdirRequest extends Request{
-    /**
-     * <p>ディレクトリを作成する。未サポート</p>
-     */
-    @Override
-    public void process() {
-        setResponseHeader(ENOTSUP, 0);        
-    }
+public class NotSupportedException extends RuntimeException {
+
 }

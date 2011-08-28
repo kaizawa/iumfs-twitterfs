@@ -1,4 +1,4 @@
-package iumfs;
+package iumfs.twitterfs;
 
 import java.util.prefs.Preferences;
 import java.util.*;
@@ -7,7 +7,7 @@ import java.util.*;
  * Preferences for twitterfsd
  */
 public class Prefs {
-    static Preferences prefs = Preferences.userNodeForPackage(twitterfsd.class);        
+    static Preferences prefs = Preferences.userNodeForPackage(Main.class);        
   
     static final Map<String, Boolean> booleanPrefDefaultMap = new HashMap<String, Boolean>();
     static final Map<String, String> stringPreDefaultfMap  = new HashMap<String, String>();
