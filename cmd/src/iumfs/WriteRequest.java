@@ -28,10 +28,8 @@ public abstract class WriteRequest extends Request {
     @Override
     public void process() {
         try {
-            
             File file = getFile(getPathname());
             file.write(getData(), getSize(), getOffset());
-
             /*
              * レスポンスヘッダをセット
              */
