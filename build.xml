@@ -2,7 +2,7 @@
 
 <project name="twitterfsd" default="jar" basedir=".">
   <property name="src" value="cmd/src"/>
-  <property name="build" value="./cmd/build"/>
+  <property name="build" value="cmd/build/classes"/>
   <property name="lib" value="cmd/lib"/>
   <property name="dist" value="cmd/dist"/>
   <property environment="env"/>
@@ -11,13 +11,17 @@
          <include name="*.jar" />
       </fileset>  
   </path>
+  <target name="init">
+    <mkdir dir="cmd/dist"/>
+    <mkdir dir="cmd/build/classes"/>
+  </target>
   <target name="jar" depends="compile">
     <jar manifest="cmd/manifest" jarfile="${dist}/twitterfsd.jar" basedir="${build}" >
       <include name="**/*.class"/>
       <include name="**/log.properties"/>
     </jar>
   </target>
-  <target name="compile">
+  <target name="compile" depends="init">
     <javac srcdir="${src}" includeantruntime="false" destdir="${build}" debug="true" 
       debuglevel="lines,vars,source" classpathref="class.path" encoding="utf8">
     </javac>
