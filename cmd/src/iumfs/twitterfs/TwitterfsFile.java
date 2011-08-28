@@ -98,11 +98,9 @@ public class TwitterfsFile extends File {
             @Override
             public void onStatus(Status status) {
                 try {
-                    File file = Main.fileMap.get("/home");
-                    long file_size = file.getFileSize();
                     logger.finer("Read Status id=" + status.getId());
                     logger.finest(TwitterfsFile.statusToFormattedString(status));
-                    file_size += TwitterfsFile.statusToFormattedString(status).getBytes("UTF-8").length;
+                    setFileSize(getFileSize() + TwitterfsFile.statusToFormattedString(status).getBytes("UTF-8").length);
                     addStatusToList(status);
                 } catch (UnsupportedEncodingException ex) {
                     Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
@@ -196,7 +194,7 @@ public class TwitterfsFile extends File {
         if (isTimeline() == false) {
             return 0L;
         }
-        return getFileSize();
+        return file_size;
     }
 
     /**
