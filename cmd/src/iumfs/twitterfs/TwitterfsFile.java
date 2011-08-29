@@ -217,6 +217,10 @@ public class TwitterfsFile extends File {
      * list が更新されているときに読み込まれないよう synchronized にしている。
      * TODO: CopyOnWriteArrayListを使えばいいが、単純には sort ができなくので後で検討
      * 
+     * TODO: read が呼ばれる度にオフセットまでの Status の文字列の合計文字数を計算
+     * するので、格納している Status 数が増えてくると比例して read の時間が遅くなる。要改善。
+     * (いっそのことフォーマット済み text として保持するという手もある)
+     * 
      * @param buf
      * @param size
      * @param offset

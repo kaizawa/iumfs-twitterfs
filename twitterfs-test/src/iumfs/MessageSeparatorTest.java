@@ -4,6 +4,7 @@
  */
 package iumfs;
 
+import iumfs.twitterfs.MessageSeparator;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
