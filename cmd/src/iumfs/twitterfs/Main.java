@@ -28,7 +28,7 @@ import java.util.logging.Logger;
  *
  */
 public class Main {
-    static final String version = "0.1.8";  // version
+    static final String version = "0.1.9";  // version
     private static final Logger logger = Logger.getLogger(Main.class.getName());
     private static final int maxThreads = 4;
     static Map<String, File> fileMap = new HashMap<String, File>();
