@@ -39,7 +39,7 @@ public abstract class GetAttrRequest extends Request {
              */
             file = getFile(getPathname());
 
-            if (file == null && file.isDir() == false) {
+            if (file == null) {
                 /*
                  * 既知のファイル名でなく、ディレクトリでもない。
                  * 不明なファイルの要求。ENOENT を返す。
