@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Kazuyoshi Aizawa
+ * Copyright 2011 Kazuyoshi Aizawa
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package iumfs;
+package iumfs.twitterfs;
 
-/**
- * <p>MKDIR リクエストを表すクラス</p>
+import iumfs.*;
+
+/** 
+ * Worker Thread for TwitterFS
  */
-public abstract class MkdirRequest extends Request{
-    /**
-     * <p>ディレクトリを作成する。未サポート</p>
-     */
-    @Override
-    public void process() {
-        setResponseHeader(ENOTSUP, 0);        
+public class TwitterfsDaemonThread extends ControlDevicePollingThread {
+//    protected static Logger logger = Logger.getLogger(Main.class.getName());
+    protected RequestFactory getFactory(){
+        return new TwitterfsRequestFactory();
     }
-}
+}            

@@ -15,14 +15,17 @@
  */
 package iumfs;
 
-import java.io.UnsupportedEncodingException;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Date;
-import twitter4j.TwitterException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 
 /**
  *  READ リクエストを表すクラス
  */
-public class ReadRequest extends Request {
+public abstract class ReadRequest extends Request {
 
     /**
      * Twitter の TL を読み込み結果をレスポンスヘッダをセットする
@@ -37,11 +40,7 @@ public class ReadRequest extends Request {
 
             logger.fine("offset = " + offset + " size = " + size);
 
-            File file = twitterfsd.fileMap.get(getPathname());
-
-            /*
-             * 既知の File エントリ以外はファイルサイズを 1 とする。
-             */
+            File file = getFile(getPathname());
             if (file == null) {
                 setResponseHeader(ENOENT, 0);
                 return;
@@ -51,7 +50,7 @@ public class ReadRequest extends Request {
             wbbuf.clear();
             wbbuf.position(Request.RESPONSE_HEADER_SIZE);
             //読み込む
-            read_size = file.read(wbbuf, size, offset);
+            read_size = file.read(wbbuf, getSize(), getOffset());
             //最終アクセス時間を変更
             file.setAtime(new Date().getTime());
             logger.fine("read_size = " + read_size);
@@ -60,14 +59,15 @@ public class ReadRequest extends Request {
              */
             setResponseHeader(SUCCESS, read_size);
             return;
-        } catch (TwitterException ex) {
+        } catch (FileNotFoundException ex) {
             ex.printStackTrace();
             setResponseHeader(ENOENT, 0);
-            return;
-        } catch (UnsupportedEncodingException ex) {
+        } catch (IOException ex) {
             ex.printStackTrace();
-            setResponseHeader(ENOENT, 0);
-            return;
+            setResponseHeader(EIO, 0);
+        } catch (NotSupportedException ex) {
+            ex.printStackTrace();
+            setResponseHeader(ENOTSUP, 0);
         } catch (RuntimeException ex) {
             /*
              * 実行時例外発生時は EIO(IOエラー)にマップ。
@@ -78,4 +78,6 @@ public class ReadRequest extends Request {
             return;
         }
     }
+
+    abstract public File getFile(String pathName);
 }
