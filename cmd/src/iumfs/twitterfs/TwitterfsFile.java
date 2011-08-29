@@ -115,14 +115,9 @@ public class TwitterfsFile extends File {
 
             @Override
             public void onStatus(Status status) {
-                try {
-                    logger.log(Level.FINER, "Read Status id={0}", status.getId());
-                    logger.finest(TwitterfsFile.statusToFormattedString(status));
-                    setFileSize(getFileSize() + TwitterfsFile.statusToFormattedString(status).getBytes("UTF-8").length);
-                    addStatusToList(status);
-                } catch (UnsupportedEncodingException ex) {
-                    Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                logger.log(Level.FINER, "Read Status id={0}", status.getId());
+                logger.finest(TwitterfsFile.statusToFormattedString(status));
+                addStatusToList(status);
             }
 
             @Override
@@ -259,11 +254,14 @@ public class TwitterfsFile extends File {
                 long status_length = bytes.length;
                 rel_offset = 0;
 
-                logger.log(Level.FINER, "Read status_list id={0} status_length = {1}", new Object[]{status.getId(), status_length});
+                logger.finer("Read status_list id=" + status.getId()
+                        + ", status_length=" +  status_length);
+
                 logger.finest(str);
 
                 // 以前のオフセットにステータスの文字数を足して現在のオフセットと考える。
                 curr_offset += status_length;
+                logger.finer("curr_off=" + curr_offset);                
                 if (curr_offset < offset) {
                     logger.finer("offset not yet reached");
                     //まだオフセットに到達していない。
@@ -388,14 +386,12 @@ public class TwitterfsFile extends File {
         String name = getName();
         try {
             String timeline = getName();
-            if (name.equals("home")) {
-                statuses = twitter.getHomeTimeline(new Paging(page, count, since));
-            } else if (name.equals("mentions")) {
+            if (name.equals("mentions")){
                 statuses = twitter.getMentions(new Paging(page, count, since));
             } else if (name.equals("public")) {
                 statuses = twitter.getPublicTimeline();
             } else if (name.equals("friends")) {
-                statuses = twitter.getFriendsTimeline(new Paging(page, count, since));
+                statuses = twitter.getHomeTimeline(new Paging(page, count, since));
             } else if (name.equals("retweeted_by_me")) {
                 statuses = twitter.getRetweetedByMe(new Paging(page, count, since));
             } else if (name.equals("user")) {
