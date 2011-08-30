@@ -26,10 +26,10 @@ import java.nio.channels.FileChannel;
 import java.util.logging.Logger;
 
 /** 
- * Worker Thread which opens iumfscntl device and communicate with data node.
+ * Worker Thread which opens iumfscntl device
  */
 public abstract class ControlDevicePollingThread extends Thread {
-//    protected static Logger logger = Logger.getLogger(Main.class.getName());
+    protected static Logger logger = Logger.getLogger("iumfs");
     
     public void run() {
         ByteBuffer rbbuf = ByteBuffer.allocate(Request.DEVICE_BUFFER_SIZE);
@@ -47,9 +47,9 @@ public abstract class ControlDevicePollingThread extends Thread {
             System.exit(1);
         }
         FileChannel ch = raf.getChannel();
-//        logger.fine("Successfully open device.");
+        logger.fine("Successfully open device.");
 
-//        logger.fine("Started");
+        logger.fine("Started");
 
         while (true) {
             try {
@@ -58,11 +58,11 @@ public abstract class ControlDevicePollingThread extends Thread {
                  */
                 rbbuf.clear();
                 if ((len = ch.read(rbbuf)) < 0) {
-//                    logger.severe("read from device failed");
+                    logger.severe("read from device failed");
                     System.exit(1);
                 }
 
-//                logger.finer("device returns " + len + " bytes ");
+                logger.finer("device returns " + len + " bytes ");
 
                 /*
                  * リクエストオブジェクトを生成
@@ -71,19 +71,19 @@ public abstract class ControlDevicePollingThread extends Thread {
                 req = factory.getInstance(rbbuf);
 
                 if (req == null) {
-//                    logger.severe("Request object is null");
+                    logger.severe("Request object is null");
                     System.exit(1);
                 }
                 /*
                  * リクエストを実行
                  */
-//                logger.fine("calling " + req.getClass().getName() + ".process()");
+                logger.fine("calling " + req.getClass().getName() + ".process()");
                 req.execute();
                 /*
                  * デバイスに書き込み
                  */
                 ch.write(req.getResponseBuffer());
-//                logger.finer("request for " + req.getClass().getName() + " finished.");
+                logger.finer("request for " + req.getClass().getName() + " finished.");
             } catch (IOException ex) {
                 /*
                  * ここでキャッチされるのはデバイスドライバとの read/write 処理の
