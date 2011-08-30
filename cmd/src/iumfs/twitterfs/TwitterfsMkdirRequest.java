@@ -28,7 +28,7 @@ class TwitterfsMkdirRequest extends MkdirRequest{
      * <p>TWITTERFS 上にディレクトリを作成する。未サポート</p>
      */
     @Override
-    public void process() {
+    public void execute() {
         /*
          * サポートしていない
          */

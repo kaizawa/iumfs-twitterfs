@@ -32,7 +32,7 @@ public abstract class GetAttrRequest extends Request {
      * のリクエストを処理する。
      */
     @Override
-    public void process() {
+    public void execute() {
         try {
             /*
              * 対応した File オブジェクトを得る。

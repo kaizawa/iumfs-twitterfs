@@ -27,7 +27,7 @@ public abstract class CreateRequest extends Request {
      * <p>
      * </p>
      */
-    public void process() {
+    public void execute() {
         setResponseHeader(ENOTSUP, 0);         
     }
 }

@@ -28,7 +28,7 @@ public abstract class ReadDirRequest extends Request {
      * ヘッダをセットする</p>
      */
     @Override
-    public void process() {
+    public void execute() {
         try {
             /*
              * まず最初にヘッダ分だけバッファの位置を進めておく。

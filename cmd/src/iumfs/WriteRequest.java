@@ -26,7 +26,7 @@ public abstract class WriteRequest extends Request {
     private static final String CONT = "(cont) ";
 
     @Override
-    public void process() {
+    public void execute() {
         try {
             File file = getFile(getPathname());
             file.write(getData(), getSize(), getOffset());

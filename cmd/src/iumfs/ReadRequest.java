@@ -31,7 +31,7 @@ public abstract class ReadRequest extends Request {
      * Twitter の TL を読み込み結果をレスポンスヘッダをセットする
      */
     @Override
-    public void process() {
+    public void execute() {
         try {
             long read_size = 0;
 

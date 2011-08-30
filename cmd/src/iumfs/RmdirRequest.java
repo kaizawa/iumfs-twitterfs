@@ -24,7 +24,7 @@ public abstract class RmdirRequest extends Request {
      * ディレクトリを削除する。
      */
     @Override
-    public void process() {
+    public void execute() {
         setResponseHeader(ENOTSUP, 0);
     }
 }

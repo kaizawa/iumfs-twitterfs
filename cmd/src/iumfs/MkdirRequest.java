@@ -23,7 +23,7 @@ public abstract class MkdirRequest extends Request{
      * <p>ディレクトリを作成する。未サポート</p>
      */
     @Override
-    public void process() {
+    public void execute() {
         setResponseHeader(ENOTSUP, 0);        
     }
 }

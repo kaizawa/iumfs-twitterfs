@@ -24,7 +24,7 @@ public abstract class RemoveRequest extends Request {
      * ファイルを削除する。
      */
     @Override
-    public void process() {
+    public void execute() {
         setResponseHeader(ENOTSUP, 0);
     }
 }

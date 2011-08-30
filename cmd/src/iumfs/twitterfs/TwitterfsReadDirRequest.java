@@ -33,7 +33,7 @@ class TwitterfsReadDirRequest extends ReadDirRequest {
      * ヘッダをセットする</p>
      */
     @Override
-    public void process() {
+    public void execute() {
         try {
             /*
              * まず最初にヘッダ分だけバッファの位置を進めておく。

@@ -168,7 +168,7 @@ public abstract class Request {
         wbbuf.putLong(datalen);
     }
 
-    public abstract void process();
+    public abstract void execute();
 
     /**
      * Get a buffer which has response. Position is set to 0.<br/>
