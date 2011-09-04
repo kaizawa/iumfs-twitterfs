@@ -26,31 +26,12 @@ public abstract class WriteRequest extends Request {
     private static final String CONT = "(cont) ";
 
     @Override
-    public void execute() {
-        try {
-            File file = getFile();
-            file.write(getData(), getSize(), getOffset());
-            /*
-             * レスポンスヘッダをセット
-             */
-            setResponseHeader(SUCCESS, 0);            
-            return;
-        } catch (RuntimeException ex) {
-            /*
-             * 実行時例外が発生した際には EIO(IOエラー)にマップ。
-             * なんにしてもちゃんとエラーで返すことが大事。
-             */
-            ex.printStackTrace();
-            setResponseHeader(EIO, 0);
-            return;
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
-            setResponseHeader(ENOENT, 0);
-            return;
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            setResponseHeader(EIO, 0);
-            return;
-        }        
+    public void execute() throws FileNotFoundException, IOException {
+        File file = getFile();
+        file.write(getData(), getSize(), getOffset());
+        /*
+         * レスポンスヘッダをセット
+         */
+        setResponseHeader(SUCCESS, 0);
     }
 }

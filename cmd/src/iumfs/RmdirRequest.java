@@ -19,12 +19,11 @@ package iumfs;
  *  RMDIRリクエストを表すクラス
  */
 public abstract class RmdirRequest extends Request {
-
     /**
      * ディレクトリを削除する。
      */
     @Override
     public void execute() {
-        setResponseHeader(ENOTSUP, 0);
+        throw new NotSupportedException();
     }
 }

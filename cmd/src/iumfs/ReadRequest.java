@@ -21,7 +21,6 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  *  READ リクエストを表すクラス
  */
@@ -31,52 +30,33 @@ public abstract class ReadRequest extends Request {
      * Twitter の TL を読み込み結果をレスポンスヘッダをセットする
      */
     @Override
-    public void execute() {
-        try {
-            long read_size = 0;
+    public void execute() throws FileNotFoundException, IOException {
+        long read_size = 0;
 
-            long offset = getOffset(); // ファイルシステムから要求されたファイルオフセット
-            long size = getSize(); // ファイルシステムから要求されたサイズ
+        long offset = getOffset(); // ファイルシステムから要求されたファイルオフセット
+        long size = getSize(); // ファイルシステムから要求されたサイズ
 
-            logger.fine("offset = " + offset + " size = " + size);
+        logger.fine("offset = " + offset + " size = " + size);
 
-            File file = getFile();
-            if (file == null) {
-                setResponseHeader(ENOENT, 0);
-                return;
-            }
-
-            //バッファーの書き込み位置を レスポンスヘッダ分だけずらしておく。 
-            wbbuf.clear();
-            wbbuf.position(Request.RESPONSE_HEADER_SIZE);
-            //読み込む
-            read_size = file.read(wbbuf, getSize(), getOffset());
-            //最終アクセス時間を変更
-            file.setAtime(new Date().getTime());
-            logger.fine("read_size = " + read_size);
-            /*
-             * レスポンスヘッダをセット
-             */
-            setResponseHeader(SUCCESS, read_size);
-            return;
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
+        File file = getFile();
+        if (file == null) {
             setResponseHeader(ENOENT, 0);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            setResponseHeader(EIO, 0);
-        } catch (NotSupportedException ex) {
-            ex.printStackTrace();
-            setResponseHeader(ENOTSUP, 0);
-        } catch (RuntimeException ex) {
-            /*
-             * 実行時例外発生時は EIO(IOエラー)にマップ。
-             * なんにしてもちゃんとエラーで返すことが大事。
-             */
-            ex.printStackTrace();
-            setResponseHeader(EIO, 0);
             return;
         }
+
+        //バッファーの書き込み位置を レスポンスヘッダ分だけずらしておく。 
+        wbbuf.clear();
+        wbbuf.position(Request.RESPONSE_HEADER_SIZE);
+        //読み込む
+        read_size = file.read(wbbuf, getSize(), getOffset());
+        //最終アクセス時間を変更
+        file.setAtime(new Date().getTime());
+        logger.fine("read_size = " + read_size);
+        /*
+         * レスポンスヘッダをセット
+         */
+        setResponseHeader(SUCCESS, read_size);
+        return;
     }
 
     abstract public File getFile();

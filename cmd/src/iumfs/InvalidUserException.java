@@ -16,16 +16,13 @@
 package iumfs;
 
 /**
- *  REMOVE リクエストを表すクラス
+ * UnknownRequestException thatis thrown by iumfsd daemon
+ * when it detects un-supported request type.
  */
-public abstract class RemoveRequest extends Request {
+public class InvalidUserException extends RuntimeException {
 
-    /**
-     * ファイルを削除する。
-     */
-    @Override
-    public void execute() {
-        logger.finer("RemoveRequest called");
-        throw new NotSupportedException();
+    public InvalidUserException(String string) {
+        super(string);
     }
+
 }

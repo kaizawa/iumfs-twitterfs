@@ -97,7 +97,7 @@ public abstract class RequestFactory {
             logger.finest("ByteOrder=" + ByteOrder.nativeOrder());
             
             req = createInstance(request_type);
-            logger.fine("request=" + req.getClass().getName()
+            logger.fine("request=" + req.getClass().getSimpleName()
                     + ", pathname=" + (new String(pathname)).trim()
                     + ", username=" + new String(username).trim());             
 

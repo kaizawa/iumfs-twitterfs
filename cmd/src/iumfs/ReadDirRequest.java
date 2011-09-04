@@ -28,56 +28,43 @@ public abstract class ReadDirRequest extends Request {
      * ヘッダをセットする</p>
      */
     @Override
-    public void execute() {
-        try {
-            /*
-             * まず最初にヘッダ分だけバッファの位置を進めておく。
-             * ヘッダはデータ長がわかってから改めてセットする
-             */
-            wbbuf.position(Request.RESPONSE_HEADER_SIZE);
-            
-            for (File f : getFileList()) {
-                int namelen = f.getName().getBytes("UTF-8").length;
-                namelen++; // null terminate 用。
+    public void execute() throws UnsupportedEncodingException {
+        /*
+         * まず最初にヘッダ分だけバッファの位置を進めておく。
+         * ヘッダはデータ長がわかってから改めてセットする
+         */
+        wbbuf.position(Request.RESPONSE_HEADER_SIZE);
 
-                /*
-                 * 受け取り側の driver でのアライメント対策のため reclen
-                 * (レコード長）は必ず 8 の倍数になるようにする。
-                 * typedef struct iumfs_dirent
-                 * {
-                 *   int64_t           i_reclen;
-                 *   char              i_name[1];
-                 * } iumfs_dirent_t; *
-                 */
-                int reclen = (8 + 1 + (namelen) + 7) & ~7;
-                logger.finer("name=" + f.getName() + ",namelen=" + namelen + ",reclen=" + reclen);
-                wbbuf.putLong(reclen);
-                for (byte b : f.getName().getBytes("UTF-8")) {
-                    wbbuf.put(b);
-                }
-                wbbuf.put((byte) 0); // null terminate           
-                /*
-                 * Position を reclen 分だけ進めるためにパディングする
-                 */
-                wbbuf.position(wbbuf.position() + (reclen - 8 - namelen));
+        for (File f : getFileList()) {
+            int namelen = f.getName().getBytes("UTF-8").length;
+            namelen++; // null terminate 用。
+
+            /*
+             * 受け取り側の driver でのアライメント対策のため reclen
+             * (レコード長）は必ず 8 の倍数になるようにする。
+             * typedef struct iumfs_dirent
+             * {
+             *   int64_t           i_reclen;
+             *   char              i_name[1];
+             * } iumfs_dirent_t; *
+             */
+            int reclen = (8 + 1 + (namelen) + 7) & ~7;
+            logger.finer("name=" + f.getName() + ",namelen=" + namelen + ",reclen=" + reclen);
+            wbbuf.putLong(reclen);
+            for (byte b : f.getName().getBytes("UTF-8")) {
+                wbbuf.put(b);
             }
-            /*
-             * レスポンスヘッダをセット
+            wbbuf.put((byte) 0); // null terminate           
+                /*
+             * Position を reclen 分だけ進めるためにパディングする
              */
-            setResponseHeader(SUCCESS, wbbuf.position() - RESPONSE_HEADER_SIZE);
-        } catch (UnsupportedEncodingException ex) {
-            ex.printStackTrace();
-            System.exit(1);
-        } catch (RuntimeException ex) {
-            /*
-             * 実行時例外が発生した際には EIO(IOエラー)にマップ。
-             * なんにしてもちゃんとエラーで返すことが大事。
-             */
-            ex.printStackTrace();
-            setResponseHeader(EIO, 0);
-            return;
+            wbbuf.position(wbbuf.position() + (reclen - 8 - namelen));
         }
-    }        
-    
+        /*
+         * レスポンスヘッダをセット
+         */
+        setResponseHeader(SUCCESS, wbbuf.position() - RESPONSE_HEADER_SIZE);
+    }
+
     abstract public Collection<File> getFileList();
 }

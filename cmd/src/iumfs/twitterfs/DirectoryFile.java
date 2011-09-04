@@ -13,19 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package iumfs;
+package iumfs.twitterfs;
 
-/**
- *  REMOVE リクエストを表すクラス
- */
-public abstract class RemoveRequest extends Request {
+import java.nio.ByteBuffer;
 
-    /**
-     * ファイルを削除する。
-     */
+public class DirectoryFile extends TwitterfsFile { 
+    DirectoryFile(Account account, String name){
+        super(account, name);
+    }
+
     @Override
-    public void execute() {
-        logger.finer("RemoveRequest called");
-        throw new NotSupportedException();
+    public boolean isDir() {
+        return true;
+    }
+
+    @Override
+    public long getPermission() {
+        return (long) 0040755; // directory
+    }
+
+    @Override
+    public long read(ByteBuffer buf, long size, long offset) {
+        return 0;
+    }
+
+    @Override
+    public long write(byte[] buf, long size, long offset) {
+        return 0;
     }
 }

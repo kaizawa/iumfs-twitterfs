@@ -17,11 +17,12 @@ package iumfs;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.Date;
 
 abstract public class File {
+    final public static int VREG = 1; // 通常ファイル
+    final public static int VDIR = 2; // ディレクトリ    
     private String name;
     protected long file_size = 0;
     private long atime; // Last access time (msec)

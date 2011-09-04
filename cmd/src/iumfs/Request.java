@@ -15,6 +15,9 @@
  */
 package iumfs;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.logging.Level;
@@ -42,8 +45,6 @@ public abstract class Request {
     final public static int REMOVE_REQUEST = 6;
     final public static int MKDIR_REQUEST = 7;
     final public static int RMDIR_REQUEST = 8 ;
-    final public static int VREG = 1; // 通常ファイル
-    final public static int VDIR = 2; // ディレクトリ
     final public static int RESPONSE_HEADER_SIZE = 24; // long x 3 フィールド
     final public static int REQUEST_HEADER_SIZE = 2248; // iumfs.h より
 
@@ -168,7 +169,7 @@ public abstract class Request {
         wbbuf.putLong(datalen);
     }
 
-    public abstract void execute();
+    public abstract void execute() throws IOException, FileNotFoundException, UnsupportedEncodingException;
 
     /**
      * Get a buffer which has response. Position is set to 0.<br/>

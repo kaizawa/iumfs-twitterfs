@@ -40,18 +40,23 @@ public class Main {
         instance.startDaemonThreads();
     }
 
-    static public void initFileMap(Map<String, File> fileMap, Account account) {
-        fileMap.put("/post", new TwitterfsFile(account, "post", false, 0));
-        fileMap.put("/home", new TwitterfsFile(account, "home", true, true));
-        fileMap.put("/mentions", new TwitterfsFile(account, "mentions", true, 120000));
-        fileMap.put("/public", new TwitterfsFile(account, "public", true, 600000));
-        fileMap.put("/friends", new TwitterfsFile(account, "friends", true, 300000));
-        fileMap.put("/retweeted_by_me", new TwitterfsFile(account, "retweeted_by_me", true, 600000));
-        fileMap.put("/user", new TwitterfsFile(account, "user", true, 300000));
-        fileMap.put("/retweeted_to_me", new TwitterfsFile(account, "retweeted_to_me", true, 600000));
-        fileMap.put("/retweets_of_me", new TwitterfsFile(account, "retweets_of_me", true, 600000));
-        fileMap.put("/", new TwitterfsFile(account, "", false));
+    static public void fillFileMap(Map<String, File> fileMap, Account account) {
+        fileMap.put("/post", new PostFile(account, "post"));
+        fileMap.put("/home", new TimelineFile(account, "home", true, 0L));
+        fileMap.put("/mentions", new TimelineFile(account, "mentions", false, 120000));
+        fileMap.put("/public", new TimelineFile(account, "public", false, 600000));
+        fileMap.put("/friends", new TimelineFile(account, "friends", false, 300000));
+        fileMap.put("/retweeted_by_me", new TimelineFile(account, "retweeted_by_me", false, 600000));
+        fileMap.put("/user", new TimelineFile(account, "user", false, 300000));
+        fileMap.put("/retweeted_to_me", new TimelineFile(account, "retweeted_to_me", false, 600000));
+        fileMap.put("/retweets_of_me", new TimelineFile(account, "retweets_of_me", false, 600000));
+        fileMap.put("/", new DirectoryFile(account, ""));
     }
+    
+    static public void initFileMap(Map<String, File> fileMap, Account account) {
+        fileMap.put("/setup", new SetupFile(account, "setup"));
+        fileMap.put("/", new DirectoryFile(account, ""));
+    }    
 
     /**
      * @return the accountMap
@@ -69,12 +74,12 @@ public class Main {
         new TwitterfsDaemonThread().start();
     }
     
-    static public File getFile(String username, String pathName) {
+    static public File getFile(String username, String pathname) {
        if(username.isEmpty()){
            throw new InvalidUserException("Unknown user \"" + username + "\" specified");
        }
        
-       logger.finer("usernaem=" + username + ", pathName=" + pathName);
+       logger.finer("pathname=" + pathname + ", usernaem=" + username);
         Account account = getAccountMap().get(username);
         
         if(account == null){
@@ -85,9 +90,7 @@ public class Main {
             getAccountMap().put(username, account);
             logger.finer("New Account for "+ username + " created.");
         }
-        logger.finer("Account username=" + account.getUsername());
-
-        return account.getFileMap().get(pathName);
+        return account.getFileMap().get(pathname);
     }
     
     static public Map<String, File> getFileMap(String user){

@@ -23,14 +23,16 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /** 
  * Worker Thread which opens iumfscntl device
  */
 public abstract class ControlDevicePollingThread extends Thread {
+
     protected static Logger logger = Logger.getLogger("iumfs");
-    
+
     public void run() {
         ByteBuffer rbbuf = ByteBuffer.allocate(Request.DEVICE_BUFFER_SIZE);
         rbbuf.order(ByteOrder.nativeOrder());
@@ -77,23 +79,37 @@ public abstract class ControlDevicePollingThread extends Thread {
                 /*
                  * リクエストを実行
                  */
-                logger.fine("calling " + req.getClass().getName() + ".execute()");
+                logger.fine("calling " + req.getClass().getSimpleName() + ".execute()");
                 req.execute();
-                /*
-                 * デバイスに書き込み
-                 */
-                ch.write(req.getResponseBuffer());
-                logger.finer("request for " + req.getClass().getName() + " finished.");
+            } catch (FileNotFoundException ex) {
+                logger.finer(ex.getMessage());
+                req.setResponseHeader(Request.ENOENT, 0);
             } catch (IOException ex) {
+                logger.severe(ex.getMessage());
+                req.setResponseHeader(Request.EIO, 0);
+            } catch (NotSupportedException ex) {
+                logger.finer("NotsupportedException happened");
+                req.setResponseHeader(Request.ENOTSUP, 0);
+            } catch (RuntimeException ex) {
                 /*
-                 * ここでキャッチされるのはデバイスドライバとの read/write 処理の
-                 * IOException のみ。
+                 * 実行時例外発生時は EIO(IOエラー)にマップ。
+                 * なんにしてもちゃんとエラーで返すことが大事。
                  */
-                ex.printStackTrace();
+                logger.severe("RuntimeException happened");
+                req.setResponseHeader(Request.EIO, 0);
+            }
+            /*
+             * デバイスに書き込み
+             */
+            try {
+                ch.write(req.getResponseBuffer());
+            } catch (IOException ex) {
+                logger.severe(ex.getMessage());
                 System.exit(1);
             }
+            logger.finer("request for " + req.getClass().getSimpleName() + " finished.");
         }
     }
-    
+
     protected abstract RequestFactory getFactory();
-}            
+}

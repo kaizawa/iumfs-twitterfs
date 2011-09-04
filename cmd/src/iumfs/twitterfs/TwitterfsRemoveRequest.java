@@ -17,9 +17,6 @@ package iumfs.twitterfs;
 
 import iumfs.File;
 import iumfs.RemoveRequest;
-import java.io.IOException;
-import java.util.logging.Logger;
-import java.util.logging.*;
 
 /**
  *  REMOVE リクエストを表すクラス
