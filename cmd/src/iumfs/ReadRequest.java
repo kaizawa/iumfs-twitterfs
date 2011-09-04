@@ -40,7 +40,7 @@ public abstract class ReadRequest extends Request {
 
             logger.fine("offset = " + offset + " size = " + size);
 
-            File file = getFile(getPathname());
+            File file = getFile();
             if (file == null) {
                 setResponseHeader(ENOENT, 0);
                 return;
@@ -79,5 +79,5 @@ public abstract class ReadRequest extends Request {
         }
     }
 
-    abstract public File getFile(String pathName);
+    abstract public File getFile();
 }

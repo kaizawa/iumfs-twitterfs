@@ -32,7 +32,6 @@ public abstract class RequestFactory {
     private static Logger logger = Logger.getLogger("iumfs");
     
     protected RequestFactory(){};
-    
 
     public Request getInstance(ByteBuffer buf) {
         /*
@@ -44,6 +43,7 @@ public abstract class RequestFactory {
          *   int64_t             size;     // 要求するファイルデータのサイズ
          *   int64_t             offset;   // 要求するファイルデータのオフセット
          *   int64_t             datasize; // リクエスト構造体に続くデータのサイズ
+         *   int64_t             flags;    // ioflag の代わり・・と思ったがつかってない。         * 
          *   char                pathname[IUMFS_MAXPATHLEN]; // 操作対象のファイルのパス名
          *   iumfs_mount_opts_t  mountopts[1]; // mount コマンドからの引数
          * }
@@ -70,8 +70,8 @@ public abstract class RequestFactory {
         byte pathname[] = new byte[Request.IUMFS_MAXPATHLEN]; // 操作対象のファイルのパス名
         byte basepath[] = new byte[Request.IUMFS_MAXPATHLEN]; // マウント時のベースパス
         byte server[] = new byte[Request.MAX_SERVER_LEN]; // サーバ名(Optional)
-        byte user[] = new byte[Request.MAX_USER_LEN]; // ユーザ名(Optional)
-        byte pass[] = new byte[Request.MAX_PASS_LEN]; // パスワード(Optional)
+        byte username[] = new byte[Request.MAX_USER_LEN]; // ユーザ名(Optional)
+        byte password[] = new byte[Request.MAX_PASS_LEN]; // パスワード(Optional)
         byte data[]; // 制御デバイスからの付加データ
 
         try {
@@ -88,14 +88,18 @@ public abstract class RequestFactory {
             buf.get(pathname);
             buf.get(basepath);
             buf.get(server);
-            buf.get(user);
-            buf.get(pass);
+            buf.get(username);
+            buf.get(password);
             
-            logger.finer("request_type=" + request_type + ", size=" + size + ", offset=" + offset + ", datasize=" + datasize);
-            logger.finer("pathname=" + (new String(pathname)).trim() + ", basename=" + (new String(basepath)).trim());
+            logger.finer("request_type=" + request_type + ", size=" + size + 
+                    ", offset=" + offset + ", datasize=" + datasize);
+            logger.finer("basename=" + (new String(basepath)).trim());
             logger.finest("ByteOrder=" + ByteOrder.nativeOrder());
             
             req = createInstance(request_type);
+            logger.fine("request=" + req.getClass().getName()
+                    + ", pathname=" + (new String(pathname)).trim()
+                    + ", username=" + new String(username).trim());             
 
             req.setByteOrder(ByteOrder.nativeOrder());
             req.setOffset(offset);
@@ -105,6 +109,8 @@ public abstract class RequestFactory {
             req.setRequestType(request_type);
             req.setSize(size);
             req.setFlags(flags);
+            req.setUserName((new String(username)).trim());
+            req.setPassword((new String(password)).trim());
              /*
              * request 構造体の後ろにデータがあるかどうか確認。
              * size は DEVICE_BUFFER_SIZE - REQUEST_HEADER_SIZE を超えない。
@@ -113,8 +119,7 @@ public abstract class RequestFactory {
                 data = new byte[Math.min((int)size, Request.DEVICE_BUFFER_SIZE - Request.REQUEST_HEADER_SIZE) ];
                 buf.get(data);
                 req.setData(data);
-            }
-            logger.finer("new Request class=" + req.getClass().getName());            
+            }           
             return req;
         } catch (BufferUnderflowException ex) {
             ex.printStackTrace();

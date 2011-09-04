@@ -28,7 +28,7 @@ public abstract class WriteRequest extends Request {
     @Override
     public void execute() {
         try {
-            File file = getFile(getPathname());
+            File file = getFile();
             file.write(getData(), getSize(), getOffset());
             /*
              * レスポンスヘッダをセット

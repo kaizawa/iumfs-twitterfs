@@ -58,22 +58,26 @@ public class TwitterfsFile extends File {
     private long interval = 0L;
     private boolean initial_read = true;
     private boolean stream_api = false; // Switch for use Stream API
-    
-    TwitterfsFile(String name, boolean istimeline){
+    private Account account;
+
+    TwitterfsFile(Account account, String name, boolean is_timeline) {
         super(name);
+        this.is_timeline = is_timeline;
+        this.account = account;
         init();
     }
-    
+
     /**
      * Constractor for normal timeline file
      * @param name
      * @param istimeline
      * @param interval 
      */
-    TwitterfsFile(String name, boolean is_timeline, long interval) {
+    TwitterfsFile(Account account, String name, boolean is_timeline, long interval) {
         super(name);
         this.is_timeline = is_timeline;
         this.interval = interval;
+        this.account = account;
         init();
     }
 
@@ -83,10 +87,11 @@ public class TwitterfsFile extends File {
      * @param istimeline
      * @param stream_api 
      */
-    TwitterfsFile(String name, boolean is_timeline, boolean stream_api) {
+    TwitterfsFile(Account account, String name, boolean is_timeline, boolean stream_api) {
         super(name);
         this.is_timeline = is_timeline;
         this.stream_api = stream_api;
+        this.account = account;
         init();
         startAutoUpdateThreads();
     }
@@ -96,7 +101,7 @@ public class TwitterfsFile extends File {
          * もしタイムラインファイルだったら最初に Twitter から読み込む。
          * (起点となる Status の ID(base_id) を得るため)
          */
-        if (isTimeline() && ! isStream_api()) {
+        if (isTimeline() && !isStream_api()) {
             /*
              * 最初の読み込み. 1ページ分(最大20件)だけうけとる。
              */
@@ -107,63 +112,62 @@ public class TwitterfsFile extends File {
         setCtime(now.getTime());
         setMtime(now.getTime());
     }
+    
+    private StatusListener listener = new UserStreamListener() {
+
+        @Override
+        public void onStatus(Status status) {
+            logger.log(Level.FINER, "Read Status id={0}", status.getId());
+            logger.finest(TwitterfsFile.statusToFormattedString(status));
+            addStatusToList(status);
+        }
+
+        @Override
+        public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {}
+        @Override
+        public void onTrackLimitationNotice(int numberOfLimitedStatuses) {}
+        @Override
+        public void onException(Exception ex) {}
+        @Override
+        public void onScrubGeo(long l, long l1) {}
+        @Override
+        public void onDeletionNotice(long l, long l1) {}
+        @Override
+        public void onFriendList(long[] longs) {}
+        @Override
+        public void onFavorite(User user, User user1, Status status) {}
+        @Override
+        public void onUnfavorite(User user, User user1, Status status) {}
+        @Override
+        public void onFollow(User user, User user1) {}
+        @Override
+        public void onRetweet(User user, User user1, Status status) {}
+        @Override
+        public void onDirectMessage(DirectMessage dm) {}
+        @Override
+        public void onUserListMemberAddition(User user, User user1, UserList ul) {}
+        @Override
+        public void onUserListMemberDeletion(User user, User user1, UserList ul) {}
+        @Override
+        public void onUserListSubscription(User user, User user1, UserList ul) {}
+        @Override
+        public void onUserListUnsubscription(User user, User user1, UserList ul) {}
+        @Override
+        public void onUserListCreation(User user, UserList ul) {}
+        @Override
+        public void onUserListUpdate(User user, UserList ul) {}
+        @Override
+        public void onUserListDeletion(User user, UserList ul) {}
+        @Override
+        public void onUserProfileUpdate(User user) {}
+        @Override
+        public void onBlock(User user, User user1) {}
+        @Override
+        public void onUnblock(User user, User user1) {}
+    };
 
     private void startAutoUpdateThreads() {
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-
-        StatusListener listener = new UserStreamListener() {
-
-            @Override
-            public void onStatus(Status status) {
-                logger.log(Level.FINER, "Read Status id={0}", status.getId());
-                logger.finest(TwitterfsFile.statusToFormattedString(status));
-                addStatusToList(status);
-            }
-
-            @Override
-            public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {}
-            @Override
-            public void onTrackLimitationNotice(int numberOfLimitedStatuses) {}
-            @Override
-            public void onException(Exception ex) {}
-            @Override
-            public void onScrubGeo(long l, long l1) {}
-            @Override
-            public void onDeletionNotice(long l, long l1) {}
-            @Override
-            public void onFriendList(long[] longs) {}
-            @Override
-            public void onFavorite(User user, User user1, Status status) {}
-            @Override
-            public void onUnfavorite(User user, User user1, Status status) {}
-            @Override
-            public void onFollow(User user, User user1) {}
-            @Override
-            public void onRetweet(User user, User user1, Status status) {}
-            @Override
-            public void onDirectMessage(DirectMessage dm) {}
-            @Override
-            public void onUserListMemberAddition(User user, User user1, UserList ul) {}
-            @Override
-            public void onUserListMemberDeletion(User user, User user1, UserList ul) {}
-            @Override
-            public void onUserListSubscription(User user, User user1, UserList ul) {}
-            @Override
-            public void onUserListUnsubscription(User user, User user1, UserList ul) {}
-            @Override
-            public void onUserListCreation(User user, UserList ul) {}
-            @Override
-            public void onUserListUpdate(User user, UserList ul) {}
-            @Override
-            public void onUserListDeletion(User user, UserList ul) {}
-            @Override
-            public void onUserProfileUpdate(User user) {}
-            @Override
-            public void onBlock(User user, User user1) {}
-            @Override
-            public void onUnblock(User user, User user1) {}
-        };
-
         /*
          * タイムライン取得のスレッドを起動
          */
@@ -175,7 +179,7 @@ public class TwitterfsFile extends File {
                  */
                 TwitterStream twitterStream = new TwitterStreamFactory().getInstance();
                 twitterStream.setOAuthConsumer(Prefs.get("OAuthConsumerKey"), Prefs.get("consumerSecret"));
-                twitterStream.setOAuthAccessToken(IumfsTwitterFactory.getAccessToken());
+                twitterStream.setOAuthAccessToken(IumfsTwitterFactory.getAccessToken(getUsername()));
                 twitterStream.addListener(listener);
                 twitterStream.user();
             } else {
@@ -183,7 +187,6 @@ public class TwitterfsFile extends File {
                  * 定期的に取得
                  */
                 executor.scheduleAtFixedRate(new Runnable() {
-
                     public void run() {
                         getTimeline();
                     }
@@ -236,7 +239,7 @@ public class TwitterfsFile extends File {
         long rel_offset; // ステータス単位での相対オフセット
         int page = 0;
 
-        Twitter twitter = IumfsTwitterFactory.getInstance();
+        Twitter twitter = IumfsTwitterFactory.getInstance(getUsername());
 
         /*
          * OLD                                                         NEW
@@ -259,13 +262,13 @@ public class TwitterfsFile extends File {
                 rel_offset = 0;
 
                 logger.finer("Read status_list id=" + status.getId()
-                        + ", status_length=" +  status_length);
+                        + ", status_length=" + status_length);
 
                 logger.finest(str);
 
                 // 以前のオフセットにステータスの文字数を足して現在のオフセットと考える。
                 curr_offset += status_length;
-                logger.finer("curr_off=" + curr_offset);                
+                logger.finer("curr_off=" + curr_offset);
                 if (curr_offset < offset) {
                     logger.finer("offset not yet reached");
                     //まだオフセットに到達していない。
@@ -383,14 +386,13 @@ public class TwitterfsFile extends File {
      * @param since
      * @return 
      */
-    @SuppressWarnings({"LoggerStringConcat", "CallToThreadDumpStack"})
     synchronized public int getTimeline(int page, int count, long since) {
         ResponseList<Status> statuses = null;
-        Twitter twitter = IumfsTwitterFactory.getInstance();
+        Twitter twitter = IumfsTwitterFactory.getInstance(getUsername());
         String name = getName();
         try {
             String timeline = getName();
-            if (name.equals("mentions")){
+            if (name.equals("mentions")) {
                 statuses = twitter.getMentions(new Paging(page, count, since));
             } else if (name.equals("public")) {
                 statuses = twitter.getPublicTimeline();
@@ -429,7 +431,7 @@ public class TwitterfsFile extends File {
                  * ID(base_id)とする。                            
                  */
                 base_id = statuses.get(statuses.size() - 1).getId();
-                logger.fine("base_id = " + base_id);
+                logger.finer("base_id = " + base_id);
                 initial_read = false;
             }
 
@@ -518,7 +520,7 @@ public class TwitterfsFile extends File {
             /*
              * ファイルとして書かれた文字列を得る。
              */
-            Twitter twitter = IumfsTwitterFactory.getInstance();
+            Twitter twitter = IumfsTwitterFactory.getInstance(getUsername());
             String whole_msg = new String(buf);
             logger.finer("Orig Text:" + whole_msg);
             logger.finest("whole_msg.length() = " + whole_msg.length());
@@ -545,12 +547,13 @@ public class TwitterfsFile extends File {
             throw new IOException();
         }
     }
-    
+
     /*
      * ファイルタイプを返す。
      * ファイル名で判定し、'/', ',', '..' だったらディレクトリとみなし
      * それ以外は通常ファイルとみなす。
      */
+    @Override
     public long getFileType() {
         if (isDir()) {
             return Request.VDIR;
@@ -559,7 +562,7 @@ public class TwitterfsFile extends File {
         }
     }
 
-
+    @Override
     public long getPermission() {
         if (isDir()) {
             return (long) 0040755; //directory
@@ -573,6 +576,7 @@ public class TwitterfsFile extends File {
      * 名前が . 、..、もしくは / だったらディレクトリ。
      * @return true if file is directory.
      */
+    @Override
     public boolean isDir() {
         if (getPathname().equals("/") == true
                 || getPathname().equals(".") == true
@@ -581,5 +585,9 @@ public class TwitterfsFile extends File {
         } else {
             return false;
         }
+    }
+    
+    private String getUsername(){
+        return account.getUsername();
     }
 }

@@ -37,7 +37,7 @@ public abstract class GetAttrRequest extends Request {
             /*
              * 対応した File オブジェクトを得る。
              */
-            file = getFile(getPathname());
+            File file = getFile();
 
             if (file == null) {
                 /*
@@ -87,8 +87,9 @@ public abstract class GetAttrRequest extends Request {
                 wbbuf.putLong(file.getCtime() / 1000);
                 wbbuf.putLong((file.getCtime() % 1000) * 1000);
             }
-            logger.finer("Permission=" + file.getPermission() + " ,FileSize=" + file.getFileSize() + ", FileType=" + file.getFileType());
-            
+            logger.finer("filename=" + file.getName() + "Permission=" 
+                    + file.getPermission() + " ,FileSize=" + file.getFileSize()
+                    + ", FileType=" + file.getFileType());          
         } catch (RuntimeException ex) {
             /*
              * 実行時例外が発生した際には EIO(IOエラー)にマップ。

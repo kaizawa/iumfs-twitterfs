@@ -26,7 +26,7 @@ import twitter4j.TwitterException;
  */
 public class TwitterfsWriteRequest extends WriteRequest {
     @Override
-    public File getFile(String pathName) {
-        return Main.fileMap.get(pathName);
+    public File getFile() {
+        return Main.getFile(getUserName(), getPathname());
     }
 }

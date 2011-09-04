@@ -77,7 +77,7 @@ public abstract class ControlDevicePollingThread extends Thread {
                 /*
                  * リクエストを実行
                  */
-                logger.fine("calling " + req.getClass().getName() + ".process()");
+                logger.fine("calling " + req.getClass().getName() + ".execute()");
                 req.execute();
                 /*
                  * デバイスに書き込み
@@ -91,7 +91,7 @@ public abstract class ControlDevicePollingThread extends Thread {
                  */
                 ex.printStackTrace();
                 System.exit(1);
-            } 
+            }
         }
     }
     

@@ -64,6 +64,8 @@ public abstract class Request {
     private String server;
     private String basepath;
     private String fullPath;
+    private String username;
+    private String password;
     private long datelen;
     protected ByteBuffer wbbuf = ByteBuffer.allocate(DEVICE_BUFFER_SIZE); //制御デバイス書き込み用バッファ
     private long dataoffset;
@@ -71,8 +73,6 @@ public abstract class Request {
     private long flags;
     protected static Logger logger = Logger.getLogger("iumfs");
     
-    protected File file;
-
     public long getFlags() {
         return flags;
     }
@@ -194,5 +194,33 @@ public abstract class Request {
     public byte[] getData(long from, long to) {
         return Arrays.copyOfRange(data, (int)from, (int)to);
     }
-    abstract public File getFile(String pathName);    
+    abstract public File getFile();
+
+    /**
+     * @return the user
+     */
+    public String getUserName() {
+        return username;
+    }
+
+    /**
+     * @param user the user to set
+     */
+    public void setUserName(String username) {
+        this.username = username;
+    }
+
+    /**
+     * @return the pass
+     */
+    public String getPassword() {
+        return password;
+    }
+
+    /**
+     * @param pass the pass to set
+     */
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }

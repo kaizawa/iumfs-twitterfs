@@ -26,7 +26,7 @@ class TwitterfsGetAttrRequest extends GetAttrRequest {
     private static final long start_time = new Date().getTime();
 
     @Override
-    public File getFile(String pathName) {
-        return Main.fileMap.get(pathName);
+    public File getFile() {
+        return Main.getFile(getUserName(), getPathname());
     }
 }
