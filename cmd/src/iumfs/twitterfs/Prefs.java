@@ -30,6 +30,7 @@ public class Prefs {
         intPrefDefaultMap.put("maxStatuses", 100); // Number of tweets to be shown.
         intPrefDefaultMap.put("corePoolSize", 6); // NUmber of Threads used for actor
         intPrefDefaultMap.put("maxCacheIcons", 100); // Max number of user icons to be cached.
+        intPrefDefaultMap.put("maxThreads", 4); // Max number of threads. This number is limited by iumfs driver.
     }
     
 

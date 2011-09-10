@@ -34,7 +34,6 @@ public class Main {
 
     static final String version = "0.1.9";  // version
     private static final Logger logger = Logger.getLogger(Main.class.getName());
-    private static final int maxThreads = 4;
     private static Map<String, Account> accountMap = new ConcurrentHashMap<String, Account>();
 
     public static void main(String args[]) {
@@ -99,12 +98,11 @@ public class Main {
     }
 
     public void startDaemonThreads() {
-        /*
-        for (int i = 0; i < maxThreads; i++) {
-        new DaemonThread().start();
+
+        for (int i = 0; i < Prefs.getInt("maxThreads"); i++) {
+            new TwitterfsDaemonThread().start();            
         }
-         */
-        new TwitterfsDaemonThread().start();
+        //new TwitterfsDaemonThread().start();        
     }
 
     /*
