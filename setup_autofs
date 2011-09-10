@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# Add following line to /etc/auto_master
+#  /twitter        auto_twitter
+#
+# Add auto_twitter to /etc directory
+#
+# * -fstype=iumfs,user=& :twitterfs://twitter.com/
+#
+sudo echo "/twitter        auto_twitter" >> /etc/auto_master
+sudo echo "* -fstype=iumfs,user=& :twitterfs://twitter.com/" > /etc/auto_twitter
