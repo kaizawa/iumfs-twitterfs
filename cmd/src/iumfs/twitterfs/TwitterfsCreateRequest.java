@@ -20,7 +20,7 @@ import iumfs.CreateRequest;
 import iumfs.File;
 
 /**
- * <p>CREATE リクエストを表すクラス<br>
+ * <p>CREATE Request<br>
  * 未サポート.
  * </p>
  */

@@ -22,10 +22,11 @@ import java.util.logging.Logger;
 
 /**
  * <p>
- * デバイスドライバから受け取った データを元に、適切なリクエストクラスの
- * インスタンスを返すファクトリの抽象クラス。実装はファイルシステム毎に行う。
+ * Return appropreate Request class based on the request 
+ * from control device driver.
+ * Implementation must exist every file system type.
  * </p>
- * TODO: Instance をプールしておいて、効率的に利用する
+ * TODO: should implement instance pool for better performance?
  */
 public abstract class RequestFactory {
 
@@ -35,21 +36,23 @@ public abstract class RequestFactory {
 
     public Request getInstance(ByteBuffer buf) {
         /*
-         * デバイスドライバ から デーモンに渡されるリクエスト構造体
+         * Request structure which will be given by control device.
+         * 
          *  8+1184+1024+8+8+8=2240 bytes
          * typedef struct request
          * {
-         *   int64_t             request_type; // リクエストのタイプ
-         *   int64_t             size;     // 要求するファイルデータのサイズ
-         *   int64_t             offset;   // 要求するファイルデータのオフセット
-         *   int64_t             datasize; // リクエスト構造体に続くデータのサイズ
-         *   int64_t             flags;    // ioflag の代わり・・と思ったがつかってない。         * 
-         *   char                pathname[IUMFS_MAXPATHLEN]; // 操作対象のファイルのパス名
-         *   iumfs_mount_opts_t  mountopts[1]; // mount コマンドからの引数
+         *   int64_t             request_type; // request type
+         *   int64_t             size;     // data size 
+         *   int64_t             offset;   // off set of file
+         *   int64_t             datasize; // size of data following this header
+         *   int64_t             flags;    // for ioflag...not used yet.
+         *   char                pathname[IUMFS_MAXPATHLEN]; // File path name
+         *   iumfs_mount_opts_t  mountopts[1]; // arguments of mount command
          * }
-         *
-         * 各メンバは x8 バイトとなっているので、この構造体の
-         * 最後は必ず 8バイト境界になっているはず。
+         * 
+         * The size of each member of this structure is multiple of 8.
+         * So the total structure size must be also mutiple of 8.
+
          *  40+40+80+1024=1184 bytes
          *
          * typedef struct iumfs_mount_opts
@@ -62,23 +65,23 @@ public abstract class RequestFactory {
          */
         Request req = null;
         int bufsize = buf.capacity();
-        long request_type; // リクエストタイプ
+        long request_type; 
         long size;
         long offset;
         long datasize;
         long flags;
-        byte pathname[] = new byte[Request.IUMFS_MAXPATHLEN]; // 操作対象のファイルのパス名
-        byte basepath[] = new byte[Request.IUMFS_MAXPATHLEN]; // マウント時のベースパス
-        byte server[] = new byte[Request.MAX_SERVER_LEN]; // サーバ名(Optional)
-        byte username[] = new byte[Request.MAX_USER_LEN]; // ユーザ名(Optional)
-        byte password[] = new byte[Request.MAX_PASS_LEN]; // パスワード(Optional)
-        byte data[]; // 制御デバイスからの付加データ
+        byte pathname[] = new byte[Request.IUMFS_MAXPATHLEN]; // Ffile pathname
+        byte basepath[] = new byte[Request.IUMFS_MAXPATHLEN]; // Base path when mounting.
+        byte server[] = new byte[Request.MAX_SERVER_LEN]; // Server name(Optiona)
+        byte username[] = new byte[Request.MAX_USER_LEN]; // User name(Optional)
+        byte password[] = new byte[Request.MAX_PASS_LEN]; // Passowrd (Optional)
+        byte data[]; // additional data for this request, if any.
 
         try {
             buf.rewind();
             logger.finer("Buf info pos=" + buf.position() + " limit=" + buf.limit());
             /*
-             * 元構造体の ByteBuffer から、各メンバの値を取り出す
+             * Read each structure members from ByteBuffer.
              */
             request_type = buf.getLong();
             size = buf.getLong();
@@ -103,17 +106,17 @@ public abstract class RequestFactory {
 
             req.setByteOrder(ByteOrder.nativeOrder());
             req.setOffset(offset);
-            req.setPathname((new String(pathname)).trim()); // 後ろの空白文字を削除
-            req.setBasepath((new String(basepath)).trim()); // 後ろの空白文字を削除
-            req.setServer((new String(server)).trim()); // 後ろの空白文字を削除
+            req.setPathname((new String(pathname)).trim()); // remove space
+            req.setBasepath((new String(basepath)).trim()); // remove space
+            req.setServer((new String(server)).trim()); // remove space
             req.setRequestType(request_type);
             req.setSize(size);
             req.setFlags(flags);
             req.setUserName((new String(username)).trim());
             req.setPassword((new String(password)).trim());
-             /*
-             * request 構造体の後ろにデータがあるかどうか確認。
-             * size は DEVICE_BUFFER_SIZE - REQUEST_HEADER_SIZE を超えない。
+            /*
+             * Check if structure followed by data.
+             * size won't exceed DEVICE_BUFFER_SIZE - REQUEST_HEADER_SIZE
              */
             if(size > 0){
                 data = new byte[Math.min((int)size, Request.DEVICE_BUFFER_SIZE - Request.REQUEST_HEADER_SIZE) ];

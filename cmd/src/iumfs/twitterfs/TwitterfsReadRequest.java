@@ -22,7 +22,7 @@ import java.util.Date;
 import twitter4j.TwitterException;
 
 /**
- *  READ リクエストを表すクラス
+ *  READ request
  */
 public class TwitterfsReadRequest extends ReadRequest {
     @Override

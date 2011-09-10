@@ -16,11 +16,11 @@
 package iumfs;
 
 /**
- *  RMDIRリクエストを表すクラス
+ *  RMDIR request class
  */
 public abstract class RmdirRequest extends Request {
     /**
-     * ディレクトリを削除する。
+     * remove directory
      */
     @Override
     public void execute() {

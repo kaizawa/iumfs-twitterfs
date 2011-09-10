@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- *  READDIR リクエストを表すクラス
+ *  READDIR request
  */
 class TwitterfsReadDirRequest extends ReadDirRequest {
 
@@ -37,8 +37,7 @@ class TwitterfsReadDirRequest extends ReadDirRequest {
         
         for(File file : Main.getFileMap(getUserName()).values()){
             /*
-             * name が "" のものはカレントディレクトリを示す File オブジェクト
-             * なので含める必要がない。
+             * If name is "", it means it is current directory. Exclude it.
              */
             if(file.getName().isEmpty())
                 continue;

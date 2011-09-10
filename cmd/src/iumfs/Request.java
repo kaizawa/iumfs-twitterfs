@@ -20,21 +20,20 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Arrays;
 
 /**
- * iumfs のコントロールデバイスドライバから渡されるリクエスト
- * （READ/READDIR/GETATTR/MKDIR/RMDIR/DELETE/CREATE)を表現
- * したクラス。
+ * Abstruct class which represents various request from iumfs
+ * control device driver.
+ * Request would be READ/READDIR/GETATTR/MKDIR/RMDIR/DELETE/CREATE.
  */
 public abstract class Request {
-    final public static int MAX_USER_LEN = 40; // 必ず 8 の倍数
-    final public static int MAX_PASS_LEN = 40; // 必ず 8 の倍数
-    final public static int MAX_SERVER_LEN = 80; // 必ず 8 の倍数
-    final public static int IUMFS_MAXPATHLEN = 1024; // 必ず 8 の倍数
-    final public static int DEVICE_BUFFER_SIZE = 1024 * 1024; // デバイスのバッファサイズ
+    final public static int MAX_USER_LEN = 40; // Must be multiple of 8
+    final public static int MAX_PASS_LEN = 40; // Must be multiple of 8
+    final public static int MAX_SERVER_LEN = 80; // Must be multiple of 8
+    final public static int IUMFS_MAXPATHLEN = 1024; // Must be multiple of 8
+    final public static int DEVICE_BUFFER_SIZE = 1024 * 1024; // buffer size of device
     final public static int MAX_RESPONSE_SIZE = DEVICE_BUFFER_SIZE;
     final public static int MAX_REQUEST_SIZE = DEVICE_BUFFER_SIZE;
     final public static int READ_REQUEST = 1;
@@ -45,11 +44,11 @@ public abstract class Request {
     final public static int REMOVE_REQUEST = 6;
     final public static int MKDIR_REQUEST = 7;
     final public static int RMDIR_REQUEST = 8 ;
-    final public static int RESPONSE_HEADER_SIZE = 24; // long x 3 フィールド
-    final public static int REQUEST_HEADER_SIZE = 2248; // iumfs.h より
+    final public static int RESPONSE_HEADER_SIZE = 24; // long x 3
+    final public static int REQUEST_HEADER_SIZE = 2248; // from iumfs.h
 
     /*
-     * 制御デバイスに返すステータス
+     * Status to return to control device
      */
     final public static int SUCCESS = 0;
     final public static int ENOENT = 2;
@@ -68,7 +67,7 @@ public abstract class Request {
     private String username;
     private String password;
     private long datelen;
-    protected ByteBuffer wbbuf = ByteBuffer.allocate(DEVICE_BUFFER_SIZE); //制御デバイス書き込み用バッファ
+    protected ByteBuffer wbbuf = ByteBuffer.allocate(DEVICE_BUFFER_SIZE); // write buffer for control device
     private long dataoffset;
     private byte[] data;
     private long flags;
@@ -153,13 +152,13 @@ public abstract class Request {
      */
     public void setResponseHeader(long result, long datalen) {
         /*
-         * デーモン から iumfs に渡されるレスポンス構造体
+         * Response structure passed from damon to control device.
          *  8+8+8=24 bytes
          * typedef struct response
          * {
-         *   int64_t            request_type; // 対応するリクエストタイプ
-         *   int64_t            result;       //リクエストの実行結果
-         *   int64_t            datasize; // レスポンス構造体に続くデータのサイズ
+         *   int64_t            request_type; // request type
+         *   int64_t            result;       // execution result of requestn
+         *   int64_t            datasize; // size of data following this header.
          * } response_t;
          */
         wbbuf.clear();
@@ -186,7 +185,7 @@ public abstract class Request {
     }
 
     /**
-     * 指定されたオフセットから始まるデータ配列を返す。
+     * Return array of data start from given offset.
      *
      * @param  from start offset of data array.
      * @param  to end offset of data array.

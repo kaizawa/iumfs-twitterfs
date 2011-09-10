@@ -50,7 +50,7 @@ public class PostFile extends TwitterfsFile {
             }
 
             /*
-             * ファイルとして書かれた文字列を得る。
+             * Get a strings written as a file data.
              */
             Twitter twitter = IumfsTwitterFactory.getInstance(getUsername());
             String whole_msg = new String(buf);
@@ -58,7 +58,7 @@ public class PostFile extends TwitterfsFile {
             logger.finest("whole_msg.length() = " + whole_msg.length());
             int left = whole_msg.length();
             /*
-             * 文字列を 140 文字づつステータスとしてポスト.
+             * Post strings to twitter every 140 characters.
              */
             MessageSeparator sep = new MessageSeparator(whole_msg);
             while (sep.hasNext()) {
@@ -69,15 +69,12 @@ public class PostFile extends TwitterfsFile {
             }
             return 0;
         } catch (TwitterException ex) {
-            logger.fine("TwitterException when writing");
-            throw new FileNotFoundException();
-        } catch (RuntimeException ex) {
-            /*
-             * 実行時例外が発生した際には EIO(IOエラー)にマップ。
-             * なんにしてもちゃんとエラーで返すことが大事。
+            /* 
+             * Convert TwitterException to FileNotFoundException 
              */
-            throw new IOException();
-        }
+            logger.severe("TwitterException when writing");
+            throw new FileNotFoundException();
+        } 
     }    
 
 }

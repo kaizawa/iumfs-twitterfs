@@ -20,7 +20,7 @@ import iumfs.GetAttrRequest;
 import java.util.*;
 
 /**
- *  GETATTR リクエストを表すクラス
+ *  GETATTR request
  */
 class TwitterfsGetAttrRequest extends GetAttrRequest {
     private static final long start_time = new Date().getTime();

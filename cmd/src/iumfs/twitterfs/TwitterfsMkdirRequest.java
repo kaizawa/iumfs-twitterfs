@@ -21,16 +21,13 @@ import java.util.logging.Logger;
 import iumfs.MkdirRequest;
 
 /**
- * <p>MKDIR リクエストを表すクラス</p>
+ * <p>MKDIR request</p>
  */
 class TwitterfsMkdirRequest extends MkdirRequest{
-    /**
-     * <p>TWITTERFS 上にディレクトリを作成する。未サポート</p>
-     */
     @Override
     public void execute() {
         /*
-         * サポートしていない
+         * Not supported
          */
         setResponseHeader(ENOTSUP, 0);        
     }

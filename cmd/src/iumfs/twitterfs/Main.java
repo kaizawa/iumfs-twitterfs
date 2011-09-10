@@ -25,8 +25,7 @@ import twitter4j.TwitterException;
 /** 
  * User mode daemon for TwitterFS
  *
- *  * 
- * デバッグ出力する場合
+ * For debugging.
  * -Djava.util.logging.config.file=log.prop
  *
  */
@@ -100,7 +99,7 @@ public class Main {
     public void startDaemonThreads() {
 
         for (int i = 0; i < Prefs.getInt("maxThreads"); i++) {
-            new TwitterfsDaemonThread().start();            
+            new TwitterfsDaemonThread("TwitterfsDaemonThread").start();            
         }
         //new TwitterfsDaemonThread().start();        
     }

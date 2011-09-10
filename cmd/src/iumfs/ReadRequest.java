@@ -25,14 +25,14 @@ import java.util.Date;
 public abstract class ReadRequest extends Request {
 
     /**
-     * Twitter の TL を読み込み結果をレスポンスヘッダをセットする
+     * Read file data and return it to driver with response header
      */
     @Override
     public void execute() throws FileNotFoundException, IOException {
         long read_size = 0;
 
-        long offset = getOffset(); // ファイルシステムから要求されたファイルオフセット
-        long size = getSize(); // ファイルシステムから要求されたサイズ
+        long offset = getOffset(); // file offset to read
+        long size = getSize(); // data size to read
 
         logger.fine("offset = " + offset + " size = " + size);
 
@@ -42,16 +42,16 @@ public abstract class ReadRequest extends Request {
             return;
         }
 
-        //バッファーの書き込み位置を レスポンスヘッダ分だけずらしておく。 
+        // adjust buffer write position.
         wbbuf.clear();
         wbbuf.position(Request.RESPONSE_HEADER_SIZE);
-        //読み込む
+        // read from file
         read_size = file.read(wbbuf, getSize(), getOffset());
-        //最終アクセス時間を変更
+        // change access time
         file.setAtime(new Date().getTime());
         logger.fine("read_size = " + read_size);
         /*
-         * レスポンスヘッダをセット
+         * set reseponse header
          */
         setResponseHeader(SUCCESS, read_size);
         return;

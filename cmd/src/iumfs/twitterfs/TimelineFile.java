@@ -16,8 +16,6 @@
 package iumfs.twitterfs;
 
 import iumfs.NotSupportedException;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
@@ -44,16 +42,15 @@ import twitter4j.UserList;
 import twitter4j.UserStreamListener;
 
 public class TimelineFile extends TwitterfsFile {
-
     protected static final String CONT = "(cont) ";
     protected long last_id = 0;
     protected long base_id = 0;
     protected List<Status> status_list = new ArrayList<Status>();
-    protected static final int MAX_STATUSES = 200;
-    protected static final int MAX_PAGES = 5;
+    protected static final int max_statues = Prefs.getInt("maxStatuses");
     protected long interval = 0L;
     protected boolean initial_read = true;
     protected boolean stream_api = false; // Switch for use Stream API
+    private int max_pages = Prefs.getInt("maxPages");
 
     /**
      * Constractor for twitter file 
@@ -78,8 +75,8 @@ public class TimelineFile extends TwitterfsFile {
     private void init() {
         if (!isStream_api()) {
             /*
-             * Stream Timelie じゃなければ最初の読み込みとして
-             * 1ページ分(最大20件)だけ読み込む。
+             * If not stream timeline, read 1 page(20 tweets)
+             * as initial read.
              */
             getTimeline(1, 20, 1);
         }
@@ -183,12 +180,12 @@ public class TimelineFile extends TwitterfsFile {
     private void startAutoUpdateThreads() {
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         /*
-         * タイムライン取得のスレッドを起動
+         * Invokde timeline retrieving thread. 
          */
         if (isStream_api() == true) {
             /*
-             * Stream API (現在は HOME のみ)
-             * TwitterStream.sample() の中でスレッドが生成される
+             * Stream API (only home)
+             * Thread created in TwitterStream.sample()
              */
             TwitterStream twitterStream = new TwitterStreamFactory().getInstance();
             twitterStream.setOAuthConsumer(Prefs.get("OAuthConsumerKey"), Prefs.get("consumerSecret"));
@@ -197,7 +194,7 @@ public class TimelineFile extends TwitterfsFile {
             twitterStream.user();
         } else {
             /*
-             * 定期的に取得
+             * retrieve periodically
              */
             executor.scheduleAtFixedRate(new Runnable() {
                 @Override
@@ -214,15 +211,14 @@ public class TimelineFile extends TwitterfsFile {
     }
 
     /**
-     * Twitter から指定オフセットから指定バイト数分だけのステータス情報を得る。
-     * オフセットの起点はデーモン起動時に取得した一番古いステータス
+     * Get Status data of requested bytes at requested offset.
+     * The base of offset statts from oldest status.
      * 
-     * list が更新されているときに読み込まれないよう synchronized にしている。
-     * TODO: CopyOnWriteArrayListを使えばいいが、単純には sort ができなくので後で検討
-     * 
-     * TODO: read が呼ばれる度にオフセットまでの Status の文字列の合計文字数を計算
-     * するので、格納している Status 数が増えてくると比例して read の時間が遅くなる。要改善。
-     * (いっそのことフォーマット済み text として保持するという手もある)
+     * Procect list by synchronizing, not to read when time line is updated.
+     *
+     * TODO: CopyOnWriteArrayList would be best, but it doesn't support sorting..
+     * TODO: In current implementation, calculation of offset is very costly.
+     *       Should I store status as simple text data?
      * 
      * @param buf
      * @param size
@@ -236,7 +232,7 @@ public class TimelineFile extends TwitterfsFile {
         long curr_size = 0;
         long curr_offset = 0;
         long prev_offset = 0;
-        long rel_offset; // ステータス単位での相対オフセット
+        long rel_offset; // relative offset within each status 
         int page = 0;
 
         Twitter twitter = IumfsTwitterFactory.getInstance(getUsername());
@@ -266,25 +262,26 @@ public class TimelineFile extends TwitterfsFile {
 
                 logger.finest(text);
 
-                // 以前のオフセットにステータスの文字数を足して現在のオフセットと考える。
+                /*
+                 * Calculate current offset by adding number of characters to 
+                 * previous offset.
+                 */
                 curr_offset += status_length;
                 logger.finer("curr_off=" + curr_offset);
                 if (curr_offset < offset) {
                     logger.finer("offset not yet reached");
-                    //まだオフセットに到達していない。
                     continue;
                 } else if (prev_offset >= offset) {
                     logger.finer("prev_offset >= offset");
                     /*
-                     * すでにオフセットを越えている
-                     * ステータス境界のオフセット値を0に。
+                     * Already exceed offset. set relative offset to 0.
                      */
                     rel_offset = 0;
                 } else {
                     logger.finer("prev_offset < offset");
                     /*
-                     * このステータスでオフセットを越える。
-                     * ステータス境界のオフセット値を計算
+                     * offset is within this status.
+                     * calculate relative offset.
                      */
                     rel_offset = offset - prev_offset;
                 }
@@ -292,21 +289,20 @@ public class TimelineFile extends TwitterfsFile {
 
                 if (curr_size + status_length >= size) {
                     /*
-                     * 必要サイズとステータスのサイズが同じ、もしくは大きすぎる。
-                     * ステータス内で必要サイズ分だけバッファにコピーしてこれ以上
-                     * は読み込まない。
+                     * status size is larger or equal to requested size.
+                     * Copy necessary data size and won't read any more. 
                      */
                     copy_size = size - curr_size - rel_offset;
                     logger.finer("copy_Size = " + copy_size + ". No need to read more Status");
                 } else {
                     /*
-                     * この時点でまだ必要サイズに満たない。すべてバッファにコピー
+                     * need more data... copy all status data to buffer.
                      */
                     copy_size = bytes.length - rel_offset;
                     logger.finer("copy_Size = " + copy_size + ". need to read more Status");
                 }
                 /*
-                 * バッファに書き込む
+                 * write to buffer
                  */
                 buf.put(bytes, (int) rel_offset, (int) copy_size);
                 curr_size += copy_size;
@@ -324,15 +320,14 @@ public class TimelineFile extends TwitterfsFile {
     }
 
     /**
-     * Status を指定フォーマットのテキストとして返す。
-     * 今は改行を加えるだけ。
+     * Convert Status to formated text.
      * 
-     * @param status ステータス。
-     * @return フォーマットされたテキスト
+     * @param status Status
+     * @return formatted text
      */
     public static String statusToFormattedString(Status status) {
         /*
-         * フォr-マットを追加。User 名や時間など。
+         * Add user name time..
          */
         StringBuilder sb = new StringBuilder();
         Date createdDate = status.getCreatedAt();
@@ -350,36 +345,34 @@ public class TimelineFile extends TwitterfsFile {
     }
 
     public void getTimeline() {
-        getTimeline(MAX_STATUSES, last_id);
+        getTimeline(max_statues, last_id);
     }
 
     /**
-     * Twitter からタイムラインを読み出す。
-     * 実際の読み込みは getTimeline(int page, int count, long since) で読み込む。
+     * Read time line from Twitter
+     * This function just invoke getTimeline(int page, int count, long since) 
      * 
      * @param count
      * @param since 
      */
     public void getTimeline(int count, long since) {
         int cnt = 0;
-        int page = 1;// ページは 1 から始まる。
+        int page = 1; // page start from 1 !!
         /*
-         * 最後に読み込んだステータスまで読み込む。ただし、最高 4 ページをとする。
-         * public だと最大 80 ステータス。他は 800 ステータスに相当。
+         * Retrieve status up to max_pages(4 by default)
+         * It's 80 status for public timeline, and 800 status for the ther timilene
          *   20 * 4 = 80
          *   200 * 4 = 800
-         * 特に public ではギャップが生じてしまうがしょうがない。(でないと、ずっと
-         * 取得しつづけることになってしまう)
          */
         do {
             cnt = getTimeline(page, count, since);
             page++;
-        } while ((cnt == count && page < MAX_PAGES) || (cnt == 20 && page < MAX_PAGES));
+        } while ((cnt == count && page < max_pages) || (cnt == 20 && page < max_pages));
     }
 
     /**
-     * Twitter から指定ページ内のタイムラインを読み出す。
-     * リストを変更するので排他的に呼ばれる必要がある。
+     * Retrieve Statuses in given pages.
+     * This method must be called exclusively.
      * 
      * @param page
      * @param count
@@ -414,10 +407,10 @@ public class TimelineFile extends TwitterfsFile {
                     + statuses.size() + " Statuses in page " + page);
 
             if (statuses.size() == 0) {
-                // これ以上ステータスは無いようだ。
+                // last status
                 return 0;
             }
-            //最初のステータス(最新)を最終読み込みステータスとする。            
+            // Set first status(newest) as last_id.
             last_id = statuses.get(0).getId();
             for (Status status : statuses) {
                 logger.finer("Read Status id=" + status.getId());
@@ -427,8 +420,7 @@ public class TimelineFile extends TwitterfsFile {
             }
             if (initial_read) {
                 /*
-                 * 一番最初の読み込み時の最も古い(リストの最後)ステータスを起点の 
-                 * ID(base_id)とする。                            
+                 * Set last status(oldest) to base_id.
                  */
                 base_id = statuses.get(statuses.size() - 1).getId();
                 logger.finer("base_id = " + base_id);
@@ -438,7 +430,7 @@ public class TimelineFile extends TwitterfsFile {
             logger.fine("new file_size is " + getFileSize());
             java.util.Collections.sort(status_list);
             /*
-             * TL が更新されているので mtime, ctime(更新時間)を変更する。
+             * Timelie is update. So changed mtime and ctime
              */
             Date now = new Date();
             setMtime(now.getTime());
@@ -494,7 +486,7 @@ public class TimelineFile extends TwitterfsFile {
             logger.fine("new file_size is " + getFileSize());
             java.util.Collections.sort(status_list);
             /*
-             * TL が更新されているので mtime, ctime(更新時間)を変更する。
+             * Timelie is update. So changed mtime and ctime
              */
             Date now = new Date();
             setMtime(now.getTime());

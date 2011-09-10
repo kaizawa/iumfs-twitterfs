@@ -22,9 +22,11 @@ import java.nio.BufferUnderflowException;
 import java.util.logging.Logger;
 
 /**
- * <p>デバイスドライバから受け取った データを元に、適切なリクエストクラスの
- * インスタンスを返すファクトリ</p>
- * TODO: Instance をプールしておいて、効率的に利用する
+ * <p>
+ * Return appropreate Request class based on the request 
+ * from control device driver.
+ * Implementation must exist every file system type.
+ * </p>
  */
 public class TwitterfsRequestFactory extends RequestFactory {
 
@@ -33,8 +35,7 @@ public class TwitterfsRequestFactory extends RequestFactory {
     public Request createInstance(long request_type) {
 
         /*
-         *  TODO: リクエストによって確保する Buffer のサイズを可変にしてもいいかも..
-         *  そうすると使いまわしはできなくなるが？
+         * TODO: Buffer size should be varialbe size for each request
          */
         try {
             Request req = null;

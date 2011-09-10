@@ -21,7 +21,7 @@ class SetupFile extends TwitterfsFile {
                 + "java -cp " +  System.getProperty("java.class.path")
                 + " \"$@\" " // java options, if any
                 + " iumfs.twitterfs.Main setup " + account.getUsername() + "\n"
-                + "if [ $? != 0 ]; then" 
+                + "if [ $? != 0 ]; then\n" 
                 + "     echo \"\ntry\n    $ setup -Dhttp.proxyHost=<proxy_address> -Dhttp.proxyPort=<proxy_port>\" \n"
                 + "fi \n"
                 );

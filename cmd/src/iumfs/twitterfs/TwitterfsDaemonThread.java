@@ -22,6 +22,12 @@ import iumfs.*;
  */
 public class TwitterfsDaemonThread extends ControlDevicePollingThread {
 //    protected static Logger logger = Logger.getLogger(Main.class.getName());
+    
+    public TwitterfsDaemonThread(String name){
+        super(name);
+    }
+    
+    @Override
     protected RequestFactory getFactory(){
         return new TwitterfsRequestFactory();
     }

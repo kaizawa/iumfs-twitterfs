@@ -19,7 +19,7 @@ import iumfs.File;
 import iumfs.RemoveRequest;
 
 /**
- *  REMOVE リクエストを表すクラス
+ *  REMOVE request
  */
 class TwitterfsRemoveRequest extends RemoveRequest {
 

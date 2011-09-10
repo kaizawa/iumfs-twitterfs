@@ -7,7 +7,7 @@ import java.util.logging.LogRecord;
 public final class SingleLineLogFormatter extends Formatter {
 
     /**
-     * ログフォーマットを指定
+     * Setting log format
      */    
     @Override
     public synchronized String format(final LogRecord rec) {

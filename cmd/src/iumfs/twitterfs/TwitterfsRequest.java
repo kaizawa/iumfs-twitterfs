@@ -20,9 +20,7 @@ import iumfs.Request;
 import java.util.logging.Logger;
 
 /**
- * iumfs のコントロールデバイスドライバから渡されるリクエスト
- * （READ/READDIR/GETATTR/MKDIR/RMDIR/DELETE/CREATE)を表現
- * したクラス。
+ * Abstract Request class of Twitterfs
  */
 public abstract class TwitterfsRequest extends Request{
 

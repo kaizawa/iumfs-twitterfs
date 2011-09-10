@@ -43,9 +43,8 @@ abstract public class TwitterfsFile extends File {
     }
 
     /*
-     * ファイルタイプを返す。
-     * ファイル名で判定し、'/', ',', '..' だったらディレクトリとみなし
-     * それ以外は通常ファイルとみなす。
+     *Return file type
+     * If direcory, return VDIR, othewise VREG.(reqular file)
      */
     @Override
     public long getFileType() {

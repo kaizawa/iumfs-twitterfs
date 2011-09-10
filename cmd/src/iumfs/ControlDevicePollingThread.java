@@ -32,6 +32,10 @@ import java.util.logging.Logger;
 public abstract class ControlDevicePollingThread extends Thread {
 
     protected static Logger logger = Logger.getLogger("iumfs");
+    
+    public ControlDevicePollingThread (String name){
+        super(name);
+    }
 
     public void run() {
         ByteBuffer rbbuf = ByteBuffer.allocate(Request.DEVICE_BUFFER_SIZE);

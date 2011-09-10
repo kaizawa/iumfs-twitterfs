@@ -19,7 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /**
- * <p>Write リクエストを表すクラス</p>
+ * <p>Write Request class</p>
  */
 public abstract class WriteRequest extends Request {
 
@@ -30,7 +30,7 @@ public abstract class WriteRequest extends Request {
         File file = getFile();
         file.write(getData(), getSize(), getOffset());
         /*
-         * レスポンスヘッダをセット
+         * Set response header
          */
         setResponseHeader(SUCCESS, 0);
     }

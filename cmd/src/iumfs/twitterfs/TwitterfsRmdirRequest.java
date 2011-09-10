@@ -19,7 +19,7 @@ import iumfs.File;
 import iumfs.RmdirRequest;
 
 /**
- *  RMDIRリクエストを表すクラス
+ *  RMDIR Request
  */
 class TwitterfsRmdirRequest extends RmdirRequest {
     @Override

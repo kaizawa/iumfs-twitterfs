@@ -22,7 +22,7 @@ import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
 /**
- * <p>Write リクエストを表すクラス</p>
+ * <p>Write request</p>
  */
 public class TwitterfsWriteRequest extends WriteRequest {
     @Override

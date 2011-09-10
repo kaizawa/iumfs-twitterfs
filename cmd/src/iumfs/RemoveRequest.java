@@ -16,12 +16,12 @@
 package iumfs;
 
 /**
- *  REMOVE リクエストを表すクラス
+ *  REMOVE Request class
  */
 public abstract class RemoveRequest extends Request {
 
     /**
-     * ファイルを削除する。
+     * Remove file
      */
     @Override
     public void execute() {
