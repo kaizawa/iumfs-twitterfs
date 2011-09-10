@@ -7,5 +7,5 @@
 #
 # * -fstype=iumfs,user=& :twitterfs://twitter.com/
 #
-sudo echo "/twitter        auto_twitter" >> /etc/auto_master
-sudo echo "* -fstype=iumfs,user=& :twitterfs://twitter.com/" > /etc/auto_twitter
+echo "/twitter        auto_twitter" | sudo tee -a /etc/auto_master > /dev/null
+echo "* -fstype=iumfs,user=& :twitterfs://twitter.com/" | sudo tee -a /etc/auto_master > /dev/null
