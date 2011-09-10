@@ -1,11 +1,19 @@
 #!/bin/sh
 #
+# Create /twitter directory if it doesn't exist
+#
 # Add following line to /etc/auto_master
 #  /twitter        auto_twitter
 #
-# Add auto_twitter to /etc directory
-#
+# Create /etc/auto_twitter with following line 
 # * -fstype=iumfs,user=& :twitterfs://twitter.com/
 #
-echo "/twitter        auto_twitter" | sudo tee -a /etc/auto_master > /dev/null
-echo "* -fstype=iumfs,user=& :twitterfs://twitter.com/" | sudo tee -a /etc/auto_master > /dev/null
+sudo mkdir -p /twitter
+line=`grep auto_twitter /etc/auto_master`
+if [ -z $line ];then
+	echo "/twitter        auto_twitter" | sudo tee -a /etc/auto_master > /dev/null
+fi
+if [ ! -f /etc/auto_twitter ]; then
+	echo "* -fstype=iumfs,user=& :twitterfs://twitter.com/" | sudo tee -a /etc/auto_twitter > /dev/null
+fi
+sudo svcadm restart autofs
