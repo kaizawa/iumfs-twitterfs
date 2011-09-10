@@ -29,5 +29,11 @@
   <target name="test" depends="jar">
     <exec dir="../twitterfs-test" executable="./test.sh"/>
   </target>
+
+ <target name="clear">
+    <delete>
+      <fileset dir="${build}" includes="**/*.class" />
+    </delete>
+  </target>
 </project>
 
