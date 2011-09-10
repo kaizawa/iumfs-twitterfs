@@ -23,6 +23,7 @@ abstract public class TwitterfsFile extends File {
     protected boolean is_timeline = false;
     protected static final Logger logger = Logger.getLogger(Main.class.getName());
     protected Account account;
+    private boolean is_dir = false;
 
     TwitterfsFile(Account account, String name){
         super(name);
@@ -58,4 +59,15 @@ abstract public class TwitterfsFile extends File {
     protected String getUsername(){
         return account.getUsername();
     }
+    
+    @Override
+    public boolean isDir(){
+        return is_dir;
+    }
+    
+    public void setDir(boolean is_dir){
+        this.is_dir = is_dir;
+    }
+    
+    
 }

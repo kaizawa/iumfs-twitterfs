@@ -18,11 +18,9 @@ package iumfs;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
- *  READ リクエストを表すクラス
+ *  READ Request class
  */
 public abstract class ReadRequest extends Request {
 

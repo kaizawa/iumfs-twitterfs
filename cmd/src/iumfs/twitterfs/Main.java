@@ -20,6 +20,7 @@ import iumfs.InvalidUserException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
+import twitter4j.TwitterException;
 
 /** 
  * User mode daemon for TwitterFS
@@ -30,14 +31,46 @@ import java.util.logging.Logger;
  *
  */
 public class Main {
+
     static final String version = "0.1.9";  // version
     private static final Logger logger = Logger.getLogger(Main.class.getName());
     private static final int maxThreads = 4;
     private static Map<String, Account> accountMap = new ConcurrentHashMap<String, Account>();
 
     public static void main(String args[]) {
+        /*
+         * setup options. It prepares twitter OAuth key.
+         */
+        if (args.length == 2) {
+            setup(args);
+        }
+
         Main instance = new Main();
         instance.startDaemonThreads();
+    }
+
+    /**
+     * This routine just setup Twitter OAuth access token.
+     * Once it finiced setting up, exit the process.
+     */
+    protected static void setup(String[] args) {
+        try {
+            String username = args[1];
+            if ("setup".equals(args[0]) && username.length() != 0) {
+                IumfsTwitterFactory.getAccessToken(username);
+                if (Prefs.get(username + "/accessToken").isEmpty()) {
+                    System.out.println("Failed to setup Twitter access token");
+                } else {
+                    System.out.println("Twitter access token setup sucessfully");
+                    System.exit(0);
+                }
+            } else {
+                System.out.println("Usage: iumfs.twitterfs.Main setup <username>");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        System.exit(1);
     }
 
     static public void fillFileMap(Map<String, File> fileMap, Account account) {
@@ -52,11 +85,11 @@ public class Main {
         fileMap.put("/retweets_of_me", new TimelineFile(account, "retweets_of_me", false, 600000));
         fileMap.put("/", new DirectoryFile(account, ""));
     }
-    
+
     static public void initFileMap(Map<String, File> fileMap, Account account) {
         fileMap.put("/setup", new SetupFile(account, "setup"));
         fileMap.put("/", new DirectoryFile(account, ""));
-    }    
+    }
 
     /**
      * @return the accountMap
@@ -73,27 +106,47 @@ public class Main {
          */
         new TwitterfsDaemonThread().start();
     }
-    
+
+    /*
+     * Get a File object of given pathname for a user.
+     * This method is called from TwitterXXXXRequest methods.
+     * So this is an entry point for file operation.
+     */
     static public File getFile(String username, String pathname) {
-       if(username.isEmpty()){
-           throw new InvalidUserException("Unknown user \"" + username + "\" specified");
-       }
-       
-       logger.finer("pathname=" + pathname + ", usernaem=" + username);
+        if (username.isEmpty()) {
+            throw new InvalidUserException("Unknown user \"" + username + "\" specified");
+        }
+
+        logger.finer("pathname=" + pathname + ", usernaem=" + username);
         Account account = getAccountMap().get(username);
-        
-        if(account == null){
+
+        if (account == null) {
             account = new Account(username);
-            Map<String, File> fileMap = new ConcurrentHashMap<String, File>(); 
+            Map<String, File> fileMap = new ConcurrentHashMap<String, File>();
             initFileMap(fileMap, account);
             account.setFileMap(fileMap);
             getAccountMap().put(username, account);
-            logger.finer("New Account for "+ username + " created.");
+            logger.fine("New Account for " + username + " created.");
         }
+        /* 
+         * If file map is initial file map(just has 2 entires) but 
+         * has access toke, it seems to have finished setting up twitter
+         * account. Create new file map which has timeline file and swap
+         * it to existing file map.
+         */
+        logger.fine("Map size=" + account.getFileMap().size());
+        if (account.getFileMap().size() == 2){
+            Prefs.sync();
+            if(Prefs.get(username + "/accessToken").length() > 0) {
+                Map<String, File> fileMap = new ConcurrentHashMap<String, File>();
+                fillFileMap(fileMap, account);
+                account.setFileMap(fileMap);
+            }
+        }        
         return account.getFileMap().get(pathname);
     }
-    
-    static public Map<String, File> getFileMap(String user){
-        return accountMap.get(user).getFileMap();
+
+    static public Map<String, File> getFileMap(String username) {
+        return accountMap.get(username).getFileMap();
     }
 }

@@ -17,13 +17,12 @@
 package iumfs;
 
 /**
- * <p>CREATE リクエストを表すクラス<br>
- * 未サポート.
+ * <p>CREATE Request Class<br>
  * </p>
  */
 public abstract class CreateRequest extends Request {
     /**
-     * <p>FileSystem.create を実行する</p>
+     * <p>Excecute FileSystem.create</p>
      * <p>
      * </p>
      */

@@ -20,11 +20,7 @@ import java.nio.ByteBuffer;
 public class DirectoryFile extends TwitterfsFile { 
     DirectoryFile(Account account, String name){
         super(account, name);
-    }
-
-    @Override
-    public boolean isDir() {
-        return true;
+        setDir(true);
     }
 
     @Override

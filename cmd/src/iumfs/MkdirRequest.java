@@ -16,11 +16,11 @@
 package iumfs;
 
 /**
- * <p>MKDIR リクエストを表すクラス</p>
+ * <p>MKDIR Reuqest class</p>
  */
 public abstract class MkdirRequest extends Request{
     /**
-     * <p>ディレクトリを作成する。未サポート</p>
+     * Create new Directory
      */
     @Override
     public void execute() {

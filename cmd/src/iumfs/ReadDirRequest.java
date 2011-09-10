@@ -19,29 +19,30 @@ import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 
 /**
- *  READDIR リクエストを表すクラス
+ *  READDIR Request class
  */
 public abstract class ReadDirRequest extends Request {
 
     /**
-     * <p>仮想ディレクトリエントリを読み込み、結果をレスポンス
-     * ヘッダをセットする</p>
+     * <p>Read virtual directory entry 
+     * </p>
      */
     @Override
     public void execute() throws UnsupportedEncodingException {
         /*
-         * まず最初にヘッダ分だけバッファの位置を進めておく。
-         * ヘッダはデータ長がわかってから改めてセットする
+         * proceed the position until heder size.
+         * header information including data size will be
+         * set after we know actuall data size.
          */
         wbbuf.position(Request.RESPONSE_HEADER_SIZE);
 
         for (File f : getFileList()) {
             int namelen = f.getName().getBytes("UTF-8").length;
-            namelen++; // null terminate 用。
+            namelen++; // null terminate。
 
             /*
-             * 受け取り側の driver でのアライメント対策のため reclen
-             * (レコード長）は必ず 8 の倍数になるようにする。
+             * For data alinment, reclen must be multiple of 8.
+             *
              * typedef struct iumfs_dirent
              * {
              *   int64_t           i_reclen;
@@ -61,7 +62,7 @@ public abstract class ReadDirRequest extends Request {
             wbbuf.position(wbbuf.position() + (reclen - 8 - namelen));
         }
         /*
-         * レスポンスヘッダをセット
+         * Set response header
          */
         setResponseHeader(SUCCESS, wbbuf.position() - RESPONSE_HEADER_SIZE);
     }

@@ -67,7 +67,6 @@ public class TimelineFile extends TwitterfsFile {
         super(account, filename);
         this.is_timeline = true;
         this.stream_api = is_stream_api;
-        this.account = account;
         this.interval = interval;
         init();
         startAutoUpdateThreads();
@@ -515,17 +514,7 @@ public class TimelineFile extends TwitterfsFile {
 
     @Override
     public long getPermission() {
-        return (long) 0100444; // regular file
-    }
-
-    /**
-     * リクエストされているディレクトリエントリがディレクトリであるかどうかを判定する。
-     * 名前が . 、..、もしくは / だったらディレクトリ。
-     * @return true if file is directory.
-     */
-    @Override
-    public boolean isDir() {
-        return true;
+        return (long) 0100444; // regular file      
     }
 
     @Override

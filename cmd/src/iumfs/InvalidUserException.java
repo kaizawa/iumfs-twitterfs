@@ -16,7 +16,7 @@
 package iumfs;
 
 /**
- * UnknownRequestException thatis thrown by iumfsd daemon
+ * UnknownRequestException thatis thrown by daemon
  * when it detects un-supported request type.
  */
 public class InvalidUserException extends RuntimeException {

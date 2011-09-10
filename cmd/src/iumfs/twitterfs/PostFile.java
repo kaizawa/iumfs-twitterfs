@@ -29,13 +29,8 @@ public class PostFile extends TwitterfsFile {
     }
 
     @Override
-    public boolean isDir() {
-        return false;
-    }
-
-    @Override
     public long getPermission() {
-        return (long) 0040666; // can write
+        return (long) 0100666; // can write
     }
 
     @Override

@@ -20,7 +20,7 @@ import java.util.logging.Level;
 import javax.imageio.stream.FileCacheImageInputStream;
 
 /**
- *  GETATTR リクエストを表すクラス
+ *  GETATTR request class
  */
 public abstract class GetAttrRequest extends Request {
 
@@ -28,20 +28,19 @@ public abstract class GetAttrRequest extends Request {
     private static final long start_time = new Date().getTime();
 
     /**
-     * twitterfs ファイルシステム上の仮想エントリに対するファイルの属性情報
-     * のリクエストを処理する。
+     * Return file attribute information of file on filesystem
      */
     @Override
     public void execute() {
         /*
-         * 対応した File オブジェクトを得る。
+         * get File Object
          */
         File file = getFile();
 
         if (file == null) {
             /*
-             * 既知のファイル名でなく、ディレクトリでもない。
-             * 不明なファイルの要求。ENOENT を返す。
+             * Unknown file
+             * return ENOENT
              */
             setResponseHeader(ENOENT, 0);
             return;
@@ -56,15 +55,15 @@ public abstract class GetAttrRequest extends Request {
          * ファイル属性をバッファにセット
          * typedef struct iumfs_vattr
          * {
-         *   uint64_t  i_mode; // ファイルモード
-         *   uint64_t  i_size; // ファイルサイズ
-         *   int64_t   i_type; // ファイルタイプ
-         *   int64_t   mtime_sec; // 変更時間(sec)
-         *   int64_t   mtime_nsec;// 変更時間(nsec)
-         *   int64_t   atime_sec; // 属性変更時間(sec)
-         *   int64_t   atime_nsec;// 属性変更時間(nsec)
-         *   int64_t   ctime_sec; // 作成時間(sec)
-         *   int64_t   ctime_nsec;// 作成時間(nsec)
+         *   uint64_t  i_mode; // file mode
+         *   uint64_t  i_size; // file size
+         *   int64_t   i_type; // file type
+         *   int64_t   mtime_sec; // modify time(sec)
+         *   int64_t   mtime_nsec;// modify time(nsec)
+         *   int64_t   atime_sec; // access time(sec)
+         *   int64_t   atime_nsec;// access time(nsec)
+         *   int64_t   ctime_sec; // change time(sec)
+         *   int64_t   ctime_nsec;// change time(nsec)
          * } iumfs_vattr_t;
          */
         Date now = new Date();
@@ -87,7 +86,7 @@ public abstract class GetAttrRequest extends Request {
             wbbuf.putLong((file.getCtime() % 1000) * 1000);
         }
         logger.finer("filename=" + file.getName() + ", Permission="
-                + file.getPermission() + " ,FileSize=" + file.getFileSize()
+                + String.format("%1$o", file.getPermission()) + " ,FileSize=" + file.getFileSize()
                 + ", FileType=" + file.getFileType());
     }
 }

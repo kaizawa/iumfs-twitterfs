@@ -56,7 +56,7 @@ public abstract class ControlDevicePollingThread extends Thread {
         while (true) {
             try {
                 /*
-                 * iumfs デバイスからリクエストデータを読み込む
+                 * Read request data from iumfs device
                  */
                 rbbuf.clear();
                 if ((len = ch.read(rbbuf)) < 0) {
@@ -67,7 +67,7 @@ public abstract class ControlDevicePollingThread extends Thread {
                 logger.finer("device returns " + len + " bytes ");
 
                 /*
-                 * リクエストオブジェクトを生成
+                 * Create request object
                  */
                 RequestFactory factory = getFactory();
                 req = factory.getInstance(rbbuf);
@@ -77,7 +77,7 @@ public abstract class ControlDevicePollingThread extends Thread {
                     System.exit(1);
                 }
                 /*
-                 * リクエストを実行
+                 * Execute request
                  */
                 logger.fine("calling " + req.getClass().getSimpleName() + ".execute()");
                 req.execute();
@@ -92,14 +92,15 @@ public abstract class ControlDevicePollingThread extends Thread {
                 req.setResponseHeader(Request.ENOTSUP, 0);
             } catch (RuntimeException ex) {
                 /*
-                 * 実行時例外発生時は EIO(IOエラー)にマップ。
-                 * なんにしてもちゃんとエラーで返すことが大事。
+                 * It is important to return an error to driver, even
+                 * if exception happend.
+                 * Convert RuntimeException to EIO error.
                  */
                 logger.severe("RuntimeException happened");
                 req.setResponseHeader(Request.EIO, 0);
             }
             /*
-             * デバイスに書き込み
+             * Write response to driver.
              */
             try {
                 ch.write(req.getResponseBuffer());

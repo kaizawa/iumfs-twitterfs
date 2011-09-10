@@ -1,5 +1,8 @@
 package iumfs.twitterfs;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import java.util.*;
 
@@ -91,5 +94,13 @@ public class Prefs {
      */    
     static public void putBoolean(String key, Boolean value) {
         prefs.putBoolean(key, value);
+    }
+    
+    static public void sync(){
+        try {
+            prefs.sync();
+        } catch (BackingStoreException ex) {
+            ex.printStackTrace();
+        }
     }
 }

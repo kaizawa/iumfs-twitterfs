@@ -17,6 +17,7 @@ package iumfs.twitterfs;
 
 import iumfs.File;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
