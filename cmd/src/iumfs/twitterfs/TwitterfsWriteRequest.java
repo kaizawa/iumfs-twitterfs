@@ -17,9 +17,6 @@ package iumfs.twitterfs;
 
 import iumfs.File;
 import iumfs.WriteRequest;
-import twitter4j.Status;
-import twitter4j.Twitter;
-import twitter4j.TwitterException;
 
 /**
  * <p>Write request</p>
