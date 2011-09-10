@@ -31,7 +31,7 @@ import twitter4j.TwitterException;
  */
 public class Main {
 
-    static final String version = "0.1.9";  // version
+    static final String version = "0.1.10";  // version
     private static final Logger logger = Logger.getLogger(Main.class.getName());
     private static Map<String, Account> accountMap = new ConcurrentHashMap<String, Account>();
 
