@@ -15,6 +15,7 @@
  */
 package iumfs.twitterfs;
 
+import iumfs.NotSupportedException;
 import java.nio.ByteBuffer;
 
 public class DirectoryFile extends TwitterfsFile { 
