@@ -16,6 +16,7 @@
 package iumfs.twitterfs;
 
 import iumfs.File;
+import iumfs.NotSupportedException;
 import java.util.Date;
 import java.util.logging.Logger;
 
@@ -68,5 +69,8 @@ abstract public class TwitterfsFile extends File {
         this.is_dir = is_dir;
     }
     
-    
+    @Override
+    public void create(){
+        throw new NotSupportedException();
+    }    
 }
