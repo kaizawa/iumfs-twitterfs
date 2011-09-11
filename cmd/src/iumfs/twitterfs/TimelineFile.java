@@ -178,6 +178,7 @@ public class TimelineFile extends TwitterfsFile {
     };
 
     private void startAutoUpdateThreads() {
+        // TODO: each time line should use same thread pool
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         /*
          * Invokde timeline retrieving thread. 
