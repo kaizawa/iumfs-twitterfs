@@ -38,28 +38,28 @@ public class TwitterfsRequestFactory extends RequestFactory {
         try {
             Request req = null;
             switch ((int) request_type) {
-                case TwitterfsRequest.READ_REQUEST:
+                case Request.READ_REQUEST:
                     req = new TwitterfsReadRequest();
                     break;
-                case TwitterfsRequest.READDIR_REQUEST:
+                case Request.READDIR_REQUEST:
                     req = new TwitterfsReadDirRequest();
                     break;
-                case TwitterfsRequest.GETATTR_REQUEST:
+                case Request.GETATTR_REQUEST:
                     req = new TwitterfsGetAttrRequest();
                     break;
-                case TwitterfsRequest.WRITE_REQUEST:
+                case Request.WRITE_REQUEST:
                     req = new TwitterfsWriteRequest();
                     break;
-                case TwitterfsRequest.CREATE_REQUEST:
+                case Request.CREATE_REQUEST:
                     req = new TwitterfsCreateRequest();
                     break;
-                case TwitterfsRequest.REMOVE_REQUEST:
+                case Request.REMOVE_REQUEST:
                     req = new TwitterfsRemoveRequest();
                     break;
-                case TwitterfsRequest.MKDIR_REQUEST:
+                case Request.MKDIR_REQUEST:
                     req = new TwitterfsMkdirRequest();
                     break;
-                case TwitterfsRequest.RMDIR_REQUEST:
+                case Request.RMDIR_REQUEST:
                     req = new TwitterfsRmdirRequest();
                     break;
                 default:
