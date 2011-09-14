@@ -24,7 +24,6 @@ abstract public class TwitterfsFile extends File {
     protected boolean is_timeline = false;
     protected static final Logger logger = Logger.getLogger(Main.class.getName());
     protected Account account;
-    private boolean is_dir = false;
 
     TwitterfsFile(Account account, String name){
         super(name);
@@ -35,21 +34,17 @@ abstract public class TwitterfsFile extends File {
         setMtime(now.getTime());          
     }
 
-    public String getPathname() {
-        return "/" + getName();
-    }
-
     public boolean isTimeline() {
         return is_timeline;
     }
-
+    
     /*
      *Return file type
      * If direcory, return VDIR, othewise VREG.(reqular file)
      */
     @Override
     public long getFileType() {
-        if (isDir()) {
+        if (isDirectory()) {
             return File.VDIR;
         } else {
             return File.VREG;
@@ -61,12 +56,12 @@ abstract public class TwitterfsFile extends File {
     }
     
     @Override
-    public boolean isDir(){
-        return is_dir;
+    public boolean isDirectory(){
+        return directory;
     }
     
-    public void setDir(boolean is_dir){
-        this.is_dir = is_dir;
+    public void setDirectory(boolean directory){
+        this.directory = directory;
     }
     
     @Override

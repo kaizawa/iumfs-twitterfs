@@ -61,7 +61,7 @@ class SetupFile extends TwitterfsFile {
         this.script = script;
         try {
             byte[] bytes = script.getBytes("UTF-8");        
-            setFileSize(bytes.length);            
+            setLength(bytes.length);            
         } catch (UnsupportedEncodingException ex) {
             logger.severe(ex.getMessage());
         }        

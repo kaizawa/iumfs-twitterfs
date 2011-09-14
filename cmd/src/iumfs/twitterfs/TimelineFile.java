@@ -206,11 +206,6 @@ public class TimelineFile extends TwitterfsFile {
         }
     }
 
-    @Override
-    public long getFileSize() {
-        return file_size;
-    }
-
     /**
      * Get Status data of requested bytes at requested offset.
      * The base of offset statts from oldest status.
@@ -416,7 +411,7 @@ public class TimelineFile extends TwitterfsFile {
             for (Status status : statuses) {
                 logger.finer("Read Status id=" + status.getId());
                 logger.finest(statusToFormattedString(status));
-                setFileSize(getFileSize() + statusToFormattedString(status).getBytes("UTF-8").length);
+                setLength(length() + statusToFormattedString(status).getBytes("UTF-8").length);
                 status_list.add(status);
             }
             if (initial_read) {
@@ -428,7 +423,7 @@ public class TimelineFile extends TwitterfsFile {
                 initial_read = false;
             }
 
-            logger.fine("new file_size is " + getFileSize());
+            logger.fine("new file_size is " + length());
             java.util.Collections.sort(status_list);
             /*
              * Timelie is update. So changed mtime and ctime
@@ -480,11 +475,11 @@ public class TimelineFile extends TwitterfsFile {
         try {
             logger.finer("Read Status id=" + status.getId());
             logger.finest(statusToFormattedString(status));
-            setFileSize(getFileSize() + statusToFormattedString(status).getBytes("UTF-8").length);
+            setLength(length() + statusToFormattedString(status).getBytes("UTF-8").length);
             status_list.add(status);
             last_id = status.getId();
 
-            logger.fine("new file_size is " + getFileSize());
+            logger.fine("new file_size is " + length());
             java.util.Collections.sort(status_list);
             /*
              * Timelie is update. So changed mtime and ctime
