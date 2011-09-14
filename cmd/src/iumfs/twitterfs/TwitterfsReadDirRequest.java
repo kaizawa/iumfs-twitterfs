@@ -28,14 +28,14 @@ class TwitterfsReadDirRequest extends ReadDirRequest {
 
     @Override
     public File getFile(){
-        return  Main.getFile(getUserName(), getPathname());
+        return  TwitterfsFile.getFile(getUserName(), getPathname());
     }
 
     @Override
     public Collection<File> getFileList() {
         List<File> fileList = new ArrayList<File>();
         
-        for(File file : Main.getFileMap(getUserName()).values()){
+        for(File file : TwitterfsFile.getFileMap(getUserName()).values()){
             /*
              * If name is "", it means it is current directory. Exclude it.
              */

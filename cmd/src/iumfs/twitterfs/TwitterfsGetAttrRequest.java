@@ -27,6 +27,6 @@ class TwitterfsGetAttrRequest extends GetAttrRequest {
 
     @Override
     public File getFile() {
-        return Main.getFile(getUserName(), getPathname());
+        return TwitterfsFile.getFile(getUserName(), getPathname());
     }
 }

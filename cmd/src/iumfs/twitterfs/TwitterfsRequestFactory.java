@@ -30,8 +30,6 @@ import java.util.logging.Logger;
  */
 public class TwitterfsRequestFactory extends RequestFactory {
 
-    private static Logger logger = Logger.getLogger(Main.class.getName());
-
     public Request createInstance(long request_type) {
 
         /*

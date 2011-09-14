@@ -25,6 +25,6 @@ class TwitterfsRemoveRequest extends RemoveRequest {
 
     @Override
     public File getFile() {
-        return Main.getFile(getUserName(), getPathname());       
+        return TwitterfsFile.getFile(getUserName(), getPathname());       
     }
 }

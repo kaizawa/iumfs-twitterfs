@@ -24,8 +24,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author ka78231
  */
 public class Account {
+
     private Map<String, File> fileMap;
     private String username;
+    private static Map<String, Account> accountMap = new ConcurrentHashMap<String, Account>();
 
     Account(String username) {
         this.username = username;
@@ -34,7 +36,8 @@ public class Account {
     public void setFileMap(Map<String, File> fileMap) {
         this.fileMap = fileMap;
     }
-    public Map<String, File> getFileMap(){
+
+    public Map<String, File> getFileMap() {
         return fileMap;
     }
 
@@ -52,4 +55,10 @@ public class Account {
         this.username = user;
     }
 
+    /**
+     * @return the accountMap
+     */
+    public static Map<String, Account> getAccountMap() {
+        return accountMap;
+    }
 }

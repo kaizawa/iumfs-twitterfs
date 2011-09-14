@@ -24,6 +24,6 @@ import iumfs.WriteRequest;
 public class TwitterfsWriteRequest extends WriteRequest {
     @Override
     public File getFile() {
-        return Main.getFile(getUserName(), getPathname());
+        return TwitterfsFile.getFile(getUserName(), getPathname());
     }
 }
