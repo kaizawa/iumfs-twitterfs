@@ -1,0 +1,2 @@
+test:
+	cd hdfs-test ; make test 

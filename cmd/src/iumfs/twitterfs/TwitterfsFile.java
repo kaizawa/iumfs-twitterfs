@@ -18,6 +18,7 @@ package iumfs.twitterfs;
 import iumfs.IumfsFile;
 import iumfs.InvalidUserException;
 import iumfs.NotSupportedException;
+import java.io.File;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -70,7 +71,20 @@ abstract public class TwitterfsFile extends IumfsFile {
     @Override
     public void create(){
         throw new NotSupportedException();
-    }    
+    }   
+    
+    @Override
+    public boolean mkdir(){
+        throw new NotSupportedException();        
+    }
+    
+    /*
+     * This method is overridden by DirectoryFile.java
+     */
+    @Override
+    public File[] listFiles(){
+        throw new NotSupportedException();                
+    }
     
     static public void fillFileMap(Map<String, IumfsFile> fileMap, Account account) {
         fileMap.put("/post", new PostFile(account, "/post"));

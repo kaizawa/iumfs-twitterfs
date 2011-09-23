@@ -30,15 +30,15 @@ class TwitterfsReadDirRequest extends ReadDirRequest {
     public IumfsFile getFile(){
         return  TwitterfsFile.getFile(getUserName(), getPathname());
     }
-
+/*
     @Override
     public Collection<IumfsFile> getFileList() {
         List<IumfsFile> fileList = new ArrayList<IumfsFile>();
         
         for(IumfsFile file : TwitterfsFile.getFileMap(getUserName()).values()){
-            /*
-             * If name is "", it means it is current directory. Exclude it.
-             */
+            //
+            // If name is "", it means it is current directory. Exclude it.
+            //
             if(file.getName().isEmpty())
                 continue;
 
@@ -46,4 +46,5 @@ class TwitterfsReadDirRequest extends ReadDirRequest {
         }
         return fileList;
     }
+*/
 }
