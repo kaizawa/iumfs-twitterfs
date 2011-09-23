@@ -30,7 +30,7 @@
     <exec dir="../twitterfs-test" executable="./test.sh"/>
   </target>
 
- <target name="clear">
+ <target name="clean">
     <delete>
       <fileset dir="${build}" includes="**/*.class" />
     </delete>
