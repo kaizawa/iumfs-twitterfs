@@ -23,6 +23,13 @@ import iumfs.RmdirRequest;
  */
 class TwitterfsRmdirRequest extends RmdirRequest {
     @Override
+    public void execute() {
+        /*
+         * Not supported
+         */
+        setResponseHeader(ENOTSUP, 0);        
+    }    
+    @Override
     public IumfsFile getFile() {
         return TwitterfsFile.getFile(getUserName(), getPathname());
     }
