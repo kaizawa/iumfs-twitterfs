@@ -15,16 +15,20 @@
  */
 package iumfs.twitterfs;
 
-import iumfs.File;
+import iumfs.IumfsFile;
+import iumfs.InvalidUserException;
+import iumfs.NotSupportedException;
+import java.io.File;
 import iumfs.NotSupportedException;
 import java.util.Date;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
-abstract public class TwitterfsFile extends File {
+abstract public class TwitterfsFile extends IumfsFile {
     protected boolean is_timeline = false;
     protected static final Logger logger = Logger.getLogger(Main.class.getName());
     protected Account account;
-    private boolean is_dir = false;
 
     TwitterfsFile(Account account, String name){
         super(name);
@@ -35,24 +39,20 @@ abstract public class TwitterfsFile extends File {
         setMtime(now.getTime());          
     }
 
-    public String getPathname() {
-        return "/" + getName();
-    }
-
     public boolean isTimeline() {
         return is_timeline;
     }
-
+    
     /*
      *Return file type
      * If direcory, return VDIR, othewise VREG.(reqular file)
      */
     @Override
     public long getFileType() {
-        if (isDir()) {
-            return File.VDIR;
+        if (isDirectory()) {
+            return IumfsFile.VDIR;
         } else {
-            return File.VREG;
+            return IumfsFile.VREG;
         }
     }
     
@@ -61,16 +61,93 @@ abstract public class TwitterfsFile extends File {
     }
     
     @Override
-    public boolean isDir(){
-        return is_dir;
+    public boolean isDirectory(){
+        return directory;
     }
     
-    public void setDir(boolean is_dir){
-        this.is_dir = is_dir;
+    public void setDirectory(boolean directory){
+        this.directory = directory;
     }
     
     @Override
     public void create(){
         throw new NotSupportedException();
+<<<<<<< HEAD
+    }   
+    
+    @Override
+    public boolean mkdir(){
+        throw new NotSupportedException();        
+    }
+    
+    /*
+     * This method is overridden by DirectoryFile.java
+     */
+    @Override
+    public File[] listFiles(){
+        throw new NotSupportedException();                
+    }
+    
+    static public void fillFileMap(Map<String, IumfsFile> fileMap, Account account) {
+        fileMap.put("/post", new PostFile(account, "/post"));
+        fileMap.put("/home", new TimelineFile(account, "/home", true, 0L));
+        fileMap.put("/mentions", new TimelineFile(account, "/mentions", false, 120000));
+        fileMap.put("/public", new TimelineFile(account, "/public", false, 600000));
+        fileMap.put("/friends", new TimelineFile(account, "/friends", false, 300000));
+        fileMap.put("/retweeted_by_me", new TimelineFile(account, "/retweeted_by_me", false, 600000));
+        fileMap.put("/user", new TimelineFile(account, "/user", false, 300000));
+        fileMap.put("/retweeted_to_me", new TimelineFile(account, "/retweeted_to_me", false, 600000));
+        fileMap.put("/retweets_of_me", new TimelineFile(account, "/retweets_of_me", false, 600000));
+        fileMap.put("/", new DirectoryFile(account, ""));
+    }
+
+    static public void initFileMap(Map<String, IumfsFile> fileMap, Account account) {
+        fileMap.put("/setup", new SetupFile(account, "/setup"));
+        fileMap.put("/", new DirectoryFile(account, "/"));
+    }
+    
+    /*
+     * Get a IumfsFile object of given pathname for a user.
+     * This method is called from TwitterXXXXRequest methods.
+     * So this is an entry point for file operation.
+     */
+    static public IumfsFile getFile(String username, String pathname) {
+        if (username.isEmpty()) {
+            throw new InvalidUserException("Unknown user \"" + username + "\" specified");
+        }
+
+        logger.finer("pathname=" + pathname + ", usernaem=" + username);
+        Account account = Account.getAccountMap().get(username);
+
+        if (account == null) {
+            account = new Account(username);
+            Map<String, IumfsFile> fileMap = new ConcurrentHashMap<String, IumfsFile>();
+            initFileMap(fileMap, account);
+            account.setFileMap(fileMap);
+            Account.getAccountMap().put(username, account);
+            logger.fine("New Account for " + username + " created.");
+        }
+        /* 
+         * If file map is initial file map(just has 2 entires) but 
+         * has access toke, it seems to have finished setting up twitter
+         * account. Create new file map which has timeline file and swap
+         * it to existing file map.
+         */
+        logger.fine("Map size=" + account.getFileMap().size());
+        if (account.getFileMap().size() == 2){
+            Prefs.sync();
+            if(Prefs.get(username + "/accessToken").length() > 0) {
+                Map<String, IumfsFile> fileMap = new ConcurrentHashMap<String, IumfsFile>();
+                fillFileMap(fileMap, account);
+                account.setFileMap(fileMap);
+            }
+        }        
+        return account.getFileMap().get(pathname);
+    }
+
+    static public Map<String, IumfsFile> getFileMap(String username) {
+        return Account.getAccountMap().get(username).getFileMap();
+=======
+>>>>>>> ec4e1b1989636606b7e00d80f6cf368082f61963
     }    
 }

@@ -2,7 +2,7 @@
  * Copyright 2011 Kazuyoshi Aizawa
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not use this IumfsFile except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
@@ -15,7 +15,7 @@
  */
 package iumfs.twitterfs;
 
-import iumfs.File;
+import iumfs.IumfsFile;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -24,17 +24,20 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author ka78231
  */
 public class Account {
-    private Map<String, File> fileMap;
+
+    private Map<String, IumfsFile> fileMap;
     private String username;
+    private static Map<String, Account> accountMap = new ConcurrentHashMap<String, Account>();
 
     Account(String username) {
         this.username = username;
     }
 
-    public void setFileMap(Map<String, File> fileMap) {
-        this.fileMap = fileMap;
+    public void setFileMap(Map<String, IumfsFile> IumfsFileMap) {
+        this.fileMap = IumfsFileMap;
     }
-    public Map<String, File> getFileMap(){
+
+    public Map<String, IumfsFile> getFileMap() {
         return fileMap;
     }
 
@@ -52,4 +55,10 @@ public class Account {
         this.username = user;
     }
 
+    /**
+     * @return the accountMap
+     */
+    public static Map<String, Account> getAccountMap() {
+        return accountMap;
+    }
 }

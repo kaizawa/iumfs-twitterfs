@@ -45,7 +45,7 @@ public class PostFile extends TwitterfsFile {
         try {
             Status status = null;
 
-            if (getPathname().equals("/post") == false) {
+            if (getPath().equals("/post") == false) {
                 throw new NotSupportedException();
             }
 

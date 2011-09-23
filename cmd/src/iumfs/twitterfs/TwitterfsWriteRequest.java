@@ -15,7 +15,7 @@
  */
 package iumfs.twitterfs;
 
-import iumfs.File;
+import iumfs.IumfsFile;
 import iumfs.WriteRequest;
 
 /**
@@ -23,7 +23,7 @@ import iumfs.WriteRequest;
  */
 public class TwitterfsWriteRequest extends WriteRequest {
     @Override
-    public File getFile() {
-        return Main.getFile(getUserName(), getPathname());
+    public IumfsFile getFile() {
+        return TwitterfsFile.getFile(getUserName(), getPathname());
     }
 }

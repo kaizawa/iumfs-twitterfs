@@ -17,7 +17,7 @@
 package iumfs.twitterfs;
 
 import iumfs.CreateRequest;
-import iumfs.File;
+import iumfs.IumfsFile;
 
 /**
  * <p>CREATE Request<br>
@@ -26,7 +26,14 @@ import iumfs.File;
  */
 public class TwitterfsCreateRequest extends CreateRequest {
     @Override
-    public File getFile() {
-        return Main.getFile(getUserName(), getPathname());
+    public void execute() {
+        /*
+         * Not supported
+         */
+        setResponseHeader(ENOTSUP, 0);        
+    }    
+    @Override
+    public IumfsFile getFile() {
+        return TwitterfsFile.getFile(getUserName(), getPathname());
     }
 }

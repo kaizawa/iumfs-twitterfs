@@ -15,16 +15,22 @@
  */
 package iumfs.twitterfs;
 
-import iumfs.File;
+import iumfs.IumfsFile;
 import iumfs.RemoveRequest;
 
 /**
  *  REMOVE request
  */
 class TwitterfsRemoveRequest extends RemoveRequest {
-
     @Override
-    public File getFile() {
-        return Main.getFile(getUserName(), getPathname());       
+    public void execute() {
+        /*
+         * Not supported
+         */
+        setResponseHeader(ENOTSUP, 0);        
+    }
+    @Override
+    public IumfsFile getFile() {
+        return TwitterfsFile.getFile(getUserName(), getPathname());       
     }
 }
