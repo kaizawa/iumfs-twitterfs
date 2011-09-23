@@ -72,7 +72,6 @@ abstract public class TwitterfsFile extends IumfsFile {
     @Override
     public void create(){
         throw new NotSupportedException();
-<<<<<<< HEAD
     }   
     
     @Override
@@ -147,7 +146,5 @@ abstract public class TwitterfsFile extends IumfsFile {
 
     static public Map<String, IumfsFile> getFileMap(String username) {
         return Account.getAccountMap().get(username).getFileMap();
-=======
->>>>>>> ec4e1b1989636606b7e00d80f6cf368082f61963
     }    
 }
