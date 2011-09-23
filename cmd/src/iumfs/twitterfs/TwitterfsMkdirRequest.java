@@ -15,7 +15,7 @@
  */
 package iumfs.twitterfs;
 
-import iumfs.File;
+import iumfs.IumfsFile;
 import java.io.IOException;
 import java.util.logging.Logger;
 import iumfs.MkdirRequest;
@@ -33,7 +33,7 @@ class TwitterfsMkdirRequest extends MkdirRequest{
     }
 
     @Override
-    public File getFile() {
+    public IumfsFile getFile() {
         return TwitterfsFile.getFile(getUserName(), getPathname());
     }
 }

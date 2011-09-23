@@ -15,7 +15,7 @@
  */
 package iumfs.twitterfs;
 
-import iumfs.File;
+import iumfs.IumfsFile;
 import iumfs.RmdirRequest;
 
 /**
@@ -23,7 +23,7 @@ import iumfs.RmdirRequest;
  */
 class TwitterfsRmdirRequest extends RmdirRequest {
     @Override
-    public File getFile() {
+    public IumfsFile getFile() {
         return TwitterfsFile.getFile(getUserName(), getPathname());
     }
 }

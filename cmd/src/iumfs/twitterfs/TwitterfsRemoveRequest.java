@@ -15,7 +15,7 @@
  */
 package iumfs.twitterfs;
 
-import iumfs.File;
+import iumfs.IumfsFile;
 import iumfs.RemoveRequest;
 
 /**
@@ -24,7 +24,7 @@ import iumfs.RemoveRequest;
 class TwitterfsRemoveRequest extends RemoveRequest {
 
     @Override
-    public File getFile() {
+    public IumfsFile getFile() {
         return TwitterfsFile.getFile(getUserName(), getPathname());       
     }
 }

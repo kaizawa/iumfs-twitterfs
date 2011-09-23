@@ -15,7 +15,7 @@
  */
 package iumfs.twitterfs;
 
-import iumfs.File;
+import iumfs.IumfsFile;
 import iumfs.ReadRequest;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
@@ -26,7 +26,7 @@ import twitter4j.TwitterException;
  */
 public class TwitterfsReadRequest extends ReadRequest {
     @Override
-    public File getFile() {
+    public IumfsFile getFile() {
         return TwitterfsFile.getFile(getUserName(), getPathname());
     }
 }

@@ -15,7 +15,7 @@
  */
 package iumfs.twitterfs;
 
-import iumfs.File;
+import iumfs.IumfsFile;
 import iumfs.GetAttrRequest;
 import java.util.*;
 
@@ -26,7 +26,7 @@ class TwitterfsGetAttrRequest extends GetAttrRequest {
     private static final long start_time = new Date().getTime();
 
     @Override
-    public File getFile() {
+    public IumfsFile getFile() {
         return TwitterfsFile.getFile(getUserName(), getPathname());
     }
 }

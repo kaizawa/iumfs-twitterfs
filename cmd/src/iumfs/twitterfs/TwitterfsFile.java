@@ -15,7 +15,7 @@
  */
 package iumfs.twitterfs;
 
-import iumfs.File;
+import iumfs.IumfsFile;
 import iumfs.InvalidUserException;
 import iumfs.NotSupportedException;
 import java.util.Date;
@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
-abstract public class TwitterfsFile extends File {
+abstract public class TwitterfsFile extends IumfsFile {
     protected boolean is_timeline = false;
     protected static final Logger logger = Logger.getLogger(Main.class.getName());
     protected Account account;
@@ -48,9 +48,9 @@ abstract public class TwitterfsFile extends File {
     @Override
     public long getFileType() {
         if (isDirectory()) {
-            return File.VDIR;
+            return IumfsFile.VDIR;
         } else {
-            return File.VREG;
+            return IumfsFile.VREG;
         }
     }
     
@@ -72,7 +72,7 @@ abstract public class TwitterfsFile extends File {
         throw new NotSupportedException();
     }    
     
-    static public void fillFileMap(Map<String, File> fileMap, Account account) {
+    static public void fillFileMap(Map<String, IumfsFile> fileMap, Account account) {
         fileMap.put("/post", new PostFile(account, "/post"));
         fileMap.put("/home", new TimelineFile(account, "/home", true, 0L));
         fileMap.put("/mentions", new TimelineFile(account, "/mentions", false, 120000));
@@ -85,17 +85,17 @@ abstract public class TwitterfsFile extends File {
         fileMap.put("/", new DirectoryFile(account, ""));
     }
 
-    static public void initFileMap(Map<String, File> fileMap, Account account) {
+    static public void initFileMap(Map<String, IumfsFile> fileMap, Account account) {
         fileMap.put("/setup", new SetupFile(account, "/setup"));
         fileMap.put("/", new DirectoryFile(account, "/"));
     }
     
     /*
-     * Get a File object of given pathname for a user.
+     * Get a IumfsFile object of given pathname for a user.
      * This method is called from TwitterXXXXRequest methods.
      * So this is an entry point for file operation.
      */
-    static public File getFile(String username, String pathname) {
+    static public IumfsFile getFile(String username, String pathname) {
         if (username.isEmpty()) {
             throw new InvalidUserException("Unknown user \"" + username + "\" specified");
         }
@@ -105,7 +105,7 @@ abstract public class TwitterfsFile extends File {
 
         if (account == null) {
             account = new Account(username);
-            Map<String, File> fileMap = new ConcurrentHashMap<String, File>();
+            Map<String, IumfsFile> fileMap = new ConcurrentHashMap<String, IumfsFile>();
             initFileMap(fileMap, account);
             account.setFileMap(fileMap);
             Account.getAccountMap().put(username, account);
@@ -121,7 +121,7 @@ abstract public class TwitterfsFile extends File {
         if (account.getFileMap().size() == 2){
             Prefs.sync();
             if(Prefs.get(username + "/accessToken").length() > 0) {
-                Map<String, File> fileMap = new ConcurrentHashMap<String, File>();
+                Map<String, IumfsFile> fileMap = new ConcurrentHashMap<String, IumfsFile>();
                 fillFileMap(fileMap, account);
                 account.setFileMap(fileMap);
             }
@@ -129,7 +129,7 @@ abstract public class TwitterfsFile extends File {
         return account.getFileMap().get(pathname);
     }
 
-    static public Map<String, File> getFileMap(String username) {
+    static public Map<String, IumfsFile> getFileMap(String username) {
         return Account.getAccountMap().get(username).getFileMap();
     }    
 }

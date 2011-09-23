@@ -15,7 +15,7 @@
  */
 package iumfs.twitterfs;
 
-import iumfs.File;
+import iumfs.IumfsFile;
 import iumfs.ReadDirRequest;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,15 +27,15 @@ import java.util.List;
 class TwitterfsReadDirRequest extends ReadDirRequest {
 
     @Override
-    public File getFile(){
+    public IumfsFile getFile(){
         return  TwitterfsFile.getFile(getUserName(), getPathname());
     }
 
     @Override
-    public Collection<File> getFileList() {
-        List<File> fileList = new ArrayList<File>();
+    public Collection<IumfsFile> getFileList() {
+        List<IumfsFile> fileList = new ArrayList<IumfsFile>();
         
-        for(File file : TwitterfsFile.getFileMap(getUserName()).values()){
+        for(IumfsFile file : TwitterfsFile.getFileMap(getUserName()).values()){
             /*
              * If name is "", it means it is current directory. Exclude it.
              */
