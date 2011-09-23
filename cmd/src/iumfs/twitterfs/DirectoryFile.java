@@ -16,6 +16,7 @@
 package iumfs.twitterfs;
 
 import java.io.File;
+import iumfs.NotSupportedException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
