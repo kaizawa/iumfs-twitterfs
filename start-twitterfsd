@@ -1,10 +1,5 @@
 #!/bin/sh
 
 CLASSPATH=$PWD/cmd/lib/twitter4j-core-2.2.4.jar:$PWD/cmd/dist/twitterfsd.jar:$PWD/cmd/lib/twitter4j-stream-2.2.4.jar:$PWD/cmd/lib/iumfs-daemon-core.jar
-<<<<<<< HEAD
 #java -Djava.util.logging.config.file=log.prop $@ -cp $CLASSPATH iumfs.twitterfs.Main
 java $@ -cp $CLASSPATH iumfs.twitterfs.Main
-=======
-#java -Djava.util.logging.config.file=log.prop -cp $CLASSPATH iumfs.twitterfs.Main
-java -cp $CLASSPATH iumfs.twitterfs.Main
->>>>>>> ec4e1b1989636606b7e00d80f6cf368082f61963

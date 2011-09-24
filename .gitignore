@@ -5,7 +5,6 @@
 *.exe
 *.bz2
 .hg/
-.gitignore
  
 # backup
 *~
