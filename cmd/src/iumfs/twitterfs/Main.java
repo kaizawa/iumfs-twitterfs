@@ -26,7 +26,7 @@ import java.util.logging.Logger;
  */
 public class Main {
 
-    static final String version = "0.1.10";  // version
+    static final String version = "0.2.2";  // version
     private static final Logger logger = Logger.getLogger(Main.class.getName());
 
     public static void main(String args[]) {
