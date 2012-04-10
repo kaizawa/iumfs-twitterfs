@@ -11,6 +11,7 @@
 sudo mkdir -p /twitter
 line=`grep auto_twitter /etc/auto_master`
 if [ -z $line ];then
+	cp /etc/auto_master .
 	echo "/twitter        auto_twitter" | sudo tee -a /etc/auto_master > /dev/null
 fi
 if [ ! -f /etc/auto_twitter ]; then

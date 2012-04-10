@@ -1,0 +1,11 @@
+#!/bin/sh
+# Restore autofs settings
+# copy original /etc/auto_master file if exists 
+#
+if [ -f ./auto_master ]; then
+	sudo cp ./auto_master /etc
+fi
+if [ -f /etc/auto_twitter ]; then
+	sudo rm /etc/auto_twitter
+fi
+sudo svcadm restart autofs

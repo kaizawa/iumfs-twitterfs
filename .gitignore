@@ -55,5 +55,4 @@ start.sh
 build
 MEMO
 auto_master
-unsetup_autofs
 .build.xml.swp
