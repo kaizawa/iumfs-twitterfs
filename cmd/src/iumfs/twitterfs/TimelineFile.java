@@ -380,7 +380,6 @@ public class TimelineFile extends TwitterfsFile {
         Twitter twitter = IumfsTwitterFactory.getInstance(getUsername());
         String name = getName();
         try {
-            String timeline = getName();
             if (name.equals("mentions")) {
                 statuses = twitter.getMentions(new Paging(page, count, since));
             } else if (name.equals("public")) {
