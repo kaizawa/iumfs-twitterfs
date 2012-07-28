@@ -6,7 +6,7 @@ HADOOPCLASSPATH=`hadoop classpath`
 CLASSPATH=\
 $CONFDIR:\
 $HADOOPCLASSPATH:\
-$PWD/cmd/dist/twitterfsd.jar:\
+$PWD/cmd/twitterfsd.jar:\
 $PWD/cmd/lib/twitter4j-stream-2.2.4.jar:\
 $PWD/cmd/lib/iumfs-daemon-core.jar
 

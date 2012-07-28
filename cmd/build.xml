@@ -4,7 +4,7 @@
   <property name="src" value="src"/>
   <property name="build" value="build/classes"/>
   <property name="lib" value="lib"/>
-  <property name="dist" value="dist"/>
+  <property name="dist" value="./"/>
   <property environment="env"/>
   <path id="class.path">
       <fileset dir="${lib}">
@@ -12,7 +12,6 @@
       </fileset>  
   </path>
   <target name="init">
-    <mkdir dir="dist"/>
     <mkdir dir="build/classes"/>
   </target>
   <target name="jar" depends="compile">
