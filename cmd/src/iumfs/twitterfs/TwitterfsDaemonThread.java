@@ -15,7 +15,9 @@
  */
 package iumfs.twitterfs;
 
-import iumfs.*;
+import iumfs.ControlDevicePollingThread;
+import iumfs.IumfsFile;
+import iumfs.Request;
 
 /** 
  * Worker Thread for TwitterFS
@@ -28,7 +30,8 @@ public class TwitterfsDaemonThread extends ControlDevicePollingThread {
     }
     
     @Override
-    protected RequestFactory getFactory(){
-        return new TwitterfsRequestFactory();
+    protected void setFile(Request req){
+        IumfsFile file = TwitterfsFile.getFile(req.getUserName(), req.getPathname());
+        req.setFile(file);    
     }
 }            

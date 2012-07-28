@@ -15,11 +15,10 @@
  */
 package iumfs.twitterfs;
 
-import iumfs.IumfsFile;
 import iumfs.InvalidUserException;
+import iumfs.IumfsFile;
 import iumfs.NotSupportedException;
 import java.io.File;
-import iumfs.NotSupportedException;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -152,4 +151,12 @@ abstract public class TwitterfsFile extends IumfsFile {
     public boolean delete(){
         throw new NotSupportedException();
     }   
+    
+    /*
+     * If TwitterFsFile instance is returned, the file is always exists.
+     */
+    @Override
+    public boolean exists() {
+        return true;
+    }
 }
