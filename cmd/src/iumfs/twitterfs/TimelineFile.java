@@ -67,7 +67,6 @@ public class TimelineFile extends TwitterfsFile {
         this.stream_api = is_stream_api;
         this.interval = interval;
         init();
-        System.out.println("name = " + filename);
         startAutoUpdateThreads();
     }
 
