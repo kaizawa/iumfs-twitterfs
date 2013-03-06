@@ -30,6 +30,7 @@ import java.util.logging.Logger;
 import twitter4j.DirectMessage;
 import twitter4j.Paging;
 import twitter4j.ResponseList;
+import twitter4j.StallWarning;
 import twitter4j.Status;
 import twitter4j.StatusDeletionNotice;
 import twitter4j.StatusListener;
@@ -66,6 +67,7 @@ public class TimelineFile extends TwitterfsFile {
         this.stream_api = is_stream_api;
         this.interval = interval;
         init();
+        System.out.println("name = " + filename);
         startAutoUpdateThreads();
     }
 
@@ -81,9 +83,8 @@ public class TimelineFile extends TwitterfsFile {
             getTimeline(1, 20, 1);
         }
     }
-    ;    
 
-    protected StatusListener listener = new UserStreamListener() {
+    protected UserStreamListener listener = new UserStreamListener() {
 
         @Override
         public void onStatus(Status status) {
@@ -129,10 +130,6 @@ public class TimelineFile extends TwitterfsFile {
         }
 
         @Override
-        public void onRetweet(User user, User user1, Status status) {
-        }
-
-        @Override
         public void onDirectMessage(DirectMessage dm) {
         }
 
@@ -174,6 +171,11 @@ public class TimelineFile extends TwitterfsFile {
 
         @Override
         public void onUnblock(User user, User user1) {
+        }
+
+        @Override
+        public void onStallWarning(StallWarning sw) {
+            throw new UnsupportedOperationException("Not supported yet.");
         }
     };
 
@@ -379,19 +381,14 @@ public class TimelineFile extends TwitterfsFile {
         ResponseList<Status> statuses = null;
         Twitter twitter = IumfsTwitterFactory.getInstance(getUsername());
         String name = getName();
+        System.out.println("name = " + name);
         try {
             if (name.equals("mentions")) {
-                statuses = twitter.getMentions(new Paging(page, count, since));
-            } else if (name.equals("public")) {
-                statuses = twitter.getPublicTimeline();
+                statuses = twitter.getMentionsTimeline(new Paging(page, count, since));
             } else if (name.equals("friends")) {
                 statuses = twitter.getHomeTimeline(new Paging(page, count, since));
-            } else if (name.equals("retweeted_by_me")) {
-                statuses = twitter.getRetweetedByMe(new Paging(page, count, since));
             } else if (name.equals("user")) {
                 statuses = twitter.getUserTimeline(new Paging(page, count, since));
-            } else if (name.equals("retweeted_to_me")) {
-                statuses = twitter.getRetweetedToMe(new Paging(page, count, since));
             } else if (name.equals("retweets_of_me")) {
                 statuses = twitter.getRetweetsOfMe(new Paging(page, count, since));
             } else {

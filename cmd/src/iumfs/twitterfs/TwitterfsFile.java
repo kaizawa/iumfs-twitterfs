@@ -90,11 +90,8 @@ abstract public class TwitterfsFile extends IumfsFile {
         fileMap.put("/post", new PostFile(account, "/post"));
         fileMap.put("/home", new TimelineFile(account, "/home", true, 0L));
         fileMap.put("/mentions", new TimelineFile(account, "/mentions", false, 120000));
-        fileMap.put("/public", new TimelineFile(account, "/public", false, 600000));
         fileMap.put("/friends", new TimelineFile(account, "/friends", false, 300000));
-        fileMap.put("/retweeted_by_me", new TimelineFile(account, "/retweeted_by_me", false, 600000));
         fileMap.put("/user", new TimelineFile(account, "/user", false, 300000));
-        fileMap.put("/retweeted_to_me", new TimelineFile(account, "/retweeted_to_me", false, 600000));
         fileMap.put("/retweets_of_me", new TimelineFile(account, "/retweets_of_me", false, 600000));
         fileMap.put("/", new DirectoryFile(account, ""));
     }
