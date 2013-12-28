@@ -32,7 +32,7 @@ public abstract class AbstractRequestHandler implements RequestHandler
     final public static long EIO = 5;
     final public static long EEXIST = 17;    
     final public static long ENOTSUP = 48;
-    final public static long ENOTDIR = 2;
+    final public static long ENOTDIR = 20;
     final public static long EINVAL = 22;
 
     private long request_type;

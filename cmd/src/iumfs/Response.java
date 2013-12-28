@@ -7,5 +7,5 @@ import java.nio.ByteBuffer;
  */
 public interface Response {
     public ByteBuffer getBuffer();
-    public void setResponseHeader(long requestType, long result, long datalen);
+    public void setResponseHeader(RequestType requestType, long result, long datalen);
 }

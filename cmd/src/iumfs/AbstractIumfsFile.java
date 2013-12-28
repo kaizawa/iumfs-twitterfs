@@ -21,11 +21,11 @@ import java.util.regex.Pattern;
 
 abstract public class AbstractIumfsFile implements IumfsFile
 {
-    final public static int VREG = 1; // Normal File
-    final public static int VDIR = 2; // Directory
+//    final public static int VREG = 1; // Normal File
+//    final public static int VDIR = 2; // Directory
     protected long length = 0;
     private long atime; // Last access time (msec)
-    private long ctime; // Modify time(csec)
+    private long ctime; // Modify time(msec)
     private long mtime; // Modify time(msec)
     protected boolean directory = false;
     String pathName;

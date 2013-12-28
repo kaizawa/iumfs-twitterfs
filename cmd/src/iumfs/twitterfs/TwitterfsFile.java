@@ -16,6 +16,8 @@
 package iumfs.twitterfs;
 
 import iumfs.AbstractIumfsFile;
+import iumfs.FileType;
+import static iumfs.FileType.*;
 import iumfs.IumfsFile;
 import iumfs.NotSupportedException;
 import java.io.File;
@@ -48,13 +50,13 @@ abstract public class TwitterfsFile extends AbstractIumfsFile {
      * If direcory, return VDIR, othewise VREG.(reqular file)
      */
     @Override
-    public long getFileType() 
+    public FileType getFileType() 
     {
         if (isDirectory()) 
         {
-            return AbstractIumfsFile.VDIR;
+            return VDIR;
         } else {
-            return AbstractIumfsFile.VREG;
+            return VREG;
         }
     }
     

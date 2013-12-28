@@ -39,11 +39,11 @@ public class ReadDirRequestHandler extends AbstractRequestHandler
      * </p>
      *
      * @param request
-     * @param file
+     * @param directory
      * @return
      */
     @Override
-    public Response getResponse(Request request, IumfsFile file)
+    public Response getResponse(Request request, IumfsFile directory)
     {
         Response response = new ResponseImpl();
         ByteBuffer buffer = response.getBuffer();
@@ -52,20 +52,20 @@ public class ReadDirRequestHandler extends AbstractRequestHandler
          * header information including data size will be
          * set after we know actuall data size.
          */
-        buffer.position(RequestImpl.RESPONSE_HEADER_SIZE);
+        buffer.position(ResponseImpl.RESPONSE_HEADER_SIZE);
 
         /*
          * Note, File object here is just used to express file name.
          * Do not call any method of this File object.
          * It would causes unexpected results.
          */
-        for (IumfsFile f : file.listFiles())
+        for (IumfsFile file : directory.listFiles())
         {
             int reclen;
             int namelen;
             try
             {
-                namelen = f.getName().getBytes("UTF-8").length;
+                namelen = file.getName().getBytes("UTF-8").length;
                 namelen++; // null terminate。
 
                 /*
@@ -79,12 +79,9 @@ public class ReadDirRequestHandler extends AbstractRequestHandler
                  */
                 reclen = (8 + 1 + (namelen) + 7) & ~7;
                 logger.log(Level.FINER, "name={0} ,namelen={1}, reclen={2}",
-                        new Object[]{f.getName(), namelen, reclen});
+                        new Object[]{file.getName(), namelen, reclen});
                 buffer.putLong(reclen);
-                for (byte b : f.getName().getBytes("UTF-8"))
-                {
-                    buffer.put(b);
-                }
+                buffer.put(file.getName().getBytes("UTF-8"));
             } 
             catch (UnsupportedEncodingException ex)
             {
@@ -104,7 +101,7 @@ public class ReadDirRequestHandler extends AbstractRequestHandler
         response.setResponseHeader(
                 request.getType(),
                 SUCCESS,
-                buffer.position() - RequestImpl.RESPONSE_HEADER_SIZE);
+                buffer.position() - ResponseImpl.RESPONSE_HEADER_SIZE);
         return response;
     }
 }

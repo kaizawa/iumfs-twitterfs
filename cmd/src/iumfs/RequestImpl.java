@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.logging.Logger;
 
 /**
- * Abstruct class which represents various request from iumfs
+ * Concrete class of Request inteface which represents request from iumfs
  * control device driver.
  * Request would be READ/READDIR/GETATTR/MKDIR/RMDIR/DELETE/CREATE.
  */
@@ -31,19 +31,10 @@ public class RequestImpl implements Request
     final public static int IUMFS_MAXPATHLEN = 1024; // Must be multiple of 8
     final public static int DEVICE_BUFFER_SIZE = 1024 * 1024; // buffer size of device
     final public static int MAX_RESPONSE_SIZE = DEVICE_BUFFER_SIZE;
-    final public static int MAX_REQUEST_SIZE = DEVICE_BUFFER_SIZE;
-    final public static int READ_REQUEST = 1;
-    final public static int READDIR_REQUEST = 2;
-    final public static int GETATTR_REQUEST = 3;
-    final public static int WRITE_REQUEST  = 4;
-    final public static int CREATE_REQUEST = 5;
-    final public static int REMOVE_REQUEST = 6;
-    final public static int MKDIR_REQUEST = 7;
-    final public static int RMDIR_REQUEST = 8 ;
-    final public static int RESPONSE_HEADER_SIZE = 24; // long x 3
+    final public static int MAX_REQUEST_SIZE = DEVICE_BUFFER_SIZE;    
     final public static int REQUEST_HEADER_SIZE = 2248; // from iumfs.h
 
-    private long request_type;
+    private RequestType requestType;
     private long size;
     private long offset;
     private String pathname;
@@ -55,7 +46,9 @@ public class RequestImpl implements Request
     private byte[] data;
     private long flags;
     protected static final Logger logger = Logger.getLogger("iumfs");
+    private long dataSize;    
     IumfsFile file;
+
     
     @Override
     public long getFlags() 
@@ -117,13 +110,13 @@ public class RequestImpl implements Request
     }
 
     @Override
-    public long getType() {
-        return request_type;
+    public RequestType getType() {
+        return requestType;
     }
 
     @Override
-    public void setType(long request_type) {
-        this.request_type = request_type;
+    public void setType(RequestType requestType) {
+        this.requestType = requestType;
     }
 
     @Override
@@ -209,5 +202,23 @@ public class RequestImpl implements Request
     @Override
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    /** 
+     * Get data size after header data.
+     * This includes lengh of padding to make total size multiple of 8.
+     * So, this infomation is not usefull for daemon. 
+     * Use getSize() instead.
+     */
+    @Override
+    public long getDataSize()
+    {
+        return dataSize;
+    }
+
+    @Override
+    public void setDataSize(long dataSize)
+    {
+        this.dataSize = dataSize;
     }
 }

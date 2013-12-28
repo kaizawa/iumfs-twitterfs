@@ -50,17 +50,22 @@ public class GetAttrRequestHandler extends AbstractRequestHandler
             response.setResponseHeader(request.getType(), ENOENT, 0);
             return response;
         }
+        
+        System.out.println("reqest type = " + request.getType());
 
-        /*
-         * レスポンスヘッダをセット
-         */
         response.setResponseHeader(
                 request.getType(),
                 SUCCESS, 
                 GetAttrRequestHandler.ATTR_DATA_LEN);
         
         ByteBuffer buffer = response.getBuffer();
-
+        /*
+         * proceed the position until heder size.
+         * header information including data size will be
+         * set after we know actuall data size.
+         */
+        buffer.position(ResponseImpl.RESPONSE_HEADER_SIZE);
+        
         /*
          * ファイル属性をバッファにセット
          * typedef struct iumfs_vattr
@@ -79,7 +84,7 @@ public class GetAttrRequestHandler extends AbstractRequestHandler
         Date now = new Date();
         buffer.putLong(file.getPermission());
         buffer.putLong(file.length());
-        buffer.putLong(file.getFileType());
+        buffer.putLong(file.getFileType().longVal());
         if (file == null) 
         {
             buffer.putLong(start_time / 1000);

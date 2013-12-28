@@ -9,9 +9,10 @@ import java.nio.ByteOrder;
  */
 public class ResponseImpl implements Response
 {
-    protected ByteBuffer wbbuf;
+    final public static int RESPONSE_HEADER_SIZE = 24; // long x 3
+    protected ByteBuffer buffer;
     
-    public ResponseImpl (long requestType, long result)
+    public ResponseImpl (RequestType requestType, long result)
     {
         this();
         setResponseHeader(requestType, result, 0);
@@ -20,8 +21,8 @@ public class ResponseImpl implements Response
     public ResponseImpl()
     {
         // write buffer for control device
-        wbbuf = ByteBuffer.allocate(RequestImpl.DEVICE_BUFFER_SIZE); 
-        wbbuf.order(ByteOrder.nativeOrder());
+        buffer = ByteBuffer.allocate(RequestImpl.DEVICE_BUFFER_SIZE); 
+        buffer.order(ByteOrder.nativeOrder());
     }
     
     /**
@@ -32,8 +33,8 @@ public class ResponseImpl implements Response
     @Override
     public ByteBuffer getBuffer() 
     {
-        wbbuf.rewind();
-        return wbbuf;
+        buffer.rewind();
+        return buffer;
     }
     
     /**
@@ -44,7 +45,7 @@ public class ResponseImpl implements Response
      * @param datalen
      */
     @Override
-    public final void setResponseHeader(long requestType, long result, long datalen) 
+    public final void setResponseHeader(RequestType requestType, long result, long datalen) 
     {
         /*
          * Response structure passed from damon to control device.
@@ -56,10 +57,10 @@ public class ResponseImpl implements Response
          *   int64_t            datasize; // size of data following this header.
          * } response_t;
          */
-        wbbuf.clear();
-        wbbuf.limit(RequestImpl.RESPONSE_HEADER_SIZE + (int) datalen);
-        wbbuf.putLong(requestType);
-        wbbuf.putLong(result);
-        wbbuf.putLong(datalen);
+        buffer.clear();
+        buffer.limit(RESPONSE_HEADER_SIZE + (int) datalen);
+        buffer.putLong(requestType.longVal());
+        buffer.putLong(result);
+        buffer.putLong(datalen);
     }
 }

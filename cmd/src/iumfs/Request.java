@@ -31,8 +31,8 @@ public interface Request
     public void setOffset(long offset);
     public String getPathname();
     public void setPathname(String pathname);
-    public long getType();
-    public void setType(long request_type); 
+    public RequestType getType();
+    public void setType(RequestType type); 
     public String getServer(); 
     public void setServer(String server);
     public long getSize();
@@ -45,4 +45,6 @@ public interface Request
     public void setUserName(String username);
     public String getPassword();
     public void setPassword(String password);
+    public long getDataSize();
+    public void setDataSize(long size);
 }

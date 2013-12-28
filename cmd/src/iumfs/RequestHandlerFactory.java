@@ -28,61 +28,61 @@ public class RequestHandlerFactory
     private MkdirRequestHandler mkdirRequestHandler;
     private RmdirRequestHandler rmdirRequestHandler;
 
-    public RequestHandler getHandler (long request_type)
+    public RequestHandler getHandler (RequestType requestType)
     {
         RequestHandler handler;
 
-            switch ((int) request_type) {
-                case RequestImpl.READ_REQUEST:
+            switch (requestType) {
+                case READ_REQUEST:
                     if (null == readRequestHander) 
                     {
                         readRequestHander = new ReadRequestHandler();
                     }
                     handler = readRequestHander;
                     break;
-                case RequestImpl.READDIR_REQUEST:
+                case READDIR_REQUEST:
                     if (null == readDirRequestHandler)
                     {
                         readDirRequestHandler = new ReadDirRequestHandler();
                     }
                     handler = readDirRequestHandler;
                     break;
-                case RequestImpl.GETATTR_REQUEST:
+                case GETATTR_REQUEST:
                     if (null == getAttrRequestHandler)
                     {
                         getAttrRequestHandler = new GetAttrRequestHandler();                        
                     }
                     handler = getAttrRequestHandler;
                     break;
-                case RequestImpl.WRITE_REQUEST:
+                case WRITE_REQUEST:
                     if (null == writeRequestHandler)
                     {
                         writeRequestHandler = new WriteRequestHandler();
                     }
                     handler = writeRequestHandler;
                     break;
-                case RequestImpl.CREATE_REQUEST:
+                case CREATE_REQUEST:
                     if (null == createRequestHandler)
                     {
                         createRequestHandler = new CreateRequestHandler();
                     }
                     handler = createRequestHandler;
                     break;
-                case RequestImpl.REMOVE_REQUEST:
+                case REMOVE_REQUEST:
                     if (null == removeRequestHandler)
                     {
                         removeRequestHandler = new RemoveRequestHandler();
                     }
                     handler = removeRequestHandler;
                     break;
-                case RequestImpl.MKDIR_REQUEST:
+                case MKDIR_REQUEST:
                     if (null == mkdirRequestHandler)
                     {
                         mkdirRequestHandler = new MkdirRequestHandler();
                     }
                     handler = mkdirRequestHandler;
                     break;
-                case RequestImpl.RMDIR_REQUEST:
+                case RMDIR_REQUEST:
                     if (null == rmdirRequestHandler)
                     {
                         rmdirRequestHandler = new RmdirRequestHandler();
@@ -90,7 +90,7 @@ public class RequestHandlerFactory
                     handler = rmdirRequestHandler;
                     break;
                 default:
-                    logger.warning("Unknown request: " + request_type);
+                    logger.warning("Unknown request: " + requestType);
                     throw new UnknownRequestException();
             }
             return handler;

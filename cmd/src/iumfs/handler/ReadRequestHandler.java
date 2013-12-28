@@ -60,7 +60,7 @@ public class ReadRequestHandler extends AbstractRequestHandler
 
         // adjust buffer write position.
         buffer.clear();
-        buffer.position(RequestImpl.RESPONSE_HEADER_SIZE);
+        buffer.position(ResponseImpl.RESPONSE_HEADER_SIZE);
         try
         {
             // read from file

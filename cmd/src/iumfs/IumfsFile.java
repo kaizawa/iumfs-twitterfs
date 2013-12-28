@@ -86,7 +86,7 @@ public interface IumfsFile
      * Get filetype like VDIR, VREG
      * @return filetype
      */
-     public long getFileType();
+     public FileType getFileType();
     /**
      * Get prmission of this file
      * @return permission

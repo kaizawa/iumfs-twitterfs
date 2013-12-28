@@ -57,10 +57,10 @@ public class RequestFactory
          *
          * typedef struct iumfs_mount_opts
          * {
-         *    char user[MAX_USER_LEN];
-         *    char pass[MAX_PASS_LEN];
+         *    char basepath[IUMFS_MAXPATHLEN];        
          *    char server[MAX_SERVER_NAME];
-         *    char basepath[IUMFS_MAXPATHLEN];
+         *    char user[MAX_USER_LEN];
+         *    char pass[MAX_PASS_LEN];        
          * } iumfs_mount_opts_t;
          */
         Request request = new RequestImpl();
@@ -104,14 +104,16 @@ public class RequestFactory
                     + ", username=" + new String(username).trim());             
 
             request.setOffset(offset);
+            request.setDataSize(datasize);            
             request.setPathname((new String(pathname)).trim()); // remove space
             request.setBasepath((new String(basepath)).trim()); // remove space
             request.setServer((new String(server)).trim()); // remove space
-            request.setType(request_type);
+            request.setType(RequestType.getType(request_type));
             request.setSize(size);
             request.setFlags(flags);
             request.setUserName((new String(username)).trim());
             request.setPassword((new String(password)).trim());
+
             /*
              * Check if structure followed by data.
              * size won't exceed DEVICE_BUFFER_SIZE - REQUEST_HEADER_SIZE
