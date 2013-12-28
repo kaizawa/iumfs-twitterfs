@@ -31,7 +31,7 @@ import twitter4j.auth.RequestToken;
  */
 public class IumfsTwitterFactory {
 
-    private static final Logger logger = Logger.getLogger(Main.class.getName());
+    private static final Logger logger = Logger.getLogger(IumfsTwitterFactory.class.getName());
     static TwitterFactory factory = new TwitterFactory();
 
     /**

@@ -17,13 +17,13 @@ package iumfs.twitterfs;
 
 import iumfs.NotSupportedException;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
-public class PostFile extends TwitterfsFile {
+public class PostFile extends TwitterfsFile 
+{
     PostFile(Account account, String name){
         super(account, name);
     }
@@ -41,8 +41,10 @@ public class PostFile extends TwitterfsFile {
     
     @Override
     public long write(byte[] buf, long size, long offset)
-            throws IOException, FileNotFoundException {
-        try {
+            throws FileNotFoundException 
+    {
+        try 
+        {
             Status status = null;
 
             if (getPath().equals("/post") == false) {
@@ -61,14 +63,17 @@ public class PostFile extends TwitterfsFile {
              * Post strings to twitter every 140 characters.
              */
             MessageSeparator sep = new MessageSeparator(whole_msg);
-            while (sep.hasNext()) {
+            while (sep.hasNext()) 
+            {
                 String msg = (String) sep.next();
                 status = twitter.updateStatus(msg);
                 logger.finest("Text: " + msg);
                 logger.fine("Status updated");
             }
             return 0;
-        } catch (TwitterException ex) {
+        } 
+        catch (TwitterException ex) 
+        {
             /* 
              * Convert TwitterException to FileNotFoundException 
              */

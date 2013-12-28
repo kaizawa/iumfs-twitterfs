@@ -1,7 +1,5 @@
 package iumfs.twitterfs;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import java.util.*;
@@ -9,14 +7,16 @@ import java.util.*;
 /**
  * Preferences for twitterfsd
  */
-public class Prefs {
-    static Preferences prefs = Preferences.userNodeForPackage(Main.class);        
+public class Prefs 
+{
+    static Preferences prefs = Preferences.userNodeForPackage(TwitterFs.class);        
   
-    static final Map<String, Boolean> booleanPrefDefaultMap = new HashMap<String, Boolean>();
-    static final Map<String, String> stringPreDefaultfMap  = new HashMap<String, String>();
-    static final Map<String, Integer> intPrefDefaultMap  = new HashMap<String, Integer>();    
+    static final Map<String, Boolean> booleanPrefDefaultMap = new HashMap<>();
+    static final Map<String, String> stringPreDefaultfMap  = new HashMap<>();
+    static final Map<String, Integer> intPrefDefaultMap  = new HashMap<>();    
 
-    static {
+    static 
+    {
         booleanPrefDefaultMap.put("autoUpdateEnabled", true); // Default value for auto-update
         booleanPrefDefaultMap.put("progressBarEnabled", false); // Enable/Disable progress bar.
 
@@ -41,7 +41,8 @@ public class Prefs {
      * @param name preference name
      * @return value value of preference
      */
-    static public String get(String name) {
+    static public String get(String name) 
+    {
         String value = stringPreDefaultfMap.get(name);
         if(value == null)
             value = "";
@@ -53,7 +54,8 @@ public class Prefs {
      * @param name preference name
      * @return value value of preference
      */  
-    static public int getInt(String name) {
+    static public int getInt(String name) 
+    {
         Integer value  = intPrefDefaultMap.get(name);
         if(value == null)
             value = 0;
@@ -65,7 +67,8 @@ public class Prefs {
      * @param name preference name
      * @return value value of preference
      */  
-    static public Boolean getBoolean(String name) {
+    static public Boolean getBoolean(String name) 
+    {
         Boolean value = booleanPrefDefaultMap.get(name);
         if(value == null)
             value = false;
@@ -74,7 +77,7 @@ public class Prefs {
     
     /**
      * Set String preference
-     * @param name preference name
+     * @param key
      * @param value value of preference
      */  
     static public void put(String key ,String value) {
@@ -83,16 +86,17 @@ public class Prefs {
     
     /**
      * Set Int preference
-     * @param name preference name
+     * @param key
      * @param value value of preference
      */    
-    static public void putInt(String key ,int value) {
+    static public void putInt(String key ,int value) 
+    {
         prefs.putInt(key, value);
     }
     
     /**
      * Set Boolean preference
-     * @param name preference name
+     * @param key
      * @param value value of preference
      */    
     static public void putBoolean(String key, Boolean value) {
@@ -100,10 +104,13 @@ public class Prefs {
     }
     
     static public void sync(){
-        try {
+        try 
+        {
             prefs.sync();
-        } catch (BackingStoreException ex) {
-            ex.printStackTrace();
+        } 
+        catch (BackingStoreException ex) 
+        {
+            
         }
     }
 }

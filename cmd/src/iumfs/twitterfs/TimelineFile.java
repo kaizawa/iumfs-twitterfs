@@ -46,12 +46,12 @@ public class TimelineFile extends TwitterfsFile {
     protected static final String CONT = "(cont) ";
     protected long last_id = 0;
     protected long base_id = 0;
-    protected List<Status> status_list = new ArrayList<Status>();
+    protected List<Status> status_list = new ArrayList<>();
     protected static final int max_statues = Prefs.getInt("maxStatuses");
     protected long interval = 0L;
     protected boolean initial_read = true;
     protected boolean stream_api = false; // Switch for use Stream API
-    private int max_pages = Prefs.getInt("maxPages");
+    private final int max_pages = Prefs.getInt("maxPages");
 
     /**
      * Constractor for twitter file 
@@ -61,7 +61,8 @@ public class TimelineFile extends TwitterfsFile {
      * @param is_stream_api
      * @param interval 
      */
-    TimelineFile(Account account, String filename, boolean is_stream_api, long interval) {
+    TimelineFile(Account account, String filename, boolean is_stream_api, long interval)
+    {
         super(account, filename);
         this.is_timeline = true;
         this.stream_api = is_stream_api;
@@ -73,7 +74,8 @@ public class TimelineFile extends TwitterfsFile {
     /** 
      * Initialise routine for this type of file
      */
-    private void init() {
+    private void init() 
+    {
         if (!isStream_api()) {
             /*
              * If not stream timeline, read 1 page(20 tweets)
@@ -83,11 +85,12 @@ public class TimelineFile extends TwitterfsFile {
         }
     }
 
-    protected UserStreamListener listener = new UserStreamListener() {
+    protected UserStreamListener listener = new UserStreamListener() 
+    {
 
         @Override
         public void onStatus(Status status) {
-            logger.log(Level.FINER, "Read Status id={0}", status.getId());
+            logger.log(Level.FINER, "Read Status id=" + status.getId());
             logger.finest(TimelineFile.statusToFormattedString(status));
             addStatusToList(status);
         }

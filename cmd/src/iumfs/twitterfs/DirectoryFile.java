@@ -15,13 +15,16 @@
  */
 package iumfs.twitterfs;
 
+import iumfs.IumfsFile;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DirectoryFile extends TwitterfsFile { 
-    DirectoryFile(Account account, String name){
+public class DirectoryFile extends TwitterfsFile 
+{ 
+    DirectoryFile(Account account, String name)
+    {
         super(account, name);
         setDirectory(true);
     }
@@ -42,18 +45,19 @@ public class DirectoryFile extends TwitterfsFile {
     }
     
     @Override
-    public File[] listFiles() {
-        List<File> filelist = new ArrayList<File>();
+    public IumfsFile[] listFiles() 
+    {
+        List<IumfsFile> filelist = new ArrayList<>();
         
-        for(File file : TwitterfsFile.getFileMap(getUsername()).values()){
-            /*
-             * If name is "", it means it is current directory. Exclude it.
-             */
-            if(file.getName().isEmpty())
+        for (IumfsFile file : TwitterfsFile.getFileMap(getUsername()).values())
+        {
+            // If name is "", it means it is current directory. Exclude it.
+            if (file.getName().isEmpty())
+            {
                 continue;
-
+            }
             filelist.add(file);
         }
-        return filelist.toArray(new File[0]);
+        return filelist.toArray(new IumfsFile[filelist.size()]);
     }    
 }

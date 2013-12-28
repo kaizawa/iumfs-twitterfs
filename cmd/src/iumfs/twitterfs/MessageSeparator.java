@@ -32,7 +32,7 @@ public class MessageSeparator implements Iterator {
     int begin = 0;
     int end = 0;
     int left = 0;
-    protected static Logger logger = Logger.getLogger(Main.class.getName());
+    protected static Logger logger = Logger.getLogger(MessageSeparator.class.getName());
     private static final String CONT = "(contd) ";
 
     public MessageSeparator(String whole_msg) {
