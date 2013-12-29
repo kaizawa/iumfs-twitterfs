@@ -6,7 +6,10 @@
 
 package iumfs.twitterfs;
 
-import iumfs.IumfsFile;
+import com.cafeform.iumfs.twitterfs.TwitterFsFileFactory;
+import com.cafeform.iumfs.twitterfs.Prefs;
+import com.cafeform.iumfs.twitterfs.Account;
+import com.cafeform.iumfs.IumfsFile;
 import java.util.List;
 import java.util.Map;
 import org.junit.After;
