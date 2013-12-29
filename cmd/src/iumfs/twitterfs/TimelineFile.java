@@ -15,6 +15,8 @@
  */
 package iumfs.twitterfs;
 
+import iumfs.IumfsFile;
+import iumfs.NotADirectoryException;
 import iumfs.NotSupportedException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
@@ -42,7 +44,7 @@ import twitter4j.User;
 import twitter4j.UserList;
 import twitter4j.UserStreamListener;
 
-public class TimelineFile extends TwitterfsFile {
+public class TimelineFile extends TwitterFsFile {
     protected static final String CONT = "(cont) ";
     protected long last_id = 0;
     protected long base_id = 0;
@@ -504,5 +506,11 @@ public class TimelineFile extends TwitterfsFile {
     @Override
     protected String getUsername() {
         return account.getUsername();
+    }
+
+    @Override
+    public void addFile(IumfsFile file) throws NotADirectoryException
+    {
+        throw new NotADirectoryException();
     }
 }

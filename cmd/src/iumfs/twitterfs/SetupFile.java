@@ -4,6 +4,8 @@
  */
 package iumfs.twitterfs;
 
+import iumfs.IumfsFile;
+import iumfs.NotADirectoryException;
 import iumfs.NotSupportedException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
@@ -12,7 +14,7 @@ import java.nio.ByteBuffer;
  *
  * @author ka78231
  */
-class SetupFile extends TwitterfsFile {
+class SetupFile extends TwitterFsFile {
     private String script;
 
     SetupFile(Account account, String name){
@@ -67,4 +69,9 @@ class SetupFile extends TwitterfsFile {
         }        
     }
 
+    @Override
+    public void addFile(IumfsFile file) throws NotADirectoryException
+    {
+        throw new NotADirectoryException();
+    }
 }

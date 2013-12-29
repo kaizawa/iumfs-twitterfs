@@ -4,68 +4,95 @@ import iumfs.FileFactory;
 import iumfs.InvalidUserException;
 import iumfs.IumfsFile;
 import iumfs.Request;
-import static iumfs.twitterfs.TwitterfsFile.logger;
+import static iumfs.twitterfs.TwitterFsFile.logger;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author kaizawa
  */
-public class TwitterFsFileFactory implements FileFactory 
+public class TwitterFsFileFactory implements FileFactory
 {
+
+    Logger logger = Logger.getLogger(TwitterFsFileFactory.class.getName());
+
     @Override
-    public IumfsFile createFile(Request request)
+    public IumfsFile getFile(Request request)
     {
         return getFile(request.getUserName(), request.getPathname());
     }
-    
+
     /*
      * Get a IumfsFile object of given pathname for a user.
      * This method is called from TwitterXXXXRequest methods.
      * So this is an entry point for file operation.
      */
-    public IumfsFile getFile(String username, String pathname) 
+    public IumfsFile getFile(String username, String pathname)
     {
-        if (username.isEmpty()) 
+        if (username.isEmpty())
         {
             throw new InvalidUserException("Unknown user \"" + username + "\" specified");
         }
 
-        logger.log(Level.FINER, "pathname={0}, usernaem={1}", 
-                new Object[]{pathname, username});
+        logger.log(Level.FINER, "pathname={0}, usernaem={1}",
+                new Object[]
+                {
+                    pathname, username
+                });
         Account account = Account.getAccountMap().get(username);
 
-        if (account == null) 
+        if (account == null)
         {
             account = new Account(username);
-            Map<String, IumfsFile> fileMap = new ConcurrentHashMap<>();
-            initFileMap(fileMap, account);
-            account.setFileMap(fileMap);
+            account.setRootDirectory(getInitialRootDirectory(account));
             Account.getAccountMap().put(username, account);
-            logger.log(Level.FINE, "New Account for " + username + " created."); 
+            logger.log(Level.FINE, "New Account for " + username + " created.");
         }
+
         /* 
-         * If file map is initial file map(just has 2 entires) but 
-         * has access toke, it seems to have finished setting up twitter
-         * account. Create new file map which has timeline file and swap
-         * it to existing file map.
+         * If file root directory has 1 entiry but has access toke, it seems 
+         * to have finished setting up twitter account. 
+         * Create default root directory swap it to existing root directory.
          */
-        logger.log(Level.FINE, "Map size=" + account.getFileMap().size());
-        if (account.getFileMap().size() == 2)
+        logger.log(Level.FINE, "Map size="
+                + account.getRootDirector().listFiles().length);
+        if (2 == account.getRootDirector().listFiles().length)
         {
             Prefs.sync();
-            if(Prefs.get(username + "/accessToken").length() > 0) 
+            if (Prefs.get(username + "/accessToken").length() > 0)
             {
-                Map<String, IumfsFile> fileMap = new ConcurrentHashMap<>();
-                fillFileMap(fileMap, account);
-                account.setFileMap(fileMap);
+                account.setRootDirectory(getDefaultRootDirectory(account));
             }
-        }        
-        return account.getFileMap().get(pathname);
+        }
+        return lookup(account.getRootDirector(), pathname);
     }
-    
+
+    private IumfsFile getDefaultRootDirectory(Account account)
+    {
+        TwitterFsDirectory rootDir = new TwitterFsDirectory(account, "");
+        rootDir.addFile(new PostFile(account, "post"));
+        rootDir.addFile(new TimelineFile(account, "home", true, 0L));
+        rootDir.addFile(new TimelineFile(account, "mentions", false, 120000));
+        rootDir.addFile(new TimelineFile(account, "friends", false, 300000));
+        rootDir.addFile(new TimelineFile(account, "user", false, 300000));
+        rootDir.addFile(new TimelineFile(account, "retweets_of_me", false, 600000));
+        // Includes itself
+        rootDir.addFile(rootDir);
+        return rootDir;
+    }
+
+    private IumfsFile getInitialRootDirectory(Account account)
+    {
+        TwitterFsDirectory rootDir = new TwitterFsDirectory(account, "");
+        rootDir.addFile(new SetupFile(account, "setup"));
+        // Includes itself        
+        rootDir.addFile(rootDir);        
+        return rootDir;
+    }
+
     private void fillFileMap(Map<String, IumfsFile> fileMap, Account account)
     {
         fileMap.put("/post", new PostFile(account, "/post"));
@@ -74,12 +101,48 @@ public class TwitterFsFileFactory implements FileFactory
         fileMap.put("/friends", new TimelineFile(account, "/friends", false, 300000));
         fileMap.put("/user", new TimelineFile(account, "/user", false, 300000));
         fileMap.put("/retweets_of_me", new TimelineFile(account, "/retweets_of_me", false, 600000));
-        fileMap.put("/", new DirectoryFile(account, ""));
+        fileMap.put("/", new TwitterFsDirectory(account, ""));
     }
 
-    private void initFileMap(Map<String, IumfsFile> fileMap, Account account) 
+    private void initFileMap(Map<String, IumfsFile> fileMap, Account account)
     {
         fileMap.put("/setup", new SetupFile(account, "/setup"));
-        fileMap.put("/", new DirectoryFile(account, "/"));
+        fileMap.put("/", new TwitterFsDirectory(account, "/"));
+    }
+
+    private IumfsFile lookup(IumfsFile directory, String pathname)
+    {
+        if (pathname.startsWith("/"))
+        {
+            pathname = pathname.substring(1);
+        }
+
+        String[] paths = pathname.split("/", 2);
+
+        for (IumfsFile file : directory.listFiles())
+        {
+            if (file.getName().equals(paths[0]))
+            {
+                if (1 == paths.length)
+                {
+                    return file;
+                }
+                else
+                {
+                    if (file.isDirectory())
+                    {
+                        // path is correct, but not a target entry
+                        // dig more.
+                        lookup(file, paths[1]);
+                    }
+                    else 
+                    {
+                        // the entry must be directory but file!
+                        return null;
+                    }
+                }
+            }
+        }
+        return null;
     }
 }

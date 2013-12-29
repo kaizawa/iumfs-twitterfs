@@ -25,12 +25,12 @@ import java.util.Date;
 import java.util.Map;
 import java.util.logging.Logger;
 
-abstract public class TwitterfsFile extends AbstractIumfsFile {
+abstract public class TwitterFsFile extends AbstractIumfsFile {
     protected boolean is_timeline = false;
-    protected static final Logger logger = Logger.getLogger(TwitterfsFile.class.getName());
+    protected static final Logger logger = Logger.getLogger(TwitterFsFile.class.getName());
     protected Account account;
 
-    TwitterfsFile(Account account, String name)
+    TwitterFsFile(Account account, String name)
     {
         super(name);
         this.account = account;

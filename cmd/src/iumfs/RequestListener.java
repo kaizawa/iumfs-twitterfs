@@ -62,7 +62,7 @@ public class RequestListener implements Runnable
                     System.exit(1);
                 }
                 
-                IumfsFile file = fileFactory.createFile(request);
+                IumfsFile file = fileFactory.getFile(request);
                 handler = handlerFactory.getHandler(request.getType());
                 response = handler.getResponse(request, file);
             }

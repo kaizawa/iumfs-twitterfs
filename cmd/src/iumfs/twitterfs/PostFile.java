@@ -15,6 +15,8 @@
  */
 package iumfs.twitterfs;
 
+import iumfs.IumfsFile;
+import iumfs.NotADirectoryException;
 import iumfs.NotSupportedException;
 import java.io.FileNotFoundException;
 import java.nio.ByteBuffer;
@@ -22,7 +24,7 @@ import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
-public class PostFile extends TwitterfsFile 
+public class PostFile extends TwitterFsFile 
 {
     PostFile(Account account, String name){
         super(account, name);
@@ -82,4 +84,9 @@ public class PostFile extends TwitterfsFile
         } 
     }    
 
+    @Override
+    public void addFile(IumfsFile file) throws NotADirectoryException
+    {
+        throw new NotADirectoryException();
+    }
 }

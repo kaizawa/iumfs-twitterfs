@@ -47,25 +47,31 @@ public class IumfsTwitterFactory {
 
     public static AccessToken getAccessToken(String username) {
         AccessToken accessToken = null;
-        if (Prefs.get(username + "/accessToken").isEmpty()) {
+        if (Prefs.get(username + "/accessToken").isEmpty()) 
+        {
             Twitter twitter = factory.getInstance();
             twitter.setOAuthConsumer(Prefs.get("OAuthConsumerKey"), Prefs.get("consumerSecret"));
             RequestToken requestToken;
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-            try {
+            try 
+            {
                 requestToken = twitter.getOAuthRequestToken();
-                while (null == accessToken) {
+                while (null == accessToken) 
+                {
                     System.out.println("Open the following URL and grant access to your account:");
                     System.out.println(requestToken.getAuthorizationURL());
                     System.out.print("Enter the PIN(if aviailable) or just hit enter.[PIN]:");
                     String pin = br.readLine();
-                    try {
+                    try 
+                    {
                         if (pin.length() > 0) {
                             accessToken = twitter.getOAuthAccessToken(requestToken, pin);
                         } else {
                             accessToken = twitter.getOAuthAccessToken();
                         }
-                    } catch (TwitterException ex) {
+                    } 
+                    catch (TwitterException ex) 
+                    {
                         if (401 == ex.getStatusCode()) {
                             System.out.println("Unable to get the access token.");
                         } else {
@@ -73,9 +79,13 @@ public class IumfsTwitterFactory {
                         }
                     }
                 }
-            } catch (IOException ex) {
+            } 
+            catch (IOException ex) 
+            {
                 Logger.getLogger(IumfsTwitterFactory.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (TwitterException ex) {
+            } 
+            catch (TwitterException ex) 
+            {
                 Logger.getLogger(IumfsTwitterFactory.class.getName()).log(Level.SEVERE, null, ex);
             }
             Prefs.put(username + "/accessToken", accessToken.getToken());

@@ -3,6 +3,7 @@ package iumfs;
 /**
  * Factory for File for iumfs
  */
-public interface FileFactory {
-    public IumfsFile createFile(Request request);
+public interface FileFactory 
+{
+    public IumfsFile getFile(Request request);
 }

@@ -19,9 +19,6 @@ import iumfs.IumfsFile;
 import iumfs.Request;
 import iumfs.Response;
 import iumfs.ResponseImpl;
-import iumfs.handler.AbstractRequestHandler;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Date;
 

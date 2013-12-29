@@ -16,6 +16,7 @@
 package iumfs.twitterfs;
 
 import iumfs.IumfsFile;
+import iumfs.NotADirectoryException;
 import java.io.File;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,40 +27,62 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Account {
 
+    @Deprecated    
     private Map<String, IumfsFile> fileMap;
     private String username;
     private static Map<String, Account> accountMap = new ConcurrentHashMap<String, Account>();
-
+    private IumfsFile rootDir;
+    
     Account(String username) {
         this.username = username;
     }
 
-    public void setFileMap(Map<String, IumfsFile> IumfsFileMap) {
+    @Deprecated
+    public void setFileMap(Map<String, IumfsFile> IumfsFileMap) 
+    {
         this.fileMap = IumfsFileMap;
     }
-
-    public Map<String, IumfsFile> getFileMap() {
+    @Deprecated
+    public Map<String, IumfsFile> getFileMap() 
+    {
         return fileMap;
     }
 
     /**
      * @return the user
      */
-    public String getUsername() {
+    public String getUsername() 
+    {
         return username;
     }
 
     /**
      * @param user the user to set
      */
-    public void setUsername(String user) {
+    public void setUsername(String user) 
+    {
         this.username = user;
     }
 
     /**
      * @return the accountMap
      */
-    public static Map<String, Account> getAccountMap() {
+    public static Map<String, Account> getAccountMap() 
+    {
         return accountMap;
+    }
+    
+    public void setRootDirectory (IumfsFile rootDir)
+    {
+        if (!rootDir.isDirectory())
+        {
+            throw new NotADirectoryException();
+        }
+        this.rootDir = rootDir;
+    }
+    
+    public IumfsFile getRootDirector ()
+    {
+        return rootDir;
     }
 }

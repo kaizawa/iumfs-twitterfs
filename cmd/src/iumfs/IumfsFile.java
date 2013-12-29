@@ -102,5 +102,10 @@ public interface IumfsFile
     public boolean isFile();
     public String getName();
     public String getPath ();
-
+    /**
+     * Add file to file list if it's directory file.
+     * @param file
+     * @Exception NotADirectoryException
+     */
+    public void addFile (IumfsFile file) throws NotADirectoryException;
 }
