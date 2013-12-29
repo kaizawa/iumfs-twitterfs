@@ -97,11 +97,6 @@ abstract public class TwitterFsFile extends AbstractIumfsFile {
         throw new NotSupportedException();                
     }
     
-    static public Map<String, IumfsFile> getFileMap (String username) 
-    {
-        return Account.getAccountMap().get(username).getFileMap();
-    }    
-    
     @Override
     public boolean delete ()
     {

@@ -59,7 +59,7 @@ public class TwitterFsFileFactoryTest
         assertTrue(rootDir.isDirectory());
         IumfsFile[] fileList = rootDir.listFiles();
         // Must have 7 entries
-        assertEquals(7, fileList.length);
+        assertEquals(8, fileList.length);
     }
     
     @Test
