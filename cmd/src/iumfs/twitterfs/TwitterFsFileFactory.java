@@ -4,9 +4,6 @@ import iumfs.FileFactory;
 import iumfs.InvalidUserException;
 import iumfs.IumfsFile;
 import iumfs.Request;
-import static iumfs.twitterfs.TwitterFsFile.logger;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,8 +13,7 @@ import java.util.logging.Logger;
  */
 public class TwitterFsFileFactory implements FileFactory
 {
-
-    Logger logger = Logger.getLogger(TwitterFsFileFactory.class.getName());
+    static final Logger logger = Logger.getLogger(TwitterFsFileFactory.class.getName());
 
     @Override
     public IumfsFile getFile(Request request)
@@ -79,6 +75,7 @@ public class TwitterFsFileFactory implements FileFactory
         rootDir.addFile(new TimelineFile(account, "friends", false, 300000));
         rootDir.addFile(new TimelineFile(account, "user", false, 300000));
         rootDir.addFile(new TimelineFile(account, "retweets_of_me", false, 600000));
+        rootDir.addFile(new TwitterFsDirectory(account, "friends"));
         // Includes itself
         rootDir.addFile(rootDir);
         return rootDir;
@@ -91,23 +88,6 @@ public class TwitterFsFileFactory implements FileFactory
         // Includes itself        
         rootDir.addFile(rootDir);        
         return rootDir;
-    }
-
-    private void fillFileMap(Map<String, IumfsFile> fileMap, Account account)
-    {
-        fileMap.put("/post", new PostFile(account, "/post"));
-        fileMap.put("/home", new TimelineFile(account, "/home", true, 0L));
-        fileMap.put("/mentions", new TimelineFile(account, "/mentions", false, 120000));
-        fileMap.put("/friends", new TimelineFile(account, "/friends", false, 300000));
-        fileMap.put("/user", new TimelineFile(account, "/user", false, 300000));
-        fileMap.put("/retweets_of_me", new TimelineFile(account, "/retweets_of_me", false, 600000));
-        fileMap.put("/", new TwitterFsDirectory(account, ""));
-    }
-
-    private void initFileMap(Map<String, IumfsFile> fileMap, Account account)
-    {
-        fileMap.put("/setup", new SetupFile(account, "/setup"));
-        fileMap.put("/", new TwitterFsDirectory(account, "/"));
     }
 
     private IumfsFile lookup(IumfsFile directory, String pathname)
