@@ -8,7 +8,10 @@ import com.cafeform.iumfs.FileFactory;
 import com.cafeform.iumfs.InvalidUserException;
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.Request;
+import com.cafeform.iumfs.twitterfs.files.DefaultTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.SetupFile;
+import com.cafeform.iumfs.twitterfs.files.StreamTimelineFile;
+import com.cafeform.iumfs.twitterfs.files.UserTimeLine;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -72,10 +75,10 @@ public class TwitterFsFileFactory implements FileFactory
     {
         TwitterFsDirectory rootDir = new TwitterFsDirectory(account, "/");
         rootDir.addFile(new PostFile(account, "/post"));
-        rootDir.addFile(new TimelineFile(account, "/home", true, 0L));
-        rootDir.addFile(new TimelineFile(account, "/mentions", false, 120000));
-        rootDir.addFile(new TimelineFile(account, "/user", false, 300000));
-        rootDir.addFile(new TimelineFile(account, "/retweets_of_me", false, 600000));
+        rootDir.addFile(new StreamTimelineFile(account, "/home"));
+        rootDir.addFile(new DefaultTimelineFile(account, "/mentions"));
+        rootDir.addFile(new DefaultTimelineFile(account, "/retweets_of_me"));
+        rootDir.addFile(new UserTimeLine(account, "/user"));        
         TwitterFsDirectory friendsDir = new FriendsDirectory(account, "/friends");
         TwitterFsDirectory followersDir = new TwitterFsDirectory(account, "/followers");        
         rootDir.addFile(friendsDir);

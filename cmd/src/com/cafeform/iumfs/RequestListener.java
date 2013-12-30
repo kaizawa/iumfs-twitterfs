@@ -73,6 +73,7 @@ public class RequestListener implements Runnable
                  * if exception happend.
                  * Convert RuntimeException to EIO error.
                  */
+                ex.printStackTrace();
                 logger.log(Level.SEVERE, "Failed to handle request.", ex);
                 response = new ResponseImpl(request.getType(), EIO);
             } 

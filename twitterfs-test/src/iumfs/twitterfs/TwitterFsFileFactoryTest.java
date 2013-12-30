@@ -10,6 +10,7 @@ import com.cafeform.iumfs.twitterfs.TwitterFsFileFactory;
 import com.cafeform.iumfs.twitterfs.Prefs;
 import com.cafeform.iumfs.twitterfs.Account;
 import com.cafeform.iumfs.IumfsFile;
+import com.cafeform.iumfs.twitterfs.files.AbstractNormalTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.TimelineFile;
 import com.cafeform.iumfs.twitterfs.files.TwitterFsDirectory;
 import java.util.List;
@@ -33,7 +34,7 @@ public class TwitterFsFileFactoryTest
     @Before
     public void setUp()
     {
-        TimelineFile.setAutoupdateEnabled(false);
+        AbstractNormalTimelineFile.setAutoUpdateEnabled(false);
         fileFactory = new TwitterFsFileFactory();
         accountMap = Account.getAccountMap();
         accountMap.remove(USER);

@@ -27,188 +27,60 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-import java.util.logging.Logger;
-import twitter4j.DirectMessage;
 import twitter4j.Paging;
-import twitter4j.ResponseList;
-import twitter4j.StallWarning;
 import twitter4j.Status;
-import twitter4j.StatusDeletionNotice;
 import twitter4j.Twitter;
-import twitter4j.TwitterException;
-import twitter4j.TwitterStream;
-import twitter4j.TwitterStreamFactory;
-import twitter4j.User;
-import twitter4j.UserList;
-import twitter4j.UserStreamListener;
 
-public class TimelineFile extends TwitterFsFile 
+abstract public class TimelineFile extends TwitterFsFile
 {
+    // Rate limit for each timeline is copied from
+    // https://dev.twitter.com/docs/rate-limiting/1.1/limits
+    protected static final int MENTION_RATE_LIMIT = 15;
+    protected static final int USER_RATE_LIMIT = 180;
+    protected static final int HOME_RATE_LIMIT = 15;
+    protected static final int RETWEET_RATE_LIMIT = 15;
+    protected static final int DEFAULT_RATE_LIMIT = 15;
+    protected static final int RATE_LIMIT_WINDOW = 15; // min
     protected static final String CONT = "(cont) ";
     protected long last_id = 0;
     protected long base_id = 0;
     protected List<Status> status_list = new ArrayList<>();
     protected static final int max_statues = Prefs.getInt("maxStatuses");
-    protected long interval = 0L;
     protected boolean initial_read = true;
-    protected boolean stream_api = false; // Switch for use Stream API
-    private final int max_pages = Prefs.getInt("maxPages");
-    private static boolean autoUpdateEnabled = true;
+    protected final int MAX_PAGES = Prefs.getInt("maxPages");
 
     /**
-     * Constractor for twitter file 
+     * Constractor for twitter file
+     *
      * @param account Twitter account
      * @param filename
-     * @param is_timeline 
-     * @param is_stream_api
-     * @param interval 
      */
     public TimelineFile(
-            Account account, 
-            String filename, 
-            boolean is_stream_api, 
-            long interval)
+            Account account,
+            String filename)
     {
         super(account, filename);
         this.is_timeline = true;
-        this.stream_api = is_stream_api;
-        this.interval = interval;
-        if (autoUpdateEnabled)
-        {
-            init();
-            startAutoUpdateThreads();
-        }
-    }
-
-    /** 
-     * Initialise routine for this type of file
-     */
-    private void init() 
-    {
-        if (!isStream_api()) 
-        {
-            /*
-             * If not stream timeline, read 1 page(20 tweets)
-             * as initial read.
-             */
-            getTimeline(1, 20, 1);
-        }
-    }
-
-    protected UserStreamListener listener = new UserStreamListener() 
-    {
-        @Override
-        public void onStatus(Status status) 
-        {
-            logger.log(Level.FINER, "Read Status id=" + status.getId());
-            logger.finest(TimelineFile.statusToFormattedString(status));
-            addStatusToList(status);
-        }
-
-        @Override
-        public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {}
-        @Override
-        public void onTrackLimitationNotice(int numberOfLimitedStatuses) {}
-        @Override
-        public void onException(Exception ex) {}
-        @Override
-        public void onScrubGeo(long l, long l1) {}
-        @Override
-        public void onDeletionNotice(long l, long l1) {}
-        @Override
-        public void onFriendList(long[] longs) {}
-        @Override
-        public void onFavorite(User user, User user1, Status status) {}
-        @Override
-        public void onUnfavorite(User user, User user1, Status status) {}
-        @Override
-        public void onFollow(User user, User user1) {}
-        @Override
-        public void onDirectMessage(DirectMessage dm) {}
-        @Override
-        public void onUserListMemberAddition(User user, User user1, UserList ul) {}
-        @Override
-        public void onUserListMemberDeletion(User user, User user1, UserList ul) {}
-        @Override
-        public void onUserListSubscription(User user, User user1, UserList ul) {}
-        @Override
-        public void onUserListUnsubscription(User user, User user1, UserList ul) {}
-        @Override
-        public void onUserListCreation(User user, UserList ul) {}
-        @Override
-        public void onUserListUpdate(User user, UserList ul) {}
-        @Override
-        public void onUserListDeletion(User user, UserList ul) {}
-        @Override
-        public void onUserProfileUpdate(User user) {}
-        @Override
-        public void onBlock(User user, User user1) {}
-        @Override
-        public void onUnblock(User user, User user1) {}
-        @Override
-        public void onStallWarning(StallWarning sw) {}
-    };
-
-    private void startAutoUpdateThreads() 
-    {
-        // TODO: each time line should use same thread pool
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-
-        // Invokde timeline retrieving thread. 
-        if (isStream_api()) 
-        {
-            // Stream API (only home)
-            // Thread created in TwitterStream.sample()
-            TwitterStream twitterStream = 
-                    new TwitterStreamFactory().getInstance();
-            twitterStream.setOAuthConsumer(
-                    Prefs.get("OAuthConsumerKey"),
-                    Prefs.get("consumerSecret"));
-            twitterStream.setOAuthAccessToken(
-                    IumfsTwitterFactory.getAccessToken(getUsername()));
-            twitterStream.addListener(listener);
-            twitterStream.user();
-        } 
-        else 
-        {
-            Runnable timelineUpdater = new Runnable() 
-            {
-                @Override
-                public void run() {
-                    getTimeline();
-                }
-            };
-
-             // retrieve periodically
-            executor.scheduleAtFixedRate(
-                    timelineUpdater,
-                    getInterval(), 
-                    getInterval(), 
-                    TimeUnit.MILLISECONDS);
-        }
     }
 
     /**
-     * Get Status data of requested bytes at requested offset.
-     * The base of offset statts from oldest status.
-     * 
+     * Get Status data of requested bytes at requested offset. The base of
+     * offset statts from oldest status.
+     *
      * Procect list by synchronizing, not to read when time line is updated.
      *
-     * TODO: CopyOnWriteArrayList would be best, but it doesn't support sorting..
-     * TODO: In current implementation, calculation of offset is very costly.
-     *       Should I store status as simple text data?
-     * 
+     * TODO: CopyOnWriteArrayList would be best, but it doesn't support
+     * sorting.. TODO: In current implementation, calculation of offset is very
+     * costly. Should I store status as simple text data?
+     *
      * @param buf
      * @param size
      * @param offset
-     * @return 
+     * @return
      */
     @Override
-    public synchronized long read(ByteBuffer buf, long size, long offset) 
+    public synchronized long read(ByteBuffer buf, long size, long offset)
     {
         long curr_size = 0;
         long curr_offset = 0;
@@ -229,9 +101,9 @@ public class TimelineFile extends TwitterFsFile
          * ------------------curr_offset------------------>|
          *                                   |<-copy_size->|
          */
-        for (Status status : status_list) 
+        for (Status status : status_list)
         {
-            try 
+            try
             {
                 prev_offset = curr_offset;
                 String text = statusToFormattedString(status);
@@ -251,20 +123,18 @@ public class TimelineFile extends TwitterFsFile
                  */
                 curr_offset += status_length;
                 logger.finer("curr_off=" + curr_offset);
-                if (curr_offset < offset) 
+                if (curr_offset < offset)
                 {
                     logger.finer("offset not yet reached");
                     continue;
-                }
-                else if (prev_offset >= offset) 
+                } else if (prev_offset >= offset)
                 {
                     logger.finer("prev_offset >= offset");
                     /*
                      * Already exceed offset. set relative offset to 0.
                      */
                     rel_offset = 0;
-                }
-                else 
+                } else
                 {
                     logger.finer("prev_offset < offset");
                     /*
@@ -275,16 +145,16 @@ public class TimelineFile extends TwitterFsFile
                 }
                 logger.finer("rel_offset = " + rel_offset);
 
-                if (curr_size + status_length >= size) 
+                if (curr_size + status_length >= size)
                 {
                     /*
                      * status size is larger or equal to requested size.
                      * Copy necessary data size and won't read any more. 
                      */
                     copy_size = size - curr_size - rel_offset;
-                    logger.finer("copy_Size = " + copy_size + ". No need to read more Status");
-                } 
-                else 
+                    logger.finer("copy_Size = " + copy_size
+                            + ". No need to read more Status");
+                } else
                 {
                     /*
                      * need more data... copy all status data to buffer.
@@ -297,16 +167,15 @@ public class TimelineFile extends TwitterFsFile
                  */
                 buf.put(bytes, (int) rel_offset, (int) copy_size);
                 curr_size += copy_size;
-                if (curr_size >= size) 
+                if (curr_size >= size)
                 {
                     logger.finer("currSize >= size");
                     break;
                 }
                 logger.finer("curr_size < size. continue for statement.");
-            } 
-            catch (UnsupportedEncodingException ex) 
+            } catch (UnsupportedEncodingException ex)
             {
-                Logger.getLogger(TimelineFile.class.getName()).log(Level.SEVERE, null, ex);
+                logger.log(Level.INFO, "Cannot decode text in timeline.", ex);
             }
         }
         logger.fine("curr_size = " + curr_size);
@@ -315,13 +184,13 @@ public class TimelineFile extends TwitterFsFile
 
     /**
      * Convert Status to formated text.
-     * 
+     *
      * @param status Status
      * @return formatted text
      */
-    public static String statusToFormattedString(Status status) 
+    public static String statusToFormattedString(Status status)
     {
-         // Add user name time..
+        // Add user name time..
         StringBuilder sb = new StringBuilder();
         Date createdDate = status.getCreatedAt();
         SimpleDateFormat simpleFormat = new SimpleDateFormat("MM/dd HH:mm:ss");
@@ -337,159 +206,14 @@ public class TimelineFile extends TwitterFsFile
         return sb.toString();
     }
 
-    public void getTimeline() 
+    synchronized public void addStatusToList(Status status)
     {
-        getTimeline(max_statues, last_id);
-    }
-
-    /**
-     * Read time line from Twitter
-     * This function just invoke getTimeline(int page, int count, long since) 
-     * 
-     * @param count
-     * @param since 
-     */
-    public void getTimeline(int count, long since) 
-    {
-        int cnt = 0;
-        int page = 1; // page start from 1 !!
-        /*
-         * Retrieve status up to max_pages(4 by default)
-         * It's 80 status for public timeline, and 800 status for the ther timilene
-         *   20 * 4 = 80
-         *   200 * 4 = 800
-         */
-        do {
-            cnt = getTimeline(page, count, since);
-            page++;
-        } while ((cnt == count && page < max_pages) || (cnt == 20 && page < max_pages));
-    }
-
-    /**
-     * Retrieve Statuses in given pages.
-     * This method must be called exclusively.
-     * 
-     * @param page
-     * @param count
-     * @param since
-     * @return 
-     */
-    synchronized public int getTimeline(int page, int count, long since) 
-    {
-        ResponseList<Status> statuses = null;
-        Twitter twitter = IumfsTwitterFactory.getInstance(getUsername());
-        String name = getName();
-        Paging paging = new Paging(page, count, since);
-        try 
-        {
-            switch (name)
-            {
-                case "mentions":
-                    statuses = twitter.getMentionsTimeline(paging);
-                    break;
-                case "home":
-                    // For home TL, stream API should be used.
-                    statuses = twitter.getHomeTimeline(paging);
-                    break;
-                case "user":
-                    statuses = twitter.getUserTimeline(paging);
-                    break;
-                case "retweets_of_me":
-                    statuses = twitter.getRetweetsOfMe(paging);
-                    break;
-                default:
-                    logger.severe("Unknown timeline(\"" + name + "\") specified.");
-                    System.exit(1);
-                    break;
-            }
-            logger.fine("Got " + name + " timeline, "
-                    + statuses.size() + " Statuses in page " + page);
-
-            if (statuses.size() == 0) {
-                // last status
-                return 0;
-            }
-            // Set first status(newest) as last_id.
-            last_id = statuses.get(0).getId();
-            for (Status status : statuses) {
-                logger.finer("Read Status id=" + status.getId());
-                logger.finest(statusToFormattedString(status));
-                setLength(length() + statusToFormattedString(status).getBytes("UTF-8").length);
-                status_list.add(status);
-            }
-            if (initial_read) {
-                /*
-                 * Set last status(oldest) to base_id.
-                 */
-                base_id = statuses.get(statuses.size() - 1).getId();
-                logger.finer("base_id = " + base_id);
-                initial_read = false;
-            }
-
-            logger.fine("new file_size is " + length());
-            java.util.Collections.sort(status_list);
-            /*
-             * Timelie is update. So changed mtime and ctime
-             */
-            Date now = new Date();
-            setMtime(now.getTime());
-            setCtime(now.getTime());
-            return statuses.size();
-        } 
-        catch (TwitterException ex) 
-        {
-            logger.log(Level.SEVERE,
-                    "Got Twitter Exception statusCode = " + ex.getStatusCode(),
-                    ex);
-            return 0;
-        }
-        catch (UnsupportedEncodingException ex) 
-        {
-            logger.log(Level.SEVERE, "Cannot decode string in timeline", ex);
-            return 0;
-        }
-    }
-
-    /**
-     * @return the interval
-     */
-    public long getInterval() 
-    {
-        return interval;
-    }
-
-    /**
-     * @param interval the interval to set
-     */
-    public void setInterval(long interval) 
-    {
-        this.interval = interval;
-    }
-
-    /**
-     * @return the stream_api
-     */
-    public boolean isStream_api() 
-    {
-        return stream_api;
-    }
-
-    /**
-     * @param stream_api the stream_api to set
-     */
-    public void setStream_api (boolean stream_api) 
-    {
-        this.stream_api = stream_api;
-    }
-
-    synchronized public void addStatusToList (Status status) 
-    {
-        try 
+        try
         {
             logger.finer("Read Status id=" + status.getId());
             logger.finest(statusToFormattedString(status));
-            setLength(length() + 
-                    statusToFormattedString(status).getBytes("UTF-8").length);
+            setLength(length()
+                    + statusToFormattedString(status).getBytes("UTF-8").length);
             status_list.add(status);
             last_id = status.getId();
 
@@ -501,27 +225,26 @@ public class TimelineFile extends TwitterFsFile
             Date now = new Date();
             setMtime(now.getTime());
             setCtime(now.getTime());
-        } 
-        catch (UnsupportedEncodingException ex) 
+        } catch (UnsupportedEncodingException ex)
         {
             logger.log(Level.SEVERE, "Cannot decode string in timeline", ex);
         }
     }
 
     @Override
-    public long write (byte[] buf, long size, long offset) 
+    public long write(byte[] buf, long size, long offset)
     {
         throw new NotSupportedException();
     }
 
     @Override
-    public long getPermission () 
+    public long getPermission()
     {
         return (long) 0100444; // regular file      
     }
 
     @Override
-    protected String getUsername() 
+    protected String getUsername()
     {
         return account.getUsername();
     }
@@ -536,10 +259,5 @@ public class TimelineFile extends TwitterFsFile
     public IumfsFile[] listFiles()
     {
         throw new NotADirectoryException();
-    }
-    
-    public static void setAutoupdateEnabled (boolean newVal)
-    {
-        autoUpdateEnabled = newVal;
     }
 }

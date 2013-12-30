@@ -20,6 +20,8 @@ import com.cafeform.iumfs.NotADirectoryException;
 import java.io.File;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  *
@@ -30,10 +32,12 @@ public class Account {
     @Deprecated    
     private Map<String, IumfsFile> fileMap;
     private String username;
-    private static Map<String, Account> accountMap = new ConcurrentHashMap<String, Account>();
+    private static Map<String, Account> accountMap = new ConcurrentHashMap<>();
     private IumfsFile rootDir;
+    private ExecutorService userTimelineScheduler = null; 
     
-    Account(String username) {
+    public Account(String username) 
+    {
         this.username = username;
     }
 
@@ -84,5 +88,15 @@ public class Account {
     public IumfsFile getRootDirector ()
     {
         return rootDir;
+    }
+    
+    public ExecutorService getUserTimelineScheduler ()
+    {
+        if (null == userTimelineScheduler)
+        {
+            userTimelineScheduler =
+                    Executors.newScheduledThreadPool(1);
+        }
+        return userTimelineScheduler;
     }
 }
