@@ -1,9 +1,14 @@
 package com.cafeform.iumfs.twitterfs;
 
+import com.cafeform.iumfs.twitterfs.files.TimelineFile;
+import com.cafeform.iumfs.twitterfs.files.PostFile;
+import com.cafeform.iumfs.twitterfs.files.FriendsDirectory;
+import com.cafeform.iumfs.twitterfs.files.TwitterFsDirectory;
 import com.cafeform.iumfs.FileFactory;
 import com.cafeform.iumfs.InvalidUserException;
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.Request;
+import com.cafeform.iumfs.twitterfs.files.SetupFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

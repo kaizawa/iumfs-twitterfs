@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cafeform.iumfs.twitterfs;
+package com.cafeform.iumfs.twitterfs.files;
 
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.NotADirectoryException;
 import com.cafeform.iumfs.NotSupportedException;
+import com.cafeform.iumfs.twitterfs.Account;
+import com.cafeform.iumfs.twitterfs.IumfsTwitterFactory;
+import com.cafeform.iumfs.twitterfs.MessageSeparator;
 import java.io.FileNotFoundException;
 import java.nio.ByteBuffer;
 import twitter4j.Status;
@@ -26,7 +29,7 @@ import twitter4j.TwitterException;
 
 public class PostFile extends TwitterFsFile 
 {
-    PostFile (Account account, String name)
+    public PostFile (Account account, String name)
     {
         super(account, name);
     }

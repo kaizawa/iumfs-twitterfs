@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cafeform.iumfs.twitterfs;
+package com.cafeform.iumfs.twitterfs.files;
 
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.NotADirectoryException;
 import com.cafeform.iumfs.NotSupportedException;
+import com.cafeform.iumfs.twitterfs.Account;
+import com.cafeform.iumfs.twitterfs.IumfsTwitterFactory;
+import com.cafeform.iumfs.twitterfs.Prefs;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
@@ -64,7 +67,7 @@ public class TimelineFile extends TwitterFsFile
      * @param is_stream_api
      * @param interval 
      */
-    TimelineFile(
+    public TimelineFile(
             Account account, 
             String filename, 
             boolean is_stream_api, 

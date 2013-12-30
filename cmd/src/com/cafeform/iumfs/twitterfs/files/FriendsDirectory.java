@@ -1,8 +1,10 @@
-package com.cafeform.iumfs.twitterfs;
+package com.cafeform.iumfs.twitterfs.files;
 
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.NotADirectoryException;
-import static com.cafeform.iumfs.twitterfs.TwitterFsFile.logger;
+import com.cafeform.iumfs.twitterfs.Account;
+import com.cafeform.iumfs.twitterfs.IumfsTwitterFactory;
+import static com.cafeform.iumfs.twitterfs.files.TwitterFsFile.logger;
 import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

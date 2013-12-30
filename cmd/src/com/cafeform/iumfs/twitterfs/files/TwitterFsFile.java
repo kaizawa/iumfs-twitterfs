@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cafeform.iumfs.twitterfs;
+package com.cafeform.iumfs.twitterfs.files;
 
 import com.cafeform.iumfs.AbstractIumfsFile;
 import com.cafeform.iumfs.FileType;
 import static com.cafeform.iumfs.FileType.*;
 import com.cafeform.iumfs.NotSupportedException;
+import com.cafeform.iumfs.twitterfs.Account;
 import java.util.Date;
 import java.util.logging.Logger;
 
@@ -38,7 +39,7 @@ abstract public class TwitterFsFile extends AbstractIumfsFile
         this.account = account;
     }
 
-    TwitterFsFile(Account account, String name)
+    public TwitterFsFile(Account account, String name)
     {
         super(name);
         this.account = account;
