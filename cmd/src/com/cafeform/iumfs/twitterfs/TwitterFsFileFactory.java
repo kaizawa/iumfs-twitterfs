@@ -65,14 +65,14 @@ public class TwitterFsFileFactory implements FileFactory
 
     private IumfsFile getDefaultRootDirectory(Account account)
     {
-        TwitterFsDirectory rootDir = new TwitterFsDirectory(account, "");
-        rootDir.addFile(new PostFile(account, "post"));
-        rootDir.addFile(new TimelineFile(account, "home", true, 0L));
-        rootDir.addFile(new TimelineFile(account, "mentions", false, 120000));
-        rootDir.addFile(new TimelineFile(account, "user", false, 300000));
-        rootDir.addFile(new TimelineFile(account, "retweets_of_me", false, 600000));
-        TwitterFsDirectory friendsDir = new FriendsDirectory(account, "friends");
-        TwitterFsDirectory followersDir = new TwitterFsDirectory(account, "followers");        
+        TwitterFsDirectory rootDir = new TwitterFsDirectory(account, "/");
+        rootDir.addFile(new PostFile(account, "/post"));
+        rootDir.addFile(new TimelineFile(account, "/home", true, 0L));
+        rootDir.addFile(new TimelineFile(account, "/mentions", false, 120000));
+        rootDir.addFile(new TimelineFile(account, "/user", false, 300000));
+        rootDir.addFile(new TimelineFile(account, "/retweets_of_me", false, 600000));
+        TwitterFsDirectory friendsDir = new FriendsDirectory(account, "/friends");
+        TwitterFsDirectory followersDir = new TwitterFsDirectory(account, "/followers");        
         rootDir.addFile(friendsDir);
         rootDir.addFile(followersDir);
         // Includes itself
@@ -82,8 +82,8 @@ public class TwitterFsFileFactory implements FileFactory
 
     private IumfsFile getInitialRootDirectory(Account account)
     {
-        TwitterFsDirectory rootDir = new TwitterFsDirectory(account, "");
-        rootDir.addFile(new SetupFile(account, "setup"));
+        TwitterFsDirectory rootDir = new TwitterFsDirectory(account, "/");
+        rootDir.addFile(new SetupFile(account, "/setup"));
         // Includes itself        
         rootDir.addFile(rootDir);        
         return rootDir;

@@ -61,7 +61,7 @@ public class FriendsDirectory extends TwitterFsDirectory
                         {
                             addFile(new TwitterFsDirectory(
                                     account,
-                                    user.getScreenName()));
+                                    "/friends/" + user.getScreenName()));
                         }
                         cursor = friendsList.getNextCursor();
                     } 
