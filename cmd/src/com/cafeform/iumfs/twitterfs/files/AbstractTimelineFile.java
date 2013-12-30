@@ -28,11 +28,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
-import twitter4j.Paging;
 import twitter4j.Status;
 import twitter4j.Twitter;
 
-abstract public class TimelineFile extends TwitterFsFile
+abstract public class AbstractTimelineFile extends TwitterFsFile
 {
     // Rate limit for each timeline is copied from
     // https://dev.twitter.com/docs/rate-limiting/1.1/limits
@@ -48,7 +47,7 @@ abstract public class TimelineFile extends TwitterFsFile
     protected List<Status> status_list = new ArrayList<>();
     protected static final int max_statues = Prefs.getInt("maxStatuses");
     protected boolean initial_read = true;
-    protected final int MAX_PAGES = Prefs.getInt("maxPages");
+    static protected final int MAX_PAGES = Prefs.getInt("maxPages");
 
     /**
      * Constractor for twitter file
@@ -56,7 +55,7 @@ abstract public class TimelineFile extends TwitterFsFile
      * @param account Twitter account
      * @param filename
      */
-    public TimelineFile(
+    public AbstractTimelineFile(
             Account account,
             String filename)
     {

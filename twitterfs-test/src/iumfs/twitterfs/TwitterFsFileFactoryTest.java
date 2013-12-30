@@ -11,7 +11,7 @@ import com.cafeform.iumfs.twitterfs.Prefs;
 import com.cafeform.iumfs.twitterfs.Account;
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.twitterfs.files.AbstractNormalTimelineFile;
-import com.cafeform.iumfs.twitterfs.files.TimelineFile;
+import com.cafeform.iumfs.twitterfs.files.AbstractTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.TwitterFsDirectory;
 import java.util.List;
 import java.util.Map;

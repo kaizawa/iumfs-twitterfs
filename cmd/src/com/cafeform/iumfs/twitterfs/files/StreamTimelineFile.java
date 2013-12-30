@@ -23,7 +23,7 @@ import twitter4j.UserStreamListener;
  * Represents Stream timeline.
  * @author kaizawa
  */
-public class StreamTimelineFile extends TimelineFile
+public class StreamTimelineFile extends AbstractTimelineFile
 {
 
     public StreamTimelineFile (Account account, String filename)
@@ -57,7 +57,7 @@ public class StreamTimelineFile extends TimelineFile
         public void onStatus (Status status)
         {
             logger.log(Level.FINER, "Read Status id=" + status.getId());
-            logger.finest(TimelineFile.statusToFormattedString(status));
+            logger.finest(AbstractTimelineFile.statusToFormattedString(status));
             addStatusToList(status);
         }
 

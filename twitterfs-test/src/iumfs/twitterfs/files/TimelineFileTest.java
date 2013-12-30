@@ -2,10 +2,10 @@ package iumfs.twitterfs.files;
 
 import com.cafeform.iumfs.twitterfs.Account;
 import com.cafeform.iumfs.twitterfs.TwitterFsFileFactory;
-import com.cafeform.iumfs.twitterfs.files.TimelineFile;
+import com.cafeform.iumfs.twitterfs.files.AbstractTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.DefaultTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.AbstractNormalTimelineFile;
-import com.cafeform.iumfs.twitterfs.files.UserTimeLine;
+import com.cafeform.iumfs.twitterfs.files.UserTimeLineFile;
 import java.util.HashMap;
 import java.util.Map;
 import static org.junit.Assert.*;

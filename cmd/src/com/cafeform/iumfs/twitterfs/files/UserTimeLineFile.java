@@ -2,7 +2,9 @@ package com.cafeform.iumfs.twitterfs.files;
 
 import com.cafeform.iumfs.twitterfs.Account;
 import com.cafeform.iumfs.twitterfs.IumfsTwitterFactory;
+import static com.cafeform.iumfs.twitterfs.files.AbstractTimelineFile.MENTION_RATE_LIMIT;
 import static com.cafeform.iumfs.twitterfs.files.TwitterFsFile.logger;
+import java.util.logging.Level;
 import twitter4j.Paging;
 import twitter4j.ResponseList;
 import twitter4j.Status;
@@ -15,11 +17,12 @@ import twitter4j.TwitterException;
  *
  * @author kaizawa
  */
-public class UserTimeLine extends AbstractNormalTimelineFile
+public class UserTimeLineFile extends AbstractNormalTimelineFile
 {
-    public UserTimeLine (Account account, String filename)
+    public UserTimeLineFile (Account account, String filename)
     {
         super(account, filename);
+        startAutoUpdateThreads();
     }
 
     @Override
@@ -50,8 +53,22 @@ public class UserTimeLine extends AbstractNormalTimelineFile
     }
 
     @Override
-    protected void startAutoUpdateThreads ()
+    final protected void startAutoUpdateThreads ()
     {
-        //hehe
+        getAccount().addUserTimeLine(this);
+    }
+    
+    /**
+     * @return the interval
+     */
+    public static long calculateInterval()
+    {
+        long val;
+
+        // Need to take MAX_PAGES into account, since API would be called 
+        // MAX_PAGES times per each trial.
+        val = (RATE_LIMIT_WINDOW * 60 / USER_RATE_LIMIT) * 1000 * MAX_PAGES;
+        logger.log(Level.FINE, "Calculate interval for user timeline is " + val);
+        return val;
     }
 }

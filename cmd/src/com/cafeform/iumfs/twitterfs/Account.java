@@ -17,41 +17,32 @@ package com.cafeform.iumfs.twitterfs;
 
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.NotADirectoryException;
-import java.io.File;
+import com.cafeform.iumfs.twitterfs.files.UserTimeLineFile;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
  * @author ka78231
  */
 public class Account {
-
-    @Deprecated    
-    private Map<String, IumfsFile> fileMap;
     private String username;
-    private static Map<String, Account> accountMap = new ConcurrentHashMap<>();
+    private static final Map<String, Account> accountMap = new ConcurrentHashMap<>();
     private IumfsFile rootDir;
-    private ExecutorService userTimelineScheduler = null; 
+    private ScheduledExecutorService userTimelineScheduler = null; 
+    private final BlockingQueue<UserTimeLineFile> userTimelineQueue =
+            new LinkedBlockingQueue<>();
     
     public Account(String username) 
     {
         this.username = username;
     }
-
-    @Deprecated
-    public void setFileMap(Map<String, IumfsFile> IumfsFileMap) 
-    {
-        this.fileMap = IumfsFileMap;
-    }
-    @Deprecated
-    public Map<String, IumfsFile> getFileMap() 
-    {
-        return fileMap;
-    }
-
+    
     /**
      * @return the user
      */
@@ -90,13 +81,31 @@ public class Account {
         return rootDir;
     }
     
-    public ExecutorService getUserTimelineScheduler ()
-    {
+    /**
+     * Add user time line which will be feching by dequeing in order.
+     * @param newFile
+     */
+    public void addUserTimeLine (UserTimeLineFile newFile) {
         if (null == userTimelineScheduler)
         {
             userTimelineScheduler =
                     Executors.newScheduledThreadPool(1);
-        }
-        return userTimelineScheduler;
+            Runnable queueWatcher = new Runnable()
+            {
+                @Override
+                public void run ()
+                {
+                    UserTimeLineFile nextFile = userTimelineQueue.poll();
+                    nextFile.getTimeline();
+                    userTimelineQueue.offer(nextFile);
+                }
+            };
+            userTimelineScheduler.scheduleAtFixedRate(
+                    queueWatcher, 
+                    0, 
+                    UserTimeLineFile.calculateInterval(), 
+                    TimeUnit.MILLISECONDS);
+        } 
+        userTimelineQueue.offer(newFile);
     }
 }
