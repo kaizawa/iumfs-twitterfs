@@ -25,7 +25,7 @@ public class TwitterFsDirectory extends TwitterFsFile
 { 
     List<IumfsFile> fileList = new CopyOnWriteArrayList<>();
     
-    TwitterFsDirectory(Account account, String name)
+    public TwitterFsDirectory(Account account, String name)
     {
         super(account, name);
         setDirectory(true);

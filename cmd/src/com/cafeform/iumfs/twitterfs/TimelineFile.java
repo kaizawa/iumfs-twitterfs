@@ -54,6 +54,7 @@ public class TimelineFile extends TwitterFsFile
     protected boolean initial_read = true;
     protected boolean stream_api = false; // Switch for use Stream API
     private final int max_pages = Prefs.getInt("maxPages");
+    private static boolean autoUpdateEnabled = true;
 
     /**
      * Constractor for twitter file 
@@ -73,8 +74,11 @@ public class TimelineFile extends TwitterFsFile
         this.is_timeline = true;
         this.stream_api = is_stream_api;
         this.interval = interval;
-        init();
-        startAutoUpdateThreads();
+        if (autoUpdateEnabled)
+        {
+            init();
+            startAutoUpdateThreads();
+        }
     }
 
     /** 
@@ -82,7 +86,8 @@ public class TimelineFile extends TwitterFsFile
      */
     private void init() 
     {
-        if (!isStream_api()) {
+        if (!isStream_api()) 
+        {
             /*
              * If not stream timeline, read 1 page(20 tweets)
              * as initial read.
@@ -93,9 +98,9 @@ public class TimelineFile extends TwitterFsFile
 
     protected UserStreamListener listener = new UserStreamListener() 
     {
-
         @Override
-        public void onStatus(Status status) {
+        public void onStatus(Status status) 
+        {
             logger.log(Level.FINER, "Read Status id=" + status.getId());
             logger.finest(TimelineFile.statusToFormattedString(status));
             addStatusToList(status);
@@ -149,15 +154,12 @@ public class TimelineFile extends TwitterFsFile
     {
         // TODO: each time line should use same thread pool
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-        /*
-         * Invokde timeline retrieving thread. 
-         */
+
+        // Invokde timeline retrieving thread. 
         if (isStream_api()) 
         {
-            /*
-             * Stream API (only home)
-             * Thread created in TwitterStream.sample()
-             */
+            // Stream API (only home)
+            // Thread created in TwitterStream.sample()
             TwitterStream twitterStream = 
                     new TwitterStreamFactory().getInstance();
             twitterStream.setOAuthConsumer(
@@ -170,16 +172,20 @@ public class TimelineFile extends TwitterFsFile
         } 
         else 
         {
-            /*
-             * retrieve periodically
-             */
-            executor.scheduleAtFixedRate(new Runnable() 
+            Runnable timelineUpdater = new Runnable() 
             {
                 @Override
                 public void run() {
                     getTimeline();
                 }
-            }, getInterval(), getInterval(), TimeUnit.MILLISECONDS);
+            };
+
+             // retrieve periodically
+            executor.scheduleAtFixedRate(
+                    timelineUpdater,
+                    getInterval(), 
+                    getInterval(), 
+                    TimeUnit.MILLISECONDS);
         }
     }
 
@@ -468,12 +474,12 @@ public class TimelineFile extends TwitterFsFile
     /**
      * @param stream_api the stream_api to set
      */
-    public void setStream_api(boolean stream_api) 
+    public void setStream_api (boolean stream_api) 
     {
         this.stream_api = stream_api;
     }
 
-    synchronized public void addStatusToList(Status status) 
+    synchronized public void addStatusToList (Status status) 
     {
         try 
         {
@@ -500,13 +506,13 @@ public class TimelineFile extends TwitterFsFile
     }
 
     @Override
-    public long write(byte[] buf, long size, long offset) 
+    public long write (byte[] buf, long size, long offset) 
     {
         throw new NotSupportedException();
     }
 
     @Override
-    public long getPermission() 
+    public long getPermission () 
     {
         return (long) 0100444; // regular file      
     }
@@ -521,5 +527,16 @@ public class TimelineFile extends TwitterFsFile
     public void addFile(IumfsFile file) throws NotADirectoryException
     {
         throw new NotADirectoryException();
+    }
+
+    @Override
+    public IumfsFile[] listFiles()
+    {
+        throw new NotADirectoryException();
+    }
+    
+    public static void setAutoupdateEnabled (boolean newVal)
+    {
+        autoUpdateEnabled = newVal;
     }
 }

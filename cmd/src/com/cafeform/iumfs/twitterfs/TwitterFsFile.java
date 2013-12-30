@@ -18,7 +18,6 @@ package com.cafeform.iumfs.twitterfs;
 import com.cafeform.iumfs.AbstractIumfsFile;
 import com.cafeform.iumfs.FileType;
 import static com.cafeform.iumfs.FileType.*;
-import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.NotSupportedException;
 import java.util.Date;
 import java.util.logging.Logger;
@@ -28,6 +27,16 @@ abstract public class TwitterFsFile extends AbstractIumfsFile
     protected boolean is_timeline = false;
     protected static final Logger logger = Logger.getLogger(TwitterFsFile.class.getName());
     protected Account account;
+
+    public Account getAccount()
+    {
+        return account;
+    }
+
+    public void setAccount(Account account)
+    {
+        this.account = account;
+    }
 
     TwitterFsFile(Account account, String name)
     {
@@ -85,16 +94,7 @@ abstract public class TwitterFsFile extends AbstractIumfsFile
     public boolean mkdir()
     {
         throw new NotSupportedException();        
-    }
-    
-    /*
-     * This method is overridden by DirectoryFile.java
-     */
-    @Override
-    public IumfsFile[] listFiles()
-    {
-        throw new NotSupportedException();                
-    }
+    }    
     
     @Override
     public boolean delete ()

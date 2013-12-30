@@ -75,4 +75,10 @@ class SetupFile extends TwitterFsFile {
     {
         throw new NotADirectoryException();
     }
+
+    @Override
+    public IumfsFile[] listFiles()
+    {
+        throw new NotADirectoryException();
+    }
 }

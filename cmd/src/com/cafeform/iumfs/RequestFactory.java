@@ -94,21 +94,23 @@ public class RequestFactory
             buf.get(username);
             buf.get(password);
             
-            logger.finer("request_type=" + request_type + ", size=" + size + 
+            RequestType type = RequestType.getType(request_type);
+            
+            logger.finer("request_type=" + type + ", size=" + size + 
                     ", offset=" + offset + ", datasize=" + datasize);
             logger.finer("basename=" + (new String(basepath)).trim());
             logger.finest("ByteOrder=" + ByteOrder.nativeOrder());
             
-            logger.fine("request=" + request.getClass().getSimpleName()
-                    + ", pathname=" + (new String(pathname)).trim()
-                    + ", username=" + new String(username).trim());             
+            logger.fine("request=" + type + ", pathname=" +
+                    (new String(pathname)).trim() + ", username=" + 
+                    new String(username).trim());             
 
             request.setOffset(offset);
             request.setDataSize(datasize);            
             request.setPathname((new String(pathname)).trim()); // remove space
             request.setBasepath((new String(basepath)).trim()); // remove space
             request.setServer((new String(server)).trim()); // remove space
-            request.setType(RequestType.getType(request_type));
+            request.setType(type);
             request.setSize(size);
             request.setFlags(flags);
             request.setUserName((new String(username)).trim());

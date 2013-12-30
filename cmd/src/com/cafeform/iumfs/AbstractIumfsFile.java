@@ -109,11 +109,13 @@ abstract public class AbstractIumfsFile implements IumfsFile
         return ! isDirectory();
     }   
     
+    @Override
     public String getPath () 
     {
         return pathName;
     }
     
+    @Override
     public String getName ()
     {
         String regex = "((.*)/)*(.*)";

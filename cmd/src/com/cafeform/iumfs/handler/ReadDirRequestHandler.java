@@ -17,12 +17,8 @@ package com.cafeform.iumfs.handler;
 
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.Request;
-import com.cafeform.iumfs.RequestImpl;
 import com.cafeform.iumfs.Response;
 import com.cafeform.iumfs.ResponseImpl;
-import com.cafeform.iumfs.handler.AbstractRequestHandler;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
@@ -59,13 +55,13 @@ public class ReadDirRequestHandler extends AbstractRequestHandler
          * Do not call any method of this File object.
          * It would causes unexpected results.
          */
-        for (IumfsFile file : directory.listFiles())
+        for (IumfsFile entry : directory.listFiles())
         {
             int reclen;
             int namelen;
             try
             {
-                namelen = file.getName().getBytes("UTF-8").length;
+                namelen = entry.getName().getBytes("UTF-8").length;
                 namelen++; // null terminate。
 
                 /*
@@ -78,10 +74,10 @@ public class ReadDirRequestHandler extends AbstractRequestHandler
                  * } iumfs_dirent_t; *
                  */
                 reclen = (8 + 1 + (namelen) + 7) & ~7;
-                logger.log(Level.FINER, "name={0} ,namelen={1}, reclen={2}",
-                        new Object[]{file.getName(), namelen, reclen});
+                logger.log(Level.FINER, "name=" + entry.getName() + 
+                        ", namelen=" + namelen + ", reclen=" + reclen);
                 buffer.putLong(reclen);
-                buffer.put(file.getName().getBytes("UTF-8"));
+                buffer.put(entry.getName().getBytes("UTF-8"));
             } 
             catch (UnsupportedEncodingException ex)
             {
@@ -90,9 +86,7 @@ public class ReadDirRequestHandler extends AbstractRequestHandler
                 return response;
             }
             buffer.put((byte) 0); // null terminate           
-                /*
-             * Position を reclen 分だけ進めるためにパディングする
-             */
+            // Proceed position to padding unitl reclen.
             buffer.position(buffer.position() + (reclen - 8 - namelen));
         }
         /*

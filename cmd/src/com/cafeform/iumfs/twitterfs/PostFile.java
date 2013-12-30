@@ -26,23 +26,26 @@ import twitter4j.TwitterException;
 
 public class PostFile extends TwitterFsFile 
 {
-    PostFile(Account account, String name){
+    PostFile (Account account, String name)
+    {
         super(account, name);
     }
 
     @Override
-    public long getPermission() {
+    public long getPermission() 
+    {
         return (long) 0100666; // can write
     }
 
     @Override
-    public long read(ByteBuffer buf, long size, long offset) {
+    public long read (ByteBuffer buf, long size, long offset) 
+    {
         /* Nothing can be read from this file. */
         return 0;
     }
     
     @Override
-    public long write(byte[] buf, long size, long offset)
+    public long write (byte[] buf, long size, long offset)
             throws FileNotFoundException 
     {
         try 
@@ -58,8 +61,8 @@ public class PostFile extends TwitterFsFile
              */
             Twitter twitter = IumfsTwitterFactory.getInstance(getUsername());
             String whole_msg = new String(buf);
-            logger.finer("Orig Text:" + whole_msg);
-            logger.finest("whole_msg.length() = " + whole_msg.length());
+            logger.finer ("Orig Text:" + whole_msg);
+            logger.finest ("whole_msg.length() = " + whole_msg.length());
             int left = whole_msg.length();
             /*
              * Post strings to twitter every 140 characters.
@@ -85,7 +88,13 @@ public class PostFile extends TwitterFsFile
     }    
 
     @Override
-    public void addFile(IumfsFile file) throws NotADirectoryException
+    public void addFile (IumfsFile file) throws NotADirectoryException
+    {
+        throw new NotADirectoryException();
+    }
+
+    @Override
+    public IumfsFile[] listFiles ()
     {
         throw new NotADirectoryException();
     }

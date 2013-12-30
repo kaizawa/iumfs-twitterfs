@@ -7,9 +7,12 @@ public final class SingleLineLogFormatter extends Formatter {
 
     /**
      * Setting log format
+     * @param rec
+     * @return 
      */    
     @Override
-    public synchronized String format(final LogRecord rec) {
+    public synchronized String format(final LogRecord rec) 
+    {
         StringBuilder line =  new StringBuilder();
         
         line.append(String.format("%tD %<tT.%<tL", rec.getMillis()));
@@ -23,8 +26,19 @@ public final class SingleLineLogFormatter extends Formatter {
         line.append(rec.getSourceMethodName());
         line.append(": ");        
         line.append(rec.getMessage());
-        line.append("\n");
-        
+        line.append("\n");        
+        Throwable throwable = rec.getThrown();        
+        if (null != throwable)
+        {
+            line.append(throwable.getMessage());
+            line.append("\n");                
+            for(StackTraceElement element : throwable.getStackTrace())
+            {
+                line.append(element.getClassName());
+                line.append(element.getMethodName());
+                line.append("\n");                
+            }
+        }
         return line.toString();
     }
 }

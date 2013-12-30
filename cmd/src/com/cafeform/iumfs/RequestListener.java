@@ -51,7 +51,7 @@ public class RequestListener implements Runnable
                     logger.severe("failed to read data from device");
                     System.exit(1);
                 }
-                logger.log(Level.FINER, "device returns {0} bytes ", new Object[]{len} );
+                logger.log(Level.FINER, "device returns " + len + " bytes ");
 
                 // Create request object
                 request = RequestFactory.createRequest(buffer);
@@ -73,7 +73,7 @@ public class RequestListener implements Runnable
                  * if exception happend.
                  * Convert RuntimeException to EIO error.
                  */
-                logger.log(Level.SEVERE, "RuntimeException happened", ex);
+                logger.log(Level.SEVERE, "Failed to handle request.", ex);
                 response = new ResponseImpl(request.getType(), EIO);
             } 
             catch (IOException ex)
@@ -97,7 +97,7 @@ public class RequestListener implements Runnable
                 logger.log(Level.SEVERE, "Cannot write response", ex);
                 System.exit(1);
             }
-            logger.finer("request for " + request.getClass().getSimpleName() + " finished.");
+            logger.finer("request for " + request.getType() + " finished.");
         }
     }
     

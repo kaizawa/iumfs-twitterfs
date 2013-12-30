@@ -47,8 +47,6 @@ public class GetAttrRequestHandler extends AbstractRequestHandler
             response.setResponseHeader(request.getType(), ENOENT, 0);
             return response;
         }
-        
-        System.out.println("reqest type = " + request.getType());
 
         response.setResponseHeader(
                 request.getType(),

@@ -10,6 +10,8 @@ import com.cafeform.iumfs.twitterfs.TwitterFsFileFactory;
 import com.cafeform.iumfs.twitterfs.Prefs;
 import com.cafeform.iumfs.twitterfs.Account;
 import com.cafeform.iumfs.IumfsFile;
+import com.cafeform.iumfs.twitterfs.TimelineFile;
+import com.cafeform.iumfs.twitterfs.TwitterFsDirectory;
 import java.util.List;
 import java.util.Map;
 import org.junit.After;
@@ -31,6 +33,7 @@ public class TwitterFsFileFactoryTest
     @Before
     public void setUp()
     {
+        TimelineFile.setAutoupdateEnabled(false);
         fileFactory = new TwitterFsFileFactory();
         accountMap = Account.getAccountMap();
         accountMap.remove(USER);
@@ -42,7 +45,7 @@ public class TwitterFsFileFactoryTest
         Prefs.put(USER + "/accessToken", "");
     }
     
-    //@Test
+    @Test
     public void testTopLevelDirectoryWithoutToken ()
     {
         IumfsFile rootDir = fileFactory.getFile(USER, "/");
@@ -73,5 +76,20 @@ public class TwitterFsFileFactoryTest
         
         assertFalse(home.isDirectory());
         assertEquals("home", home.getName());
+    }
+    
+    @Test
+    public void testLookupFileUnderDirectory ()
+    {
+        Prefs.put(USER + "/accessToken", TOKEN);          
+        IumfsFile rootDir = fileFactory.getFile(USER, "/");
+        Account account = accountMap.get(USER);
+        
+        TwitterFsDirectory lv1Dir = new TwitterFsDirectory(account, "lv1Dir");
+        lv1Dir.addFile(new TwitterFsDirectory(account, "lv2Dir"));
+        rootDir.addFile(lv1Dir);
+        
+        IumfsFile lv2Dir = fileFactory.getFile(USER, "/lv1Dir/lv2Dir");    
+        assertNotNull(lv2Dir);
     }
 }

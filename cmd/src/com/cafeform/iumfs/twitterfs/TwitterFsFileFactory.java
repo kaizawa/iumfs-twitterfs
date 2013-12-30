@@ -33,11 +33,8 @@ public class TwitterFsFileFactory implements FileFactory
             throw new InvalidUserException("Unknown user \"" + username + "\" specified");
         }
 
-        logger.log(Level.FINER, "pathname={0}, usernaem={1}",
-                new Object[]
-                {
-                    pathname, username
-                });
+        logger.log(Level.FINER, "pathname=" + pathname + ", usernaem=" + username);
+               
         Account account = Account.getAccountMap().get(username);
 
         if (account == null)
@@ -74,7 +71,7 @@ public class TwitterFsFileFactory implements FileFactory
         rootDir.addFile(new TimelineFile(account, "mentions", false, 120000));
         rootDir.addFile(new TimelineFile(account, "user", false, 300000));
         rootDir.addFile(new TimelineFile(account, "retweets_of_me", false, 600000));
-        TwitterFsDirectory friendsDir = new TwitterFsDirectory(account, "friends");
+        TwitterFsDirectory friendsDir = new FriendsDirectory(account, "friends");
         TwitterFsDirectory followersDir = new TwitterFsDirectory(account, "followers");        
         rootDir.addFile(friendsDir);
         rootDir.addFile(followersDir);
@@ -107,6 +104,8 @@ public class TwitterFsFileFactory implements FileFactory
             {
                 if (1 == paths.length)
                 {
+                    logger.log(Level.FINER, "Found " + paths[0] + 
+                            " in " + directory.getName());
                     return file;
                 }
                 else
@@ -115,16 +114,21 @@ public class TwitterFsFileFactory implements FileFactory
                     {
                         // path is correct, but not a target entry
                         // dig more.
-                        lookup(file, paths[1]);
+                        return lookup(file, paths[1]);
                     }
                     else 
                     {
+                        logger.log(Level.WARNING, paths[0] + " is expected" +
+                                " to be directory, but regular file.");
                         // the entry must be directory but file!
                         return null;
                     }
                 }
             }
         }
+        logger.log(Level.FINER, "Cannot find " + paths[0] + " in " + 
+                ("".equals(directory.getName()) ? "/":(directory.getName())));
+                     
         return null;
     }
 }
