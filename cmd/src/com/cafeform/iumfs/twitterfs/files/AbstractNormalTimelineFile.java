@@ -13,8 +13,7 @@ import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
 /**
- *
- * @author kaizawa
+ * Represents non-streaming timelines.
  */
 abstract public class AbstractNormalTimelineFile extends AbstractTimelineFile
 {

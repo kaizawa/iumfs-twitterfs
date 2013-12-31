@@ -19,12 +19,12 @@ import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.NotADirectoryException;
 import com.cafeform.iumfs.twitterfs.Account;
 import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TwitterFsDirectory extends TwitterFsFile
 { 
-    List<IumfsFile> fileList = new CopyOnWriteArrayList<>();
+    Map<String, IumfsFile> fileMap = new ConcurrentHashMap<>();
     
     public TwitterFsDirectory(Account account, String name)
     {
@@ -50,12 +50,12 @@ public class TwitterFsDirectory extends TwitterFsFile
     @Override
     public IumfsFile[] listFiles() 
     {
-        return fileList.toArray(new IumfsFile[fileList.size()]);
+        return fileMap.values().toArray(new IumfsFile[fileMap.size()]);
     }   
 
     @Override
     public void addFile(IumfsFile file) throws NotADirectoryException
     {
-        fileList.add(file);
+        fileMap.put(file.getName(), file);
     }    
 }

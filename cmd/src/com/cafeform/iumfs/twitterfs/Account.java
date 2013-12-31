@@ -25,28 +25,32 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author ka78231
  */
-public class Account {
+public class Account
+{
+    Logger logger = Logger.getLogger(Account.class.getName());
     private String username;
     private static final Map<String, Account> accountMap = new ConcurrentHashMap<>();
     private IumfsFile rootDir;
-    private ScheduledExecutorService userTimelineScheduler = null; 
-    private final BlockingQueue<UserTimeLineFile> userTimelineQueue =
-            new LinkedBlockingQueue<>();
-    
-    public Account(String username) 
+    private ScheduledExecutorService userTimelineScheduler = null;
+    private final BlockingQueue<UserTimeLineFile> userTimelineQueue
+            = new LinkedBlockingQueue<>();
+
+    public Account (String username)
     {
         this.username = username;
     }
-    
+
     /**
      * @return the user
      */
-    public String getUsername() 
+    public String getUsername ()
     {
         return username;
     }
@@ -54,7 +58,7 @@ public class Account {
     /**
      * @param user the user to set
      */
-    public void setUsername(String user) 
+    public void setUsername (String user)
     {
         this.username = user;
     }
@@ -62,11 +66,11 @@ public class Account {
     /**
      * @return the accountMap
      */
-    public static Map<String, Account> getAccountMap() 
+    public static Map<String, Account> getAccountMap ()
     {
         return accountMap;
     }
-    
+
     public void setRootDirectory (IumfsFile rootDir)
     {
         if (!rootDir.isDirectory())
@@ -75,37 +79,49 @@ public class Account {
         }
         this.rootDir = rootDir;
     }
-    
+
     public IumfsFile getRootDirector ()
     {
         return rootDir;
     }
-    
+
     /**
      * Add user time line which will be feching by dequeing in order.
+     *
      * @param newFile
      */
-    public void addUserTimeLine (UserTimeLineFile newFile) {
+    public void addUserTimeLine (UserTimeLineFile newFile)
+    {
         if (null == userTimelineScheduler)
         {
-            userTimelineScheduler =
-                    Executors.newScheduledThreadPool(1);
+            userTimelineScheduler
+                    = Executors.newScheduledThreadPool(1);
             Runnable queueWatcher = new Runnable()
             {
                 @Override
                 public void run ()
                 {
-                    UserTimeLineFile nextFile = userTimelineQueue.poll();
-                    nextFile.getTimeline();
-                    userTimelineQueue.offer(nextFile);
+                    try
+                    {
+                        UserTimeLineFile nextFile = userTimelineQueue.poll();
+                        nextFile.getTimeline();
+                        userTimelineQueue.offer(nextFile);
+                    } 
+                    catch (Exception ex)
+                    {
+                        logger.log(
+                                Level.SEVERE,
+                                "User timeline watcher thread is down " +
+                                "due to " + ex.toString(), ex);
+                    }
                 }
             };
             userTimelineScheduler.scheduleAtFixedRate(
-                    queueWatcher, 
-                    0, 
-                    UserTimeLineFile.calculateInterval(), 
+                    queueWatcher,
+                    0,
+                    UserTimeLineFile.calculateInterval(),
                     TimeUnit.MILLISECONDS);
-        } 
+        }
         userTimelineQueue.offer(newFile);
     }
 }

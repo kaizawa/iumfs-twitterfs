@@ -31,6 +31,18 @@ import java.util.logging.Level;
 import twitter4j.Status;
 import twitter4j.Twitter;
 
+/**
+ * Represents fundamental TimelineFile class.
+ * All other timeline classes are descendant of this class
+ * 
+ *  AbstractTimelineFile
+ *     +StreamTimelineFile
+ *     +AbstractNormalTimelineFile 
+ *         +DefaultTimelineFile
+ *         +UserTimelineFIle
+ * 
+ * @author kaizawa
+ */
 abstract public class AbstractTimelineFile extends TwitterFsFile
 {
     // Rate limit for each timeline is copied from
@@ -42,7 +54,7 @@ abstract public class AbstractTimelineFile extends TwitterFsFile
     protected static final int DEFAULT_RATE_LIMIT = 15;
     protected static final int RATE_LIMIT_WINDOW = 15; // min
     protected static final String CONT = "(cont) ";
-    protected long last_id = 0;
+    protected long last_id = 1;
     protected long base_id = 0;
     protected List<Status> status_list = new ArrayList<>();
     protected static final int max_statues = Prefs.getInt("maxStatuses");

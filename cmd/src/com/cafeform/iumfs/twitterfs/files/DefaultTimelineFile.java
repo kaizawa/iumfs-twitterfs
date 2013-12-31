@@ -14,7 +14,9 @@ import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
 /**
- *
+ * Represents non-streaming timelines.
+ * That includs mentions, home and retweets_of_me but not user timeline.
+ * 
  * @author kaizawa
  */
 public class DefaultTimelineFile extends AbstractNormalTimelineFile
@@ -41,7 +43,7 @@ public class DefaultTimelineFile extends AbstractNormalTimelineFile
         * If not stream timeline, read 1 page(20 tweets)
         * as initial read.
         */
-        getTimeline(1, 20, 1);
+        getTimeline(1, 20, last_id);
     }
 
     @Override

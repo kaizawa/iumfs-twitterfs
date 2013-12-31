@@ -2,7 +2,6 @@ package com.cafeform.iumfs.twitterfs.files;
 
 import com.cafeform.iumfs.twitterfs.Account;
 import com.cafeform.iumfs.twitterfs.IumfsTwitterFactory;
-import static com.cafeform.iumfs.twitterfs.files.AbstractTimelineFile.MENTION_RATE_LIMIT;
 import static com.cafeform.iumfs.twitterfs.files.TwitterFsFile.logger;
 import java.util.logging.Level;
 import twitter4j.Paging;
@@ -12,8 +11,8 @@ import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
 /**
- * Express Authenticated user time line and friends time line which is affected
- * by statuses/user_timeline rate limit
+ * Represents Authenticated user timeline and friends timeline 
+ * which is affected by statuses/user_timeline rate limit
  *
  * @author kaizawa
  */
