@@ -64,11 +64,6 @@ public class FriendsDirectory extends TwitterFsDirectory
                             addFile(new UserTimeLineFile(
                                     account,
                                     "/friends/" + user.getScreenName()));
-/*
-                            addFile(new TwitterFsDirectory(
-                                    account,
-                                    "/friends/" + user.getScreenName()));
-        */
                         }
                         cursor = friendsList.getNextCursor();
                     } 
