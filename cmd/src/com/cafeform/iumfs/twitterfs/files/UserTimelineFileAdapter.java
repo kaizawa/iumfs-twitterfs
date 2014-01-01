@@ -80,7 +80,7 @@ public class UserTimelineFileAdapter implements IumfsFile
     @Override
     public void setAtime (long atime)
     {
-        setAtime(atime);
+        file.setAtime(atime);
     }
 
     @Override

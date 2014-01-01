@@ -12,6 +12,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Manage user timelines for each account
@@ -97,25 +99,37 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
        {
            if (file.getName().equals(name))
            {
+               logger.log(Level.FINER, name + " found in existing list.");
                return file;
            }
        }
+       logger.log(Level.FINER, name + " not found in existing list.");
         return null;
     }
 
     @Override
-    public IumfsFile getTimelineFile (Account account, String pathname)
+    public IumfsFile getTimelineFile (Account account, String pathName)
     {
+        String regex = "((.*)/)*(.*)";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(pathName);
+        if (!matcher.find())
+        {
+            throw new IllegalArgumentException("pathName " + pathName +
+                    " is invalid.");
+        }
+        String name  = matcher.group(3);
+
         IumfsFile newFile;
-        UserTimelineFile userTimelineFile = lookupUserTimeline(pathname);
+        UserTimelineFile userTimelineFile = lookupUserTimeline(name);
         if (null == userTimelineFile)
         {
-             userTimelineFile = new UserTimelineFile(account, pathname);
+             userTimelineFile = new UserTimelineFile(account, pathName);
              addUserTimeLine(userTimelineFile);
         }
         
         // Create adopter instance which include actual timeline file.
-        newFile = new UserTimelineFileAdapter(pathname, userTimelineFile);
+        newFile = new UserTimelineFileAdapter(pathName, userTimelineFile);
         return newFile;
     }
 }
