@@ -125,4 +125,16 @@ public class TwitterFsFileFactoryTest extends TwitterFsTestBase
         assertEquals("/", rootDir.getPath());
         assertEquals("", rootDir.getName());        
     }
+    
+    @Test
+    public void testLookupReplyPostFile ()
+    {
+        Prefs.put(USER1 + "/accessToken", DUMMY_TOKEN);        
+        IumfsFile postFile = fileFactory.getFile(USER1, "/@twitter");
+        assertNotNull(postFile);
+        
+        // File which start with @ always exist anyware under root dir.
+        postFile = fileFactory.getFile(USER1, "/hehehe/@twitter");   
+        assertNotNull(postFile);        
+    }
 }

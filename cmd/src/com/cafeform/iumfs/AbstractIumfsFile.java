@@ -118,10 +118,6 @@ abstract public class AbstractIumfsFile implements IumfsFile
     @Override
     public String getName ()
     {
-        String regex = "((.*)/)*(.*)";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(pathName);
-        
-        return matcher.find() ? matcher.group(3) : null;
+        return Files.getNameFromPathName(pathName);
     }
 }

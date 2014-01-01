@@ -17,31 +17,38 @@ package com.cafeform.iumfs.twitterfs;
 
 import java.util.Iterator;
 import java.util.logging.Logger;
-import java.lang.Math;
 
 /**
- * Separate long message (more than 140 char) into small chank(less than or
- * equal to 140 char).
+ * Separate long message into small chank(less than or
+ * equal to given maxLength characters).
  * 2nd and later chank has "(contd)" prefix which indicates that it is
  * a part of continual messages.
  * 
  */
-public class MessageSeparator implements Iterator {    
-    private MessageSeparator(){}
-    private String whole_msg;
+public class MessageSeparator implements Iterator 
+{    
+    private String wholeMessage;
     int begin = 0;
     int end = 0;
     int left = 0;
-    protected static Logger logger = Logger.getLogger(MessageSeparator.class.getName());
+    protected static final Logger logger =
+            Logger.getLogger(MessageSeparator.class.getName());
     private static final String CONT = "(contd) ";
+    private String prefix;
+    private final int MAX_LENGTH = 140;
+    
+    private MessageSeparator(){}    
 
-    public MessageSeparator(String whole_msg) {
-        this.whole_msg = whole_msg;
-        left = whole_msg.length();        
+    public MessageSeparator(String whole_msg, String prefix) 
+    {
+        this.wholeMessage = whole_msg;
+        left = whole_msg.length();  
+        this.prefix = null == prefix ? "" : prefix;
     }
 
     @Override
-    public boolean hasNext() {
+    public boolean hasNext() 
+    {
         if(left > 0 )
             return true;
         else 
@@ -53,27 +60,36 @@ public class MessageSeparator implements Iterator {
      * Length of returns string is less than equal to 140 charactors.
      */
     @Override
-    public Object next() {
-        int hdrlen; // Length of prefix(="contd"). zero if needless.
-        int msglen; // body part of message length.
+    public Object next() 
+    {
+        int prefixLength; // Length of prefix(@XXXX and "(contd)"). 
+        int messageLength; // body part of message length.
         int postlen;// total message length
+        StringBuilder builder = new StringBuilder();
 
         logger.finer("left=" + left);
-        hdrlen = begin == 0 ? 0 : CONT.length();
-        msglen = Math.min(140-hdrlen, left);
-        end = begin + msglen;        
-        postlen = msglen + hdrlen;
+        prefixLength = begin == 0 ? prefix.length() :
+                CONT.length() + prefix.length();
+        messageLength = Math.min(MAX_LENGTH - prefixLength, left);
+        end = begin + messageLength;        
+        postlen = messageLength + prefixLength;
         logger.finer("begin=" + begin + ",end=" + end );
-        String str = whole_msg.substring(begin, end);
-        str = begin == 0 ? str : CONT.concat(str);        
-        logger.finest(str);
-        begin += msglen;
-        left -= msglen;
-        return str;
+        
+        builder.append(prefix);
+        if (0 != begin ){
+            builder.append(CONT);
+        }
+        builder.append(wholeMessage.substring(begin, end));
+        
+        logger.finest(builder.toString());
+        begin += messageLength;
+        left -= messageLength;
+        return builder.toString();
     }
 
     @Override
-    public void remove() {
+    public void remove() 
+    {
         throw new UnsupportedOperationException("Not supported yet.");
     }
     

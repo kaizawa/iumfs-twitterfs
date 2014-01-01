@@ -29,9 +29,18 @@ import twitter4j.TwitterException;
 
 public class PostFile extends TwitterFsFile 
 {
+    protected static final int MAX_LENGTH = 140;
+    private String prefix;
+
     public PostFile (Account account, String name)
     {
+        this(account, name, null);
+    }
+    
+    public PostFile (Account account, String name, String prefix)
+    {
         super(account, name);
+        this.prefix = prefix;
     }
 
     @Override
@@ -54,6 +63,7 @@ public class PostFile extends TwitterFsFile
         try 
         {
             Status status = null;
+            Twitter twitter = IumfsTwitterFactory.getInstance(getUsername());            
 
             if (getPath().equals("/post") == false) {
                 throw new NotSupportedException();
@@ -62,18 +72,20 @@ public class PostFile extends TwitterFsFile
             /*
              * Get a strings written as a file data.
              */
-            Twitter twitter = IumfsTwitterFactory.getInstance(getUsername());
-            String whole_msg = new String(buf);
-            logger.finer ("Orig Text:" + whole_msg);
-            logger.finest ("whole_msg.length() = " + whole_msg.length());
-            int left = whole_msg.length();
+            String wholeMessage = new String(buf);
+            logger.finer ("Orig Text:" + wholeMessage);
+            logger.finest ("whole_msg.length() = " + wholeMessage.length());
+            int left = wholeMessage.length();
             /*
              * Post strings to twitter every 140 characters.
              */
-            MessageSeparator sep = new MessageSeparator(whole_msg);
+            MessageSeparator sep = new MessageSeparator(
+                    wholeMessage, 
+                    getPrefix());
             while (sep.hasNext()) 
             {
                 String msg = (String) sep.next();
+
                 status = twitter.updateStatus(msg);
                 logger.finest("Text: " + msg);
                 logger.fine("Status updated");
@@ -89,6 +101,11 @@ public class PostFile extends TwitterFsFile
             throw new FileNotFoundException();
         } 
     }    
+
+    private String getPrefix ()
+    {
+        return prefix;
+    }
 
     @Override
     public void addFile (IumfsFile file) throws NotADirectoryException

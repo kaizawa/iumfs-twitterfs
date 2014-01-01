@@ -1,5 +1,6 @@
 package com.cafeform.iumfs.twitterfs;
 
+import com.cafeform.iumfs.Files;
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.twitterfs.files.UserTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.UserTimelineFileImpl;
@@ -112,16 +113,7 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
     @Override
     public IumfsFile getTimelineFile (Account account, String pathName)
     {
-        // Get exact file name from pathName
-        String regex = "((.*)/)*(.*)";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(pathName);
-        if (!matcher.find())
-        {
-            throw new IllegalArgumentException("pathName " + pathName +
-                    " is invalid.");
-        }
-        String name  = matcher.group(3);
+        String name  = Files.getNameFromPathName(pathName);
 
         IumfsFile newFile;
         // Lookup existing UserTimeline by name.
