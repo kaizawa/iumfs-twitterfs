@@ -19,7 +19,7 @@ import twitter4j.TwitterException;
  * 
  * @author kaizawa
  */
-public class DefaultTimelineFile extends AbstractNormalTimelineFile
+public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
 {
     public DefaultTimelineFile (
             Account account, 

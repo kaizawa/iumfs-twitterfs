@@ -4,7 +4,7 @@ import com.cafeform.iumfs.twitterfs.Account;
 import com.cafeform.iumfs.twitterfs.AccountImpl;
 import com.cafeform.iumfs.twitterfs.TwitterFsTestBase;
 import com.cafeform.iumfs.twitterfs.files.DefaultTimelineFile;
-import com.cafeform.iumfs.twitterfs.files.AbstractNormalTimelineFile;
+import com.cafeform.iumfs.twitterfs.files.AbstractNonStreamTimelineFile;
 import java.util.HashMap;
 import java.util.Map;
 import static org.junit.Assert.*;
@@ -20,7 +20,7 @@ public class TimelineFileTest extends TwitterFsTestBase
     @Before
     public void setUp()
     {
-        AbstractNormalTimelineFile.setAutoUpdateEnabled(false);
+        AbstractNonStreamTimelineFile.setAutoUpdateEnabled(false);
     }
     
     @Test

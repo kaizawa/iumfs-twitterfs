@@ -13,14 +13,14 @@ import java.nio.ByteBuffer;
  * Adapter of UserTimelineFile.
  * All methods but getPathname call apapteee's method.
  */
-public class UserTimelineFileAdapter implements IumfsFile
+public class UserTimelineFileAdapter implements UserTimelineFile
 {
     private final IumfsFile file;
     private final String pathname;
     
     public UserTimelineFileAdapter (String pathname, IumfsFile file)
     {
-        if (!(file instanceof UserTimelineFile))
+        if (!(file instanceof UserTimelineFileImpl))
         {
             throw new IllegalArgumentException(
                     "not an instance of UserTimelineFile");
@@ -159,5 +159,11 @@ public class UserTimelineFileAdapter implements IumfsFile
     public void addFile (IumfsFile file) throws NotADirectoryException
     {
         addFile(file);
+    }
+
+    @Override
+    public void getTimeline ()
+    {
+        file.getAtime();
     }
 }

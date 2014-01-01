@@ -4,12 +4,8 @@ import com.cafeform.iumfs.twitterfs.Account;
 import com.cafeform.iumfs.twitterfs.IumfsTwitterFactory;
 import com.cafeform.iumfs.twitterfs.Prefs;
 import static com.cafeform.iumfs.twitterfs.files.TwitterFsFile.logger;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import twitter4j.DirectMessage;
-import twitter4j.Paging;
 import twitter4j.StallWarning;
 import twitter4j.Status;
 import twitter4j.StatusDeletionNotice;
@@ -29,14 +25,6 @@ public class StreamTimelineFile extends AbstractTimelineFile
     public StreamTimelineFile (Account account, String filename)
     {
         super(account, filename);
-        startAutoUpdateThreads();
-    }
-
-    private void startAutoUpdateThreads ()
-    {
-        // TODO: each time line should use same thread pool
-        ScheduledExecutorService executor;
-
         // Invokde timeline retrieving thread. 
         // Stream API (only home)
         // Thread created in TwitterStream.sample()

@@ -15,7 +15,7 @@ import twitter4j.TwitterException;
 /**
  * Represents non-streaming timelines.
  */
-abstract public class AbstractNormalTimelineFile extends AbstractTimelineFile
+abstract public class AbstractNonStreamTimelineFile extends AbstractTimelineFile
 {
     protected static boolean autoUpdateEnabled = true;
 
@@ -26,11 +26,11 @@ abstract public class AbstractNormalTimelineFile extends AbstractTimelineFile
 
     public static void setAutoUpdateEnabled (boolean autoUpdateEnabled)
     {
-        AbstractNormalTimelineFile.autoUpdateEnabled = autoUpdateEnabled;
+        AbstractNonStreamTimelineFile.autoUpdateEnabled = autoUpdateEnabled;
     }
     protected long interval = 0L;
 
-    public AbstractNormalTimelineFile (Account account, String filename)
+    public AbstractNonStreamTimelineFile (Account account, String filename)
     {
         super(account, filename);
     }

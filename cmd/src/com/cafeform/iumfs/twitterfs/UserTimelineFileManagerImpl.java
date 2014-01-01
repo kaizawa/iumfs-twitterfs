@@ -2,6 +2,7 @@ package com.cafeform.iumfs.twitterfs;
 
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.twitterfs.files.UserTimelineFile;
+import com.cafeform.iumfs.twitterfs.files.UserTimelineFileImpl;
 import com.cafeform.iumfs.twitterfs.files.UserTimelineFileAdapter;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -25,7 +26,7 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
     private ScheduledExecutorService userTimelineScheduler = null;
     private final BlockingQueue<UserTimelineFile> userTimelineQueue = 
             new LinkedBlockingQueue<>();
-    private final Map<String, UserTimelineFile> userTimelineMap = 
+    private final Map<String, UserTimelineFileImpl> userTimelineMap = 
             new ConcurrentHashMap<>();
 
     /**
@@ -81,7 +82,7 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
             userTimelineScheduler.scheduleAtFixedRate(
                     queueWatcher,
                     0,
-                    UserTimelineFile.calculateInterval(),
+                    UserTimelineFileImpl.calculateInterval(),
                     TimeUnit.MILLISECONDS);
         }
     }
@@ -110,6 +111,7 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
     @Override
     public IumfsFile getTimelineFile (Account account, String pathName)
     {
+        // Get exact file name from pathName
         String regex = "((.*)/)*(.*)";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(pathName);
@@ -121,10 +123,11 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
         String name  = matcher.group(3);
 
         IumfsFile newFile;
+        // Lookup existing UserTimeline by name.
         UserTimelineFile userTimelineFile = lookupUserTimeline(name);
         if (null == userTimelineFile)
         {
-             userTimelineFile = new UserTimelineFile(account, pathName);
+             userTimelineFile = new UserTimelineFileImpl(account, pathName);
              addUserTimeLine(userTimelineFile);
         }
         
