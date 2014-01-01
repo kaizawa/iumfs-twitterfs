@@ -26,15 +26,13 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
     private ScheduledExecutorService userTimelineScheduler = null;
     private final BlockingQueue<UserTimelineFile> userTimelineQueue = 
             new LinkedBlockingQueue<>();
-    private final Map<String, UserTimelineFileImpl> userTimelineMap = 
-            new ConcurrentHashMap<>();
 
     /**
      * Add user time line which will be feching by dequeing in order.
      *
      * @param newFile
      */
-    public void addUserTimeLine (UserTimelineFile newFile)
+    private void addUserTimeLine (UserTimelineFile newFile)
     {
         // Start user timeline updater scheduler
         startScheduler();
@@ -67,8 +65,11 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
                     try
                     {
                         UserTimelineFile nextFile = userTimelineQueue.poll();
-                        nextFile.getTimeline();
-                        userTimelineQueue.offer(nextFile);
+                        if (null != nextFile)
+                        {
+                            nextFile.getTimeline();
+                            userTimelineQueue.offer(nextFile);    
+                        }
                     } 
                     catch (Exception ex)
                     {

@@ -70,6 +70,17 @@ implements UserTimelineFile
     @Override
     public boolean equals(Object obj)
     {
-        return this.getName().endsWith(((UserTimelineFileImpl)obj).getName());
+        if (obj instanceof UserTimelineFileImpl)
+        {
+            return this.getName().endsWith(((UserTimelineFileImpl)obj).getName());
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode ()
+    {
+        int hash = 3;
+        return hash;
     }
 }
