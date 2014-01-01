@@ -80,7 +80,7 @@ public class Account
         this.rootDir = rootDir;
     }
 
-    public IumfsFile getRootDirector ()
+    public IumfsFile getRootDirectory ()
     {
         return rootDir;
     }

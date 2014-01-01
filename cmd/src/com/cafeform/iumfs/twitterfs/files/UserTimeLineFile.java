@@ -38,13 +38,14 @@ public class UserTimeLineFile extends AbstractNormalTimelineFile
                 statuses = twitter.getUserTimeline(paging);
                 break;
             default:
-                if (getPath().startsWith("/friends/"))
+                if (getPath().startsWith("/friends/") ||
+                        getPath().startsWith("/followers/"))
                 {
                     statuses = twitter.getUserTimeline(name, paging);
                 } else
                 {
-                    logger.severe("Unknown timeline(\"" + name
-                            + "\") specified.");
+                    logger.severe("Unknown timeline file " + getPath() +
+                            " specified.");
                     System.exit(1);
                 }
         }

@@ -2,13 +2,14 @@ package com.cafeform.iumfs.twitterfs;
 
 import com.cafeform.iumfs.twitterfs.files.AbstractTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.PostFile;
-import com.cafeform.iumfs.twitterfs.files.FriendsDirectory;
+import com.cafeform.iumfs.twitterfs.files.AbstractUsersDirectory;
 import com.cafeform.iumfs.twitterfs.files.TwitterFsDirectory;
 import com.cafeform.iumfs.FileFactory;
 import com.cafeform.iumfs.InvalidUserException;
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.Request;
 import com.cafeform.iumfs.twitterfs.files.DefaultTimelineFile;
+import com.cafeform.iumfs.twitterfs.files.FriendsDirectory;
 import com.cafeform.iumfs.twitterfs.files.SetupFile;
 import com.cafeform.iumfs.twitterfs.files.StreamTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.UserTimeLineFile;
@@ -24,7 +25,7 @@ public class TwitterFsFileFactory implements FileFactory
     static final Logger logger = Logger.getLogger(TwitterFsFileFactory.class.getName());
 
     @Override
-    public IumfsFile getFile(Request request)
+    public IumfsFile getFile (Request request)
     {
         return getFile(request.getUserName(), request.getPathname());
     }
@@ -34,7 +35,7 @@ public class TwitterFsFileFactory implements FileFactory
      * This method is called from TwitterXXXXRequest methods.
      * So this is an entry point for file operation.
      */
-    public IumfsFile getFile(String username, String pathname)
+    public IumfsFile getFile (String username, String pathname)
     {
         if (username.isEmpty())
         {
@@ -48,7 +49,7 @@ public class TwitterFsFileFactory implements FileFactory
         if (account == null)
         {
             account = new Account(username);
-            account.setRootDirectory(getInitialRootDirectory(account));
+            account.setRootDirectory(createInitialRootDirectory(account));
             Account.getAccountMap().put(username, account);
             logger.log(Level.FINE, "New Account for " + username + " created.");
         }
@@ -59,19 +60,24 @@ public class TwitterFsFileFactory implements FileFactory
          * Create default root directory swap it to existing root directory.
          */
         logger.log(Level.FINE, "Map size="
-                + account.getRootDirector().listFiles().length);
-        if (2 == account.getRootDirector().listFiles().length)
+                + account.getRootDirectory().listFiles().length);
+        if (1 == account.getRootDirectory().listFiles().length)
         {
             Prefs.sync();
             if (Prefs.get(username + "/accessToken").length() > 0)
             {
-                account.setRootDirectory(getDefaultRootDirectory(account));
+                account.setRootDirectory(createDefaultRootDirectory(account));
             }
         }
-        return lookup(account.getRootDirector(), pathname);
+        // Return root directory if requested path is /.
+        if ("/".equals(pathname))
+        {
+            return account.getRootDirectory();
+        }
+        return lookup(account.getRootDirectory(), pathname);
     }
 
-    private IumfsFile getDefaultRootDirectory(Account account)
+    private IumfsFile createDefaultRootDirectory (Account account)
     {
         TwitterFsDirectory rootDir = new TwitterFsDirectory(account, "/");
         rootDir.addFile(new PostFile(account, "/post"));
@@ -80,36 +86,42 @@ public class TwitterFsFileFactory implements FileFactory
         rootDir.addFile(new DefaultTimelineFile(account, "/retweets_of_me"));
         rootDir.addFile(new UserTimeLineFile(account, "/user"));        
         TwitterFsDirectory friendsDir = new FriendsDirectory(account, "/friends");
-        TwitterFsDirectory followersDir = new TwitterFsDirectory(account, "/followers");        
+        TwitterFsDirectory followersDir = new FollowersDirectory(account, "/followers");        
         rootDir.addFile(friendsDir);
         rootDir.addFile(followersDir);
-        // Includes itself
-        rootDir.addFile(rootDir);
         return rootDir;
     }
 
-    private IumfsFile getInitialRootDirectory(Account account)
+    private IumfsFile createInitialRootDirectory (Account account)
     {
         TwitterFsDirectory rootDir = new TwitterFsDirectory(account, "/");
         rootDir.addFile(new SetupFile(account, "/setup"));
-        // Includes itself        
-        rootDir.addFile(rootDir);        
         return rootDir;
     }
 
+    /**
+     * Lookup pathname under directory.
+     * This method is recursively called. So pathname could be relative path.
+     * 
+     * @param directory
+     * @param pathname 
+     * @return 
+     */
     private IumfsFile lookup(IumfsFile directory, String pathname)
     {
         if (pathname.startsWith("/"))
         {
             pathname = pathname.substring(1);
         }
-
+        
         String[] paths = pathname.split("/", 2);
 
         for (IumfsFile file : directory.listFiles())
         {
+            // check first element of pathname exist within directory.
             if (file.getName().equals(paths[0]))
             {
+                // Found. See if it's target directory entry.
                 if (1 == paths.length)
                 {
                     logger.log(Level.FINER, "Found " + paths[0] + 

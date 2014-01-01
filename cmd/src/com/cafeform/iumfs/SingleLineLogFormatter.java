@@ -15,13 +15,23 @@ public final class SingleLineLogFormatter extends Formatter {
     {
         StringBuilder line =  new StringBuilder();
         
+
+        
         line.append(String.format("%tD %<tT.%<tL", rec.getMillis()));
         line.append(" ");
         line.append(rec.getThreadID());
         line.append(" ");
         line.append(rec.getLevel().toString());
         line.append(" ");
-        line.append(rec.getSourceClassName());
+        int i = rec.getSourceClassName().lastIndexOf('.');        
+        if (i > 0)
+        {
+            line.append(rec.getSourceClassName().substring(i + 1));
+        }
+        else
+        {
+            line.append(rec.getSourceClassName()); 
+        }
         line.append(".");
         line.append(rec.getSourceMethodName());
         line.append(": ");        

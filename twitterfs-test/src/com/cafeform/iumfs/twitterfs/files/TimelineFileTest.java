@@ -1,11 +1,9 @@
-package iumfs.twitterfs.files;
+package com.cafeform.iumfs.twitterfs.files;
 
 import com.cafeform.iumfs.twitterfs.Account;
-import com.cafeform.iumfs.twitterfs.TwitterFsFileFactory;
-import com.cafeform.iumfs.twitterfs.files.AbstractTimelineFile;
+import com.cafeform.iumfs.twitterfs.TwitterFsTestBase;
 import com.cafeform.iumfs.twitterfs.files.DefaultTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.AbstractNormalTimelineFile;
-import com.cafeform.iumfs.twitterfs.files.UserTimeLineFile;
 import java.util.HashMap;
 import java.util.Map;
 import static org.junit.Assert.*;
@@ -16,10 +14,8 @@ import org.junit.Test;
  *
  * @author kaizawa
  */
-public class TimelineFileTest 
-{
-    private static final String USER = "user1";
-    
+public class TimelineFileTest extends TwitterFsTestBase
+{    
     @Before
     public void setUp()
     {
@@ -35,7 +31,7 @@ public class TimelineFileTest
         intervalMap.put("/retweets_of_me", 60000L);
         intervalMap.put("/DummmyFillle", 60000L); // must use default value        
         
-        Account account = new Account(USER);
+        Account account = new Account(USER1);
         
         for (String name : intervalMap.keySet())
         {

@@ -1,7 +1,7 @@
-package com.cafeform.iumfs.twitterfs.files;
+package com.cafeform.iumfs.twitterfs;
 
-import com.cafeform.iumfs.twitterfs.Account;
-import com.cafeform.iumfs.twitterfs.IumfsTwitterFactory;
+import com.cafeform.iumfs.twitterfs.files.AbstractUsersDirectory;
+import com.cafeform.iumfs.twitterfs.files.TwitterFsDirectory;
 import twitter4j.PagableResponseList;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -9,9 +9,9 @@ import twitter4j.TwitterException;
 /**
  * Followers directory which contains timeline file of authenticated user.
  */
-public class FriendsDirectory extends AbstractUsersDirectory 
-{
-    public FriendsDirectory (Account account, String name)
+class FollowersDirectory extends AbstractUsersDirectory {
+
+    public FollowersDirectory (Account account, String name)
     {
         super(account, name);
     }
@@ -22,8 +22,7 @@ public class FriendsDirectory extends AbstractUsersDirectory
     {
         final Twitter twitter
                 = IumfsTwitterFactory.getInstance(getUsername());
-
-        return twitter.getFriendsList(
+        return twitter.getFollowersList(
                 getUsername(),
                 cursor);
     }

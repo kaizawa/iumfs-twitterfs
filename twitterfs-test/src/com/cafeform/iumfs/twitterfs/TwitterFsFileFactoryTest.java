@@ -4,17 +4,16 @@
  * and open the template in the editor.
  */
 
-package iumfs.twitterfs;
+package com.cafeform.iumfs.twitterfs;
 
 import com.cafeform.iumfs.twitterfs.TwitterFsFileFactory;
 import com.cafeform.iumfs.twitterfs.Prefs;
 import com.cafeform.iumfs.twitterfs.Account;
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.twitterfs.files.AbstractNormalTimelineFile;
-import com.cafeform.iumfs.twitterfs.files.AbstractTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.TwitterFsDirectory;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,56 +23,65 @@ import static org.junit.Assert.*;
  *
  * @author kaizawa
  */
-public class TwitterFsFileFactoryTest
+public class TwitterFsFileFactoryTest extends TwitterFsTestBase
 {
-    private TwitterFsFileFactory fileFactory;
-    private static Map<String, Account> accountMap;
-    private static final String USER = "user1";
-    private static final String TOKEN = "dummyToken";
-    
     @Before
     public void setUp()
     {
         AbstractNormalTimelineFile.setAutoUpdateEnabled(false);
         fileFactory = new TwitterFsFileFactory();
         accountMap = Account.getAccountMap();
-        accountMap.remove(USER);
+        accountMap.remove(USER1);
     }
     
     @After
     public void tearDown()
     {
-        Prefs.put(USER + "/accessToken", "");
+        Prefs.put(USER1 + "/accessToken", "");
     }
     
     @Test
     public void testTopLevelDirectoryWithoutToken ()
     {
-        IumfsFile rootDir = fileFactory.getFile(USER, "/");
+        IumfsFile rootDir = fileFactory.getFile(USER1, "/");
         
         assertTrue(rootDir.isDirectory());
         IumfsFile[] fileList = rootDir.listFiles();
-        // Must have 2 entries (setup and "")
-        assertEquals(2, fileList.length);
+        // Must have 1 entries (setup)
+        assertEquals(1, fileList.length);
     }
     
     @Test
     public void testTopLevelDirectoryWithToken ()
     {
-        Prefs.put(USER + "/accessToken", TOKEN);        
-        IumfsFile rootDir = fileFactory.getFile(USER, "/");
+        Prefs.put(USER1 + "/accessToken", DUMMY_TOKEN);        
+        IumfsFile rootDir = fileFactory.getFile(USER1, "/");
+        String[] expectedFiles = {"mentnions", "home", "user", "friends", 
+            "followers", "post", "retweets_of_me"};
+        
         
         assertTrue(rootDir.isDirectory());
         IumfsFile[] fileList = rootDir.listFiles();
         // Must have 7 entries
-        assertEquals(8, fileList.length);
+        assertEquals(7, fileList.length);
+        
+        List<String> foundFileList = new ArrayList ();
+        for(IumfsFile foundFile : fileList)
+        {
+               foundFileList.add(foundFile.getName());
+        }                
+        
+        for (String expectedFile : expectedFiles)
+        {
+            foundFileList.contains(expectedFile);
+        }
     }
     
     @Test
     public void testLookupFile ()
     {
-        Prefs.put(USER + "/accessToken", TOKEN);        
-        IumfsFile home = fileFactory.getFile(USER, "/home");
+        Prefs.put(USER1 + "/accessToken", DUMMY_TOKEN);        
+        IumfsFile home = fileFactory.getFile(USER1, "/home");
         
         assertFalse(home.isDirectory());
         assertEquals("home", home.getName());
@@ -82,15 +90,26 @@ public class TwitterFsFileFactoryTest
     @Test
     public void testLookupFileUnderDirectory ()
     {
-        Prefs.put(USER + "/accessToken", TOKEN);          
-        IumfsFile rootDir = fileFactory.getFile(USER, "/");
-        Account account = accountMap.get(USER);
+        Prefs.put(USER1 + "/accessToken", DUMMY_TOKEN);          
+        IumfsFile rootDir = fileFactory.getFile(USER1, "/");
+        Account account = accountMap.get(USER1);
         
         TwitterFsDirectory lv1Dir = new TwitterFsDirectory(account, "lv1Dir");
         lv1Dir.addFile(new TwitterFsDirectory(account, "lv2Dir"));
         rootDir.addFile(lv1Dir);
         
-        IumfsFile lv2Dir = fileFactory.getFile(USER, "/lv1Dir/lv2Dir");    
+        IumfsFile lv2Dir = fileFactory.getFile(USER1, "/lv1Dir/lv2Dir");    
         assertNotNull(lv2Dir);
+    }
+    
+    @Test
+    public void testLookupRootDirectory ()
+    {
+        Prefs.put(USER1 + "/accessToken", DUMMY_TOKEN);        
+        IumfsFile rootDir = fileFactory.getFile(USER1, "/");
+        
+        assertTrue(rootDir.isDirectory());
+        assertEquals("/", rootDir.getPath());
+        assertEquals("", rootDir.getName());        
     }
 }
