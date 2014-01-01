@@ -1,6 +1,7 @@
 package com.cafeform.iumfs.twitterfs.files;
 
 import com.cafeform.iumfs.twitterfs.Account;
+import com.cafeform.iumfs.twitterfs.AccountImpl;
 import com.cafeform.iumfs.twitterfs.TwitterFsTestBase;
 import com.cafeform.iumfs.twitterfs.files.DefaultTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.AbstractNormalTimelineFile;
@@ -31,7 +32,7 @@ public class TimelineFileTest extends TwitterFsTestBase
         intervalMap.put("/retweets_of_me", 60000L);
         intervalMap.put("/DummmyFillle", 60000L); // must use default value        
         
-        Account account = new Account(USER1);
+        account = new AccountImpl(USER1);
         
         for (String name : intervalMap.keySet())
         {

@@ -56,3 +56,4 @@ build
 MEMO
 auto_master
 .build.xml.swp
+/dist/

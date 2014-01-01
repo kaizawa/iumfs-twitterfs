@@ -12,7 +12,7 @@ import com.cafeform.iumfs.twitterfs.files.DefaultTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.FriendsDirectory;
 import com.cafeform.iumfs.twitterfs.files.SetupFile;
 import com.cafeform.iumfs.twitterfs.files.StreamTimelineFile;
-import com.cafeform.iumfs.twitterfs.files.UserTimeLineFile;
+import com.cafeform.iumfs.twitterfs.files.UserTimelineFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,13 +44,13 @@ public class TwitterFsFileFactory implements FileFactory
 
         logger.log(Level.FINER, "pathname=" + pathname + ", usernaem=" + username);
                
-        Account account = Account.getAccountMap().get(username);
+        Account account = AccountMap.get(username);
 
         if (account == null)
         {
-            account = new Account(username);
+            account = new AccountImpl(username);
             account.setRootDirectory(createInitialRootDirectory(account));
-            Account.getAccountMap().put(username, account);
+            AccountMap.put(username, account);
             logger.log(Level.FINE, "New Account for " + username + " created.");
         }
 
@@ -84,7 +84,7 @@ public class TwitterFsFileFactory implements FileFactory
         rootDir.addFile(new StreamTimelineFile(account, "/home"));
         rootDir.addFile(new DefaultTimelineFile(account, "/mentions"));
         rootDir.addFile(new DefaultTimelineFile(account, "/retweets_of_me"));
-        rootDir.addFile(new UserTimeLineFile(account, "/user"));        
+        rootDir.addFile(new UserTimelineFile(account, "/user"));        
         TwitterFsDirectory friendsDir = new FriendsDirectory(account, "/friends");
         TwitterFsDirectory followersDir = new FollowersDirectory(account, "/followers");        
         rootDir.addFile(friendsDir);

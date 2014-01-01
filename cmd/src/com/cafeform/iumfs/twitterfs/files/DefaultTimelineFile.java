@@ -30,7 +30,7 @@ public class DefaultTimelineFile extends AbstractNormalTimelineFile
         if (autoUpdateEnabled)
         {
             readAhead();
-            startAutoUpdateThreads();
+            startAutoUpdateThread();
         }
     }
     
@@ -82,9 +82,7 @@ public class DefaultTimelineFile extends AbstractNormalTimelineFile
         return statuses;
     }
     
-    @Override
-    final protected void startAutoUpdateThreads ()
-
+    final protected void startAutoUpdateThread ()
     {
         // TODO: each time line should use same thread pool
         ScheduledExecutorService executor;

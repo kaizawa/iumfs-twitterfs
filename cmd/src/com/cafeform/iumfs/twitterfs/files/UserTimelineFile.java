@@ -16,12 +16,11 @@ import twitter4j.TwitterException;
  *
  * @author kaizawa
  */
-public class UserTimeLineFile extends AbstractNormalTimelineFile
+public class UserTimelineFile extends AbstractNormalTimelineFile
 {
-    public UserTimeLineFile (Account account, String filename)
+    public UserTimelineFile (Account account, String filename)
     {
         super(account, filename);
-        startAutoUpdateThreads();
     }
 
     @Override
@@ -51,12 +50,6 @@ public class UserTimeLineFile extends AbstractNormalTimelineFile
         }
         return statuses;
     }
-
-    @Override
-    final protected void startAutoUpdateThreads ()
-    {
-        getAccount().addUserTimeLine(this);
-    }
     
     /**
      * @return the interval
@@ -71,4 +64,12 @@ public class UserTimeLineFile extends AbstractNormalTimelineFile
         logger.log(Level.FINE, "Calculate interval for user timeline is " + val);
         return val;
     }
+    
+    // Compare object by its Name (not pathname)
+    @Override
+    public boolean equals(Object obj)
+    {
+        return this.getName().endsWith(((UserTimelineFile)obj).getName());
+    }
+
 }

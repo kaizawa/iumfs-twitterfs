@@ -22,8 +22,7 @@ abstract public class AbstractUsersDirectory extends TwitterFsDirectory
     private static final long REQUEST_INTERVAL = 60000;  // 1m
 
     private Date lastUpdate = new Date(0);
-    private final ScheduledExecutorService pool
-            = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService pool = null;
 
     public AbstractUsersDirectory (Account account, String name)
     {
@@ -42,10 +41,10 @@ abstract public class AbstractUsersDirectory extends TwitterFsDirectory
             // Update if
             //    First try (not shutdown).
             //       or
-            //    Shutdown but not terminated.
-            if (!pool.isShutdown()
-                    || (pool.isShutdown() && pool.isTerminated()))
+            //    Terminated.
+            if (null == pool || pool.isTerminated())
             {
+                pool = Executors.newSingleThreadScheduledExecutor();                
                 pool.execute(new UsersUpdater());
                 pool.shutdown();
                 lastUpdate = new Date();
@@ -78,9 +77,12 @@ abstract public class AbstractUsersDirectory extends TwitterFsDirectory
                      
                     for (User user : usersList)
                     {
-                        addFile(new UserTimeLineFile(
-                                account,
-                                "/" + getName() + "/" + user.getScreenName()));
+                        IumfsFile newFile = account.getUserTimelineManager().
+                                getTimelineFile(
+                                        account, 
+                                        "/" + getName() + "/" + 
+                                                user.getScreenName());
+                        addFile(newFile);
                     }
                     cursor = usersList.getNextCursor();
                 }

@@ -35,8 +35,6 @@ abstract public class AbstractNormalTimelineFile extends AbstractTimelineFile
         super(account, filename);
     }
 
-    abstract protected void startAutoUpdateThreads ();    
-
     public void getTimeline ()
     {
         getTimeline(max_statues, last_id);

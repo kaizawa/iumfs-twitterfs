@@ -30,8 +30,7 @@ public class TwitterFsFileFactoryTest extends TwitterFsTestBase
     {
         AbstractNormalTimelineFile.setAutoUpdateEnabled(false);
         fileFactory = new TwitterFsFileFactory();
-        accountMap = Account.getAccountMap();
-        accountMap.remove(USER1);
+        AccountMap.remove(USER1);
     }
     
     @After
@@ -44,11 +43,24 @@ public class TwitterFsFileFactoryTest extends TwitterFsTestBase
     public void testTopLevelDirectoryWithoutToken ()
     {
         IumfsFile rootDir = fileFactory.getFile(USER1, "/");
+        String[] expectedFiles = {"setup"};
         
         assertTrue(rootDir.isDirectory());
         IumfsFile[] fileList = rootDir.listFiles();
-        // Must have 1 entries (setup)
+        // Must have 1 entries
         assertEquals(1, fileList.length);
+        
+        List<String> foundFileList = new ArrayList ();
+        for(IumfsFile foundFile : fileList)
+        {
+               foundFileList.add(foundFile.getName());
+        }                
+        
+        for (String expectedFile : expectedFiles)
+        {
+            assertTrue(expectedFile + " is not included.", 
+            foundFileList.contains(expectedFile));
+        }
     }
     
     @Test
@@ -56,7 +68,7 @@ public class TwitterFsFileFactoryTest extends TwitterFsTestBase
     {
         Prefs.put(USER1 + "/accessToken", DUMMY_TOKEN);        
         IumfsFile rootDir = fileFactory.getFile(USER1, "/");
-        String[] expectedFiles = {"mentnions", "home", "user", "friends", 
+        String[] expectedFiles = {"mentions", "home", "user", "friends", 
             "followers", "post", "retweets_of_me"};
         
         
@@ -73,7 +85,8 @@ public class TwitterFsFileFactoryTest extends TwitterFsTestBase
         
         for (String expectedFile : expectedFiles)
         {
-            foundFileList.contains(expectedFile);
+            assertTrue(expectedFile + " is not included.", 
+            foundFileList.contains(expectedFile));
         }
     }
     
@@ -92,7 +105,7 @@ public class TwitterFsFileFactoryTest extends TwitterFsTestBase
     {
         Prefs.put(USER1 + "/accessToken", DUMMY_TOKEN);          
         IumfsFile rootDir = fileFactory.getFile(USER1, "/");
-        Account account = accountMap.get(USER1);
+        account = AccountMap.get(USER1);
         
         TwitterFsDirectory lv1Dir = new TwitterFsDirectory(account, "lv1Dir");
         lv1Dir.addFile(new TwitterFsDirectory(account, "lv2Dir"));
