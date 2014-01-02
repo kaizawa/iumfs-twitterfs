@@ -19,7 +19,6 @@ import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.NotADirectoryException;
 import com.cafeform.iumfs.NotSupportedException;
 import com.cafeform.iumfs.twitterfs.Account;
-import com.cafeform.iumfs.twitterfs.IumfsTwitterFactory;
 import com.cafeform.iumfs.twitterfs.Prefs;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
@@ -29,7 +28,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import twitter4j.Status;
-import twitter4j.Twitter;
 
 /**
  * Represents fundamental TimelineFile class.
@@ -98,8 +96,6 @@ abstract public class AbstractTimelineFile extends TwitterFsFile
         long prev_offset = 0;
         long rel_offset; // relative offset within each status 
         int page = 0;
-
-        Twitter twitter = IumfsTwitterFactory.getInstance(getUsername());
 
         /*
          * OLD                                                         NEW

@@ -1,7 +1,7 @@
 package com.cafeform.iumfs.twitterfs.files;
 
 import com.cafeform.iumfs.twitterfs.Account;
-import com.cafeform.iumfs.twitterfs.IumfsTwitterFactory;
+import com.cafeform.iumfs.twitterfs.TwitterFactoryAdapter;
 import static com.cafeform.iumfs.twitterfs.files.TwitterFsFile.logger;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -49,7 +49,7 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
     @Override
     protected ResponseList<Status> getTimeLine (Paging paging)
     {
-        Twitter twitter = IumfsTwitterFactory.getInstance(getUsername());
+        Twitter twitter = TwitterFactoryAdapter.getInstance(getUsername());
         ResponseList<Status> statuses = null;
         String name = getName();
 

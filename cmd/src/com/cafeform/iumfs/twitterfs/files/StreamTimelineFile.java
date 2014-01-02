@@ -1,7 +1,7 @@
 package com.cafeform.iumfs.twitterfs.files;
 
 import com.cafeform.iumfs.twitterfs.Account;
-import com.cafeform.iumfs.twitterfs.IumfsTwitterFactory;
+import com.cafeform.iumfs.twitterfs.TwitterFactoryAdapter;
 import com.cafeform.iumfs.twitterfs.Prefs;
 import static com.cafeform.iumfs.twitterfs.files.TwitterFsFile.logger;
 import java.util.logging.Level;
@@ -26,17 +26,7 @@ public class StreamTimelineFile extends AbstractTimelineFile
     {
         super(account, filename);
         // Invokde timeline retrieving thread. 
-        // Stream API (only home)
-        // Thread created in TwitterStream.sample()
-        TwitterStream twitterStream
-                = new TwitterStreamFactory().getInstance();
-        twitterStream.setOAuthConsumer(
-                Prefs.get("OAuthConsumerKey"),
-                Prefs.get("consumerSecret"));
-        twitterStream.setOAuthAccessToken(
-                IumfsTwitterFactory.getAccessToken(getUsername()));
-        twitterStream.addListener(listener);
-        twitterStream.user();
+        TwitterFactoryAdapter.setUserStreamListener(getUsername(), listener);
     }
 
     protected UserStreamListener listener = new UserStreamListener()

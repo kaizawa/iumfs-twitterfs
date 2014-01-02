@@ -66,7 +66,7 @@ abstract public class AbstractUsersDirectory extends TwitterFsDirectory
         @Override
         public void run ()
         {
-            logger.log(Level.FINER, "updater is called");
+            logger.log(Level.FINER, "updater for " + getName() + " is called");
             PagableResponseList<User> usersList = null;
             while (true)
             {
@@ -88,14 +88,15 @@ abstract public class AbstractUsersDirectory extends TwitterFsDirectory
                 }
                 catch (TwitterException ex)
                 {
-                    logger.log(Level.WARNING, "Unable to get users list: "
-                            + ex.getMessage(), ex);
+                    logger.log(Level.WARNING, "Unable to get users list for " +
+                            getName() + ". " + ex.getMessage(), ex);
                 }
 
                 logger.log(Level.FINER, "Got " + usersList.size()
-                        + " users data. Next cursor = " + cursor);
+                        + " users data for " + getName() + 
+                        ". Next cursor = " + cursor);
 
-                    // Wait REQUEST_INTERVAL to avoid exceeding 
+                // Wait REQUEST_INTERVAL to avoid exceeding 
                 // rate limit of twitter api.
                 // Also wait if this is first try and failed with exception.
                 if (0 != cursor)
@@ -114,7 +115,7 @@ abstract public class AbstractUsersDirectory extends TwitterFsDirectory
         }
     }
     
-    abstract protected PagableResponseList getUsersList (long cursor) 
+    abstract protected PagableResponseList<User> getUsersList (long cursor) 
             throws TwitterException;
 
     @Override

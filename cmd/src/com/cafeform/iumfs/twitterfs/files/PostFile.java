@@ -18,7 +18,7 @@ package com.cafeform.iumfs.twitterfs.files;
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.NotADirectoryException;
 import com.cafeform.iumfs.twitterfs.Account;
-import com.cafeform.iumfs.twitterfs.IumfsTwitterFactory;
+import com.cafeform.iumfs.twitterfs.TwitterFactoryAdapter;
 import com.cafeform.iumfs.twitterfs.MessageSeparator;
 import java.io.FileNotFoundException;
 import java.nio.ByteBuffer;
@@ -55,7 +55,7 @@ public class PostFile extends TwitterFsFile
         try 
         {
             Status status = null;
-            Twitter twitter = IumfsTwitterFactory.getInstance(getUsername());            
+            Twitter twitter = TwitterFactoryAdapter.getInstance(getUsername());            
 
             /*
              * Get a strings written as a file data.

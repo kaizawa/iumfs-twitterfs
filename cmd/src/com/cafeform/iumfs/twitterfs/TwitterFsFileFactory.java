@@ -1,5 +1,6 @@
 package com.cafeform.iumfs.twitterfs;
 
+import com.cafeform.iumfs.twitterfs.files.FollowersDirectory;
 import com.cafeform.iumfs.twitterfs.files.PostFile;
 import com.cafeform.iumfs.twitterfs.files.TwitterFsDirectory;
 import com.cafeform.iumfs.FileFactory;
@@ -8,6 +9,7 @@ import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.Request;
 import com.cafeform.iumfs.twitterfs.files.DefaultTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.FriendsDirectory;
+import com.cafeform.iumfs.twitterfs.files.RepliesDirectory;
 import com.cafeform.iumfs.twitterfs.files.SetupFile;
 import com.cafeform.iumfs.twitterfs.files.StreamTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.UserTimelineFileImpl;
@@ -15,12 +17,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
- * @author kaizawa
+ * Factory class for TwitterFS file.
  */
 public class TwitterFsFileFactory implements FileFactory
 {
-    static final Logger logger = Logger.getLogger(TwitterFsFileFactory.class.getName());
+    static final Logger logger = 
+            Logger.getLogger(TwitterFsFileFactory.class.getName());
 
     @Override
     public IumfsFile getFile (Request request)
@@ -37,7 +39,8 @@ public class TwitterFsFileFactory implements FileFactory
     {
         if (username.isEmpty())
         {
-            throw new InvalidUserException("Unknown user \"" + username + "\" specified");
+            throw new InvalidUserException("Unknown user \"" + username + 
+                    "\" specified");
         }
 
         logger.log(Level.FINER, "pathname=" + pathname + ", usernaem=" + username);
@@ -84,10 +87,9 @@ public class TwitterFsFileFactory implements FileFactory
         rootDir.addFile(new DefaultTimelineFile(account, "/mentions"));
         rootDir.addFile(new DefaultTimelineFile(account, "/retweets_of_me"));
         rootDir.addFile(new UserTimelineFileImpl(account, "/user"));        
-        TwitterFsDirectory friendsDir = new FriendsDirectory(account, "/friends");
-        TwitterFsDirectory followersDir = new FollowersDirectory(account, "/followers");        
-        rootDir.addFile(friendsDir);
-        rootDir.addFile(followersDir);
+        rootDir.addFile(new FriendsDirectory(account));
+        rootDir.addFile(new FollowersDirectory(account));     
+        rootDir.addFile(new RepliesDirectory(account));  
         return rootDir;
     }
 

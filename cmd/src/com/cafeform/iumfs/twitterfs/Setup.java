@@ -12,7 +12,7 @@ public class Setup
         if (1 == args.length)
         {
             String username = args[0];            
-            IumfsTwitterFactory.getAccessToken(username);
+            TwitterFactoryAdapter.getAccessToken(username);
             if (Prefs.get(username + "/accessToken").isEmpty())
             {
                 System.out.println("Failed to setup Twitter access token");

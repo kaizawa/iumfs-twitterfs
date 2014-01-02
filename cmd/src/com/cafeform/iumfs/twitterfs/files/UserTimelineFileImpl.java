@@ -1,7 +1,7 @@
 package com.cafeform.iumfs.twitterfs.files;
 
 import com.cafeform.iumfs.twitterfs.Account;
-import com.cafeform.iumfs.twitterfs.IumfsTwitterFactory;
+import com.cafeform.iumfs.twitterfs.TwitterFactoryAdapter;
 import static com.cafeform.iumfs.twitterfs.files.TwitterFsFile.logger;
 import java.util.logging.Level;
 import twitter4j.Paging;
@@ -28,7 +28,7 @@ implements UserTimelineFile
     protected ResponseList<Status> getTimeLine (Paging paging)
             throws TwitterException
     {
-        Twitter twitter = IumfsTwitterFactory.getInstance(getUsername());
+        Twitter twitter = TwitterFactoryAdapter.getInstance(getUsername());
         ResponseList<Status> statuses = null;
         String name = getName();
 
@@ -38,13 +38,13 @@ implements UserTimelineFile
                 statuses = twitter.getUserTimeline(paging);
                 break;
             default:
-                if (getPath().startsWith("/friends/") ||
-                        getPath().startsWith("/followers/"))
+                if (getPath().startsWith(FollowersDirectory.PATH_NAME + "/" ) ||
+                        getPath().startsWith(FollowersDirectory.PATH_NAME + "/" ))
                 {
                     statuses = twitter.getUserTimeline(name, paging);
                 } else
                 {
-                    logger.severe("Unknown timeline file " + getPath() +
+                    logger.warning("Unknown timeline file " + getPath() +
                             " specified.");
                     System.exit(1);
                 }

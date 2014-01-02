@@ -10,21 +10,21 @@ import twitter4j.User;
 /**
  * Followers directory which contains timeline file of authenticated user.
  */
-public class FriendsDirectory extends AbstractUsersDirectory 
+public class FollowersDirectory extends AbstractUsersDirectory 
 {
-    public final static String PATH_NAME = "/friends";
+    public final static String PATH_NAME = "/followers";    
     
-    public FriendsDirectory (Account account)
+    public FollowersDirectory (Account account)
     {
         super(account, PATH_NAME);
     }
 
     @Override
-    protected PagableResponseList<User> getUsersList (long cursor) 
+    protected PagableResponseList <User> getUsersList (long cursor) 
             throws TwitterException
     {
         final Twitter twitter
                 = TwitterFactoryAdapter.getInstance(getUsername());
-        return twitter.getFriendsList(getUsername(), cursor);
+        return twitter.getFollowersList(getUsername(), cursor);
     }
 }

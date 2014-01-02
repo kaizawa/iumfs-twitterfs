@@ -1,7 +1,6 @@
 package com.cafeform.iumfs.twitterfs.files;
 
 import com.cafeform.iumfs.twitterfs.Account;
-import com.cafeform.iumfs.twitterfs.IumfsTwitterFactory;
 import static com.cafeform.iumfs.twitterfs.files.AbstractTimelineFile.max_statues;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
@@ -9,7 +8,6 @@ import java.util.logging.Level;
 import twitter4j.Paging;
 import twitter4j.ResponseList;
 import twitter4j.Status;
-import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
 /**
@@ -76,14 +74,13 @@ abstract public class AbstractNonStreamTimelineFile extends AbstractTimelineFile
     synchronized public int getTimeline (int page, int count, long since)
     {
         ResponseList<Status> statuses;
-        Twitter twitter = IumfsTwitterFactory.getInstance(getUsername());
         String name = getName();
 
         Paging paging = new Paging(page, count, since);
         try
         {
             statuses = getTimeLine(paging);
-
+           
             logger.fine("Got " + name + " timeline, "
                     + statuses.size() + " Statuses in page " + page);
 

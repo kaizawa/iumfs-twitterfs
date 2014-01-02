@@ -6,29 +6,21 @@
 
 package com.cafeform.iumfs.twitterfs;
 
+import com.cafeform.iumfs.twitterfs.files.FollowersDirectory;
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.twitterfs.files.UserTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.UserTimelineFileImpl;
 import java.lang.reflect.Field;
 import java.util.concurrent.BlockingQueue;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.junit.runner.RunWith;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.whenNew;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-@PrepareForTest(UserTimelineFileManagerImpl.class) 
-@RunWith(PowerMockRunner.class)
 public class UserTimelineFileManagerImplTest extends TwitterFsTestBase
 {
     /**
@@ -38,9 +30,8 @@ public class UserTimelineFileManagerImplTest extends TwitterFsTestBase
     @Test
     public void testGetTimelineFile () throws Exception
     {
-        System.out.println("getTimelineFile");
         String fileName = "hogehoge";
-        String pathName = "/follwowers/" + fileName;
+        String pathName = FollowersDirectory.PATH_NAME + "/" + fileName;
         
         // Create mock UserTimelineFile
         UserTimelineFileImpl mockTimelineFile = mock(UserTimelineFileImpl.class);
@@ -64,13 +55,12 @@ public class UserTimelineFileManagerImplTest extends TwitterFsTestBase
     @Test
     public void testGetExistingTimelineFile () throws Exception
     {
-        System.out.println("getTimelineFile");
         String fileName1 = "file1";
         String fileName2 = "file2";        
         String fileNameAny = "fileAny";                
-        String pathName1 = "/follwowers/" + fileName1;
-        String pathName2 = "/follwowers/" + fileName2;        
-        String pathNameAny = "/follwowers/" + fileNameAny;                
+        String pathName1 = FollowersDirectory.PATH_NAME + "/" + fileName1;
+        String pathName2 = FollowersDirectory.PATH_NAME + "/" + fileName2;        
+        String pathNameAny = FollowersDirectory.PATH_NAME + "/" + fileNameAny;                
         
         // Create 1st mock UserTimelineFile
         UserTimelineFileImpl mockFile1 = mock(UserTimelineFileImpl.class);

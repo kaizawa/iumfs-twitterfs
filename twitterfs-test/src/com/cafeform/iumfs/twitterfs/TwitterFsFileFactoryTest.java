@@ -15,6 +15,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import twitter4j.TwitterException;
 
 /**
  *
@@ -23,8 +24,10 @@ import static org.junit.Assert.*;
 public class TwitterFsFileFactoryTest extends TwitterFsTestBase
 {
     @Before
-    public void setUp()
+    @Override
+    public void setUp() throws TwitterException
     {
+        super.setUp();
         AbstractNonStreamTimelineFile.setAutoUpdateEnabled(false);
         fileFactory = new TwitterFsFileFactory();
         AccountMap.remove(USER1);
@@ -47,7 +50,7 @@ public class TwitterFsFileFactoryTest extends TwitterFsTestBase
         // Must have 1 entries
         assertEquals(1, fileList.length);
         
-        List<String> foundFileList = new ArrayList ();
+        List<String> foundFileList = new ArrayList<> ();
         for(IumfsFile foundFile : fileList)
         {
                foundFileList.add(foundFile.getName());
@@ -66,15 +69,15 @@ public class TwitterFsFileFactoryTest extends TwitterFsTestBase
         Prefs.put(USER1 + "/accessToken", DUMMY_TOKEN);        
         IumfsFile rootDir = fileFactory.getFile(USER1, "/");
         String[] expectedFiles = {"mentions", "home", "user", "friends", 
-            "followers", "post", "retweets_of_me"};
+            "followers", "post", "retweets_of_me", "replies"};
         
         
         assertTrue(rootDir.isDirectory());
         IumfsFile[] fileList = rootDir.listFiles();
-        // Must have 7 entries
-        assertEquals(7, fileList.length);
+        // Must have 8 entries
+        assertEquals(expectedFiles.length, fileList.length);
         
-        List<String> foundFileList = new ArrayList ();
+        List<String> foundFileList = new ArrayList<> ();
         for(IumfsFile foundFile : fileList)
         {
                foundFileList.add(foundFile.getName());

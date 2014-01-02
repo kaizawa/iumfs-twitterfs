@@ -23,17 +23,22 @@ import java.util.logging.Logger;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
+import twitter4j.TwitterStream;
+import twitter4j.TwitterStreamFactory;
+import twitter4j.UserStreamListener;
 import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
 
 /**
- * factory class for Twitter
+ * Adapter of TwitterFactory calss and TwitterStreamFactory class
  */
-public class IumfsTwitterFactory {
+public class TwitterFactoryAdapter {
 
-    private static final Logger logger = Logger.getLogger(IumfsTwitterFactory.class.getName());
+    private static final Logger logger =
+            Logger.getLogger(TwitterFactoryAdapter.class.getName());
     static TwitterFactory factory = new TwitterFactory();
-    private static final int FRIENDS_LIST_RATE_LIMIT = 15;
+    static TwitterStreamFactory streamFactory =
+            new TwitterStreamFactory();
 
     /**
      * Return instance of Twitter class which has AccessToken been set.
@@ -43,9 +48,28 @@ public class IumfsTwitterFactory {
     public static Twitter getInstance (String username) 
     {
         Twitter twitter = factory.getInstance();
-        twitter.setOAuthConsumer(Prefs.get("OAuthConsumerKey"), Prefs.get("consumerSecret"));
+        twitter.setOAuthConsumer(
+                Prefs.get("OAuthConsumerKey"), 
+                Prefs.get("consumerSecret"));
         twitter.setOAuthAccessToken(getAccessToken(username));
         return twitter;
+    }
+    
+    public static void setUserStreamListener (
+            String username,
+            UserStreamListener listener)
+    {
+        // Invokde timeline retrieving thread. 
+        // Stream API (only home)
+        // Thread created in TwitterStream.sample()
+        TwitterStream twitterStream = streamFactory.getInstance();
+        twitterStream.setOAuthConsumer(
+                Prefs.get("OAuthConsumerKey"),
+                Prefs.get("consumerSecret"));
+        twitterStream.setOAuthAccessToken(
+                TwitterFactoryAdapter.getAccessToken(username));
+        twitterStream.addListener(listener);
+        twitterStream.user();
     }
 
     public static AccessToken getAccessToken (String username)
