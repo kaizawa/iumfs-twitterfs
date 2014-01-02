@@ -75,14 +75,9 @@ public class TwitterFsFileFactory implements FileFactory
         if ("/".equals(pathname))
         {
             return account.getRootDirectory();
-        }       
+        }               
         
-        if (isReliesFile(pathname)) 
-        {
-            return new PostFile(account, pathname);
-        }
-        
-        return lookup(account.getRootDirectory(), pathname);
+        return lookup(account, account.getRootDirectory(), pathname);
     }
 
     private IumfsFile createDefaultRootDirectory (Account account)
@@ -114,7 +109,10 @@ public class TwitterFsFileFactory implements FileFactory
      * @param pathname 
      * @return 
      */
-    private IumfsFile lookup(IumfsFile directory, String pathname)
+    private IumfsFile lookup(
+            Account account, 
+            IumfsFile directory, 
+            String pathname)
     {
         if (pathname.startsWith("/"))
         {
@@ -122,7 +120,7 @@ public class TwitterFsFileFactory implements FileFactory
         }
 
         String[] paths = pathname.split("/", 2);
-
+        
         for (IumfsFile file : directory.listFiles())
         {
             // check first element of pathname exist within directory.
@@ -141,7 +139,7 @@ public class TwitterFsFileFactory implements FileFactory
                     {
                         // path is correct, but not a target entry
                         // dig more.
-                        return lookup(file, paths[1]);
+                        return lookup(account, file, paths[1]);
                     }
                     else 
                     {
@@ -153,14 +151,22 @@ public class TwitterFsFileFactory implements FileFactory
                 }
             }
         }
+        
+        if (directory.getPath().equals(RepliesDirectory.PATH_NAME) &&
+               1 == paths.length)
+        {
+            // This is lookup request for PostFile for reply.
+            // Create new one and return it.
+            return new PostFile(
+                    account, 
+                    pathname, 
+                    "@" + Files.getNameFromPathName(pathname) + " "
+            );
+        }
+        
         logger.log(Level.FINER, "Cannot find " + paths[0] + " in " + 
                 ("".equals(directory.getName()) ? "/":(directory.getName())));
                      
         return null;
-    }
-
-    private boolean isReliesFile (String pathname)
-    {
-        return pathname.startsWith("/replies/");
     }
 }

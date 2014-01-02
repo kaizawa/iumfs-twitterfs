@@ -27,6 +27,18 @@ public class TwitterFsTestBase {
     protected Account account;    
     protected static final String USER1 = "user1";
     protected static final String DUMMY_TOKEN = "dummyToken";
+    protected String[] expectedFiles =  {
+        "mentions", 
+        "home",
+        "user", 
+        "post", 
+        "retweets_of_me"};
+    protected String[] expectedDirectories =  {
+        "friends",
+        "followers", 
+        "replies"};
+    protected String[] setupExpectedFiles = {"setup"};
+
     
     @Before
     public void setUp () throws TwitterException

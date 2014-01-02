@@ -8,6 +8,7 @@ package com.cafeform.iumfs.twitterfs;
 
 import com.cafeform.iumfs.twitterfs.files.FollowersDirectory;
 import com.cafeform.iumfs.IumfsFile;
+import com.cafeform.iumfs.twitterfs.files.FriendsDirectory;
 import com.cafeform.iumfs.twitterfs.files.UserTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.UserTimelineFileImpl;
 import java.lang.reflect.Field;
@@ -24,7 +25,7 @@ import static org.powermock.api.mockito.PowerMockito.whenNew;
 public class UserTimelineFileManagerImplTest extends TwitterFsTestBase
 {
     /**
-     * Test of getTimelineFile method, of class UserTimelineFileManagerImpl.
+     * Test of followers directory
      * @throws java.lang.Exception
      */
     @Test
@@ -32,14 +33,6 @@ public class UserTimelineFileManagerImplTest extends TwitterFsTestBase
     {
         String fileName = "hogehoge";
         String pathName = FollowersDirectory.PATH_NAME + "/" + fileName;
-        
-        // Create mock UserTimelineFile
-        UserTimelineFileImpl mockTimelineFile = mock(UserTimelineFileImpl.class);
-        when(mockTimelineFile.getName()).thenReturn(fileName);
-        when(mockTimelineFile.getPath()).thenReturn(pathName);
-        
-        // Mocked UserTimelineFile will be returned.
-        whenNew(UserTimelineFileImpl.class).withAnyArguments().thenReturn(mockTimelineFile);
         account = new AccountImpl(USER1);        
         
         UserTimelineFileManager instance = account.getUserTimelineManager();
@@ -49,11 +42,30 @@ public class UserTimelineFileManagerImplTest extends TwitterFsTestBase
     }
     
     /**
-     * Test of getTimelineFile method, of class UserTimelineFileManagerImpl.
+     * Test of friends directory
      * @throws java.lang.Exception
      */
     @Test
-    public void testGetExistingTimelineFile () throws Exception
+    public void testGetFriendsTimelineFile () throws Exception
+    {
+        String fileName = "hogehoge";
+        String pathName = FriendsDirectory.PATH_NAME + "/" + fileName;
+        
+        // Mocked UserTimelineFile will be returned.
+        account = new AccountImpl(USER1);        
+        
+        UserTimelineFileManager instance = account.getUserTimelineManager();
+        IumfsFile result = instance.getTimelineFile(account, pathName);
+        assertEquals(fileName, result.getName());
+        assertEquals(pathName, result.getPath());        
+    }
+    
+    /**
+     * Test of getting UserTimeLineFile
+     * @throws java.lang.Exception
+     */
+    @Test
+    public void testGetUserTimelineFile () throws Exception
     {
         String fileName1 = "file1";
         String fileName2 = "file2";        
@@ -67,7 +79,6 @@ public class UserTimelineFileManagerImplTest extends TwitterFsTestBase
         when(mockFile1.getName()).thenReturn(fileName1);
         when(mockFile1.getPath()).thenReturn(pathName1);
         Mockito.doNothing().when(mockFile1).getTimeline();
-
         
         // Create 2nd mock UserTimelineFile
         UserTimelineFileImpl mockFile2 = mock(UserTimelineFileImpl.class);
@@ -96,12 +107,50 @@ public class UserTimelineFileManagerImplTest extends TwitterFsTestBase
         account = new AccountImpl(USER1);        
         
         UserTimelineFileManager instance = account.getUserTimelineManager();
+
+        // Get userTimelineQuee from UserTimelineFileManager
+        Field field = instance.getClass().getDeclaredField("userTimelineQueue");
+        field.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        BlockingQueue<UserTimelineFile> userTimelineQueue = 
+                (BlockingQueue<UserTimelineFile>)field.get(instance);
+
+        // lookup
+        IumfsFile result1 = instance.getTimelineFile(account, pathName1); 
+        IumfsFile result2 = instance.getTimelineFile(account, pathName2); 
+
+        assertEquals(fileName1, result1.getName());
+        assertEquals(fileName2, result2.getName());  
+        
+        // Only 2 UserTimelineFile should be found.
+        // means, 2nd time lookup shouldn't add new another timeline file.
+        assertTrue(3 > userTimelineQueue.size());
+    }
+    
+    /**
+     * Verifiy is 
+     * @throws java.lang.Exception
+     */
+    @Test
+    public void testGetExistingUserTimelineFile () throws Exception
+    {
+        String fileName1 = "file1";
+        String fileName2 = "file2";        
+        String fileNameAny = "fileAny";                
+        String pathName1 = FollowersDirectory.PATH_NAME + "/" + fileName1;
+        String pathName2 = FollowersDirectory.PATH_NAME + "/" + fileName2;        
+        String pathNameAny = FollowersDirectory.PATH_NAME + "/" + fileNameAny;                
+        
+        account = new AccountImpl(USER1);        
+        
+        UserTimelineFileManager instance = account.getUserTimelineManager();
         // Firs time lookup
         instance.getTimelineFile(account, pathName1);
         instance.getTimelineFile(account, pathName2);  
         
         Field field = instance.getClass().getDeclaredField("userTimelineQueue");
         field.setAccessible(true);
+        @SuppressWarnings("unchecked")
         BlockingQueue<UserTimelineFile> userTimelineQueue = 
                 (BlockingQueue<UserTimelineFile>)field.get(instance);
 
@@ -113,7 +162,7 @@ public class UserTimelineFileManagerImplTest extends TwitterFsTestBase
         assertEquals(fileName2, result2.getName());  
         
         // Only 2 UserTimelineFile should be found.
-        // means, 2nd time lookup shouldn'nt add new another timeline file.
+        // means, 2nd time lookup shouldn't add new another timeline file.
         assertEquals(2, userTimelineQueue.size());
     }
 }

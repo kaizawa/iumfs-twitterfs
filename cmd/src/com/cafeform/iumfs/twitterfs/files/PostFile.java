@@ -29,10 +29,17 @@ import twitter4j.TwitterException;
 public class PostFile extends TwitterFsFile 
 {
     protected static final int MAX_LENGTH = 140;
+    private String prefix;
 
     public PostFile (Account account, String pathname)
     {
+        this(account, pathname, "");
+    }
+    
+    public PostFile (Account account, String pathname, String prefix)
+    {
         super(account, pathname);
+        this.prefix = prefix;
     }
 
     @Override
@@ -69,7 +76,7 @@ public class PostFile extends TwitterFsFile
              */
             MessageSeparator sep = new MessageSeparator(
                     wholeMessage, 
-                    "");
+                    prefix);
             while (sep.hasNext()) 
             {
                 String msg = (String) sep.next();

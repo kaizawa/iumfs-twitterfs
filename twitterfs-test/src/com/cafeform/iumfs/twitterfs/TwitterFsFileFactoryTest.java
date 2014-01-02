@@ -8,6 +8,7 @@ package com.cafeform.iumfs.twitterfs;
 
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.twitterfs.files.AbstractNonStreamTimelineFile;
+import com.cafeform.iumfs.twitterfs.files.RepliesDirectory;
 import com.cafeform.iumfs.twitterfs.files.TwitterFsDirectory;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +44,6 @@ public class TwitterFsFileFactoryTest extends TwitterFsTestBase
     public void testTopLevelDirectoryWithoutToken ()
     {
         IumfsFile rootDir = fileFactory.getFile(USER1, "/");
-        String[] expectedFiles = {"setup"};
         
         assertTrue(rootDir.isDirectory());
         IumfsFile[] fileList = rootDir.listFiles();
@@ -56,10 +56,71 @@ public class TwitterFsFileFactoryTest extends TwitterFsTestBase
                foundFileList.add(foundFile.getName());
         }                
         
-        for (String expectedFile : expectedFiles)
+        for (String expectedFile : setupExpectedFiles)
         {
             assertTrue(expectedFile + " is not included.", 
             foundFileList.contains(expectedFile));
+        }
+    }
+    
+    /**
+     * Anyfile shouldn't be found without Token other than "setup"
+     */
+    @Test 
+    public void testLookupFileWithoutToken ()
+    {
+        // Should exist
+        assertNotNull("/setup not found." +  fileFactory.getFile(USER1, "/setup"));
+        
+        // Should not exist
+        for (String dir : expectedDirectories){
+            assertNull("/" + dir + " is found without token", 
+                    fileFactory.getFile(USER1, dir));                    
+            assertNull("/" + dir + " + /hoge is found without token" ,
+                    fileFactory.getFile(USER1, "/" + dir + "/hoge"));                                
+        }
+        
+        // Should not exist
+        for (String file : expectedFiles){
+            assertNull("/" + file + " is found without token", 
+                    fileFactory.getFile(USER1, "/" + file));                    
+        }
+    }
+    
+        /**
+     * Anyfile shouldn't be found without Token other than setup
+     */
+    @Test 
+    public void testLookupFileWithToken ()
+    {
+        Prefs.put(USER1 + "/accessToken", DUMMY_TOKEN);        
+
+        // Should not exist
+        assertNull("/setup found.", fileFactory.getFile(USER1, "/setup"));
+        
+        for (String dir : expectedDirectories){
+            // Should exist
+            assertNotNull("/" + dir + " is not found with token", 
+                    fileFactory.getFile(USER1, dir));                    
+
+            if (RepliesDirectory.PATH_NAME.equals("/" + dir))
+            {
+                // Should exist any file if it's under /replies direcotry.
+                assertNotNull("/" + dir + "/hoge is found with token" ,
+                    fileFactory.getFile(USER1, "/" + dir + "/hoge"));                                
+            }
+            else 
+            {
+                // Should not exist any file under directory                
+                assertNull("/" + dir + "/hoge is not found with token" ,
+                    fileFactory.getFile(USER1, "/" + dir + "/hoge"));                                                                        
+            }
+        }
+        
+        // Should exist
+        for (String file : expectedFiles){
+            assertNotNull("/" + file + " is not found with token", 
+                    fileFactory.getFile(USER1, "/" + file));                    
         }
     }
     
@@ -68,14 +129,12 @@ public class TwitterFsFileFactoryTest extends TwitterFsTestBase
     {
         Prefs.put(USER1 + "/accessToken", DUMMY_TOKEN);        
         IumfsFile rootDir = fileFactory.getFile(USER1, "/");
-        String[] expectedFiles = {"mentions", "home", "user", "friends", 
-            "followers", "post", "retweets_of_me", "replies"};
-        
-        
+               
         assertTrue(rootDir.isDirectory());
         IumfsFile[] fileList = rootDir.listFiles();
         // Must have 8 entries
-        assertEquals(expectedFiles.length, fileList.length);
+        assertEquals(expectedFiles.length + expectedDirectories.length, 
+                fileList.length);
         
         List<String> foundFileList = new ArrayList<> ();
         for(IumfsFile foundFile : fileList)
@@ -86,7 +145,13 @@ public class TwitterFsFileFactoryTest extends TwitterFsTestBase
         for (String expectedFile : expectedFiles)
         {
             assertTrue(expectedFile + " is not included.", 
-            foundFileList.contains(expectedFile));
+                    foundFileList.contains(expectedFile));
+        }
+        
+        for (String expectedFile : expectedDirectories)
+        {
+            assertTrue(expectedFile + " is not included.", 
+                    foundFileList.contains(expectedFile));
         }
     }
     
