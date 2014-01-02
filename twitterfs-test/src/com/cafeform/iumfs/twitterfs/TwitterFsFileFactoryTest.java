@@ -6,9 +6,6 @@
 
 package com.cafeform.iumfs.twitterfs;
 
-import com.cafeform.iumfs.twitterfs.TwitterFsFileFactory;
-import com.cafeform.iumfs.twitterfs.Prefs;
-import com.cafeform.iumfs.twitterfs.Account;
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.twitterfs.files.AbstractNonStreamTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.TwitterFsDirectory;
@@ -124,17 +121,5 @@ public class TwitterFsFileFactoryTest extends TwitterFsTestBase
         assertTrue(rootDir.isDirectory());
         assertEquals("/", rootDir.getPath());
         assertEquals("", rootDir.getName());        
-    }
-    
-    @Test
-    public void testLookupReplyPostFile ()
-    {
-        Prefs.put(USER1 + "/accessToken", DUMMY_TOKEN);        
-        IumfsFile postFile = fileFactory.getFile(USER1, "/@twitter");
-        assertNotNull(postFile);
-        
-        // File which start with @ always exist anyware under root dir.
-        postFile = fileFactory.getFile(USER1, "/hehehe/@twitter");   
-        assertNotNull(postFile);        
     }
 }

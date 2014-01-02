@@ -5,17 +5,13 @@ import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.twitterfs.files.UserTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.UserTimelineFileImpl;
 import com.cafeform.iumfs.twitterfs.files.UserTimelineFileAdapter;
-import java.util.Map;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Manage user timelines for each account

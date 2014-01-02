@@ -49,10 +49,7 @@ public class MessageSeparator implements Iterator
     @Override
     public boolean hasNext() 
     {
-        if(left > 0 )
-            return true;
-        else 
-            return false;
+        return left > 0;
     }
 
     /*
@@ -64,7 +61,6 @@ public class MessageSeparator implements Iterator
     {
         int prefixLength; // Length of prefix(@XXXX and "(contd)"). 
         int messageLength; // body part of message length.
-        int postlen;// total message length
         StringBuilder builder = new StringBuilder();
 
         logger.finer("left=" + left);
@@ -72,7 +68,6 @@ public class MessageSeparator implements Iterator
                 CONT.length() + prefix.length();
         messageLength = Math.min(MAX_LENGTH - prefixLength, left);
         end = begin + messageLength;        
-        postlen = messageLength + prefixLength;
         logger.finer("begin=" + begin + ",end=" + end );
         
         builder.append(prefix);

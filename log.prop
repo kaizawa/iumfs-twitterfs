@@ -1,7 +1,7 @@
 handlers = java.util.logging.ConsoleHandler
-.level = FINER
-java.util.logging.ConsoleHandler.level = FINER
+.level = FINE
+java.util.logging.ConsoleHandler.level = FINE
 java.util.logging.ConsoleHandler.formatter = com.cafeform.iumfs.SingleLineLogFormatter
 sun.net.www.protocol.level = INFO
-com.cafeform.iumfs.twitterfs.TwitterFsDirectory.level = FINER
-com.cafeform.iumfs.twitterfs.FriendsDirectory.level = FINER
+com.cafeform.iumfs.twitterfs.TwitterFsDirectory.level = FINE
+com.cafeform.iumfs.twitterfs.FriendsDirectory.level = FINE

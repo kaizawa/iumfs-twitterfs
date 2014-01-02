@@ -50,7 +50,7 @@ public class UserTimelineFileAdapter implements UserTimelineFile
     @Override
     public long write (byte[] buf, long size, long offset) throws NotSupportedException, FileNotFoundException
     {
-        return file.write(buf, size, offset);
+        return file.write(buf, size, 0);
     }
 
     @Override

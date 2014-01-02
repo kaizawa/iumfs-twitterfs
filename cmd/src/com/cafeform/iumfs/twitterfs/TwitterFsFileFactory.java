@@ -1,11 +1,8 @@
 package com.cafeform.iumfs.twitterfs;
 
-import com.cafeform.iumfs.twitterfs.files.AbstractTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.PostFile;
-import com.cafeform.iumfs.twitterfs.files.AbstractUsersDirectory;
 import com.cafeform.iumfs.twitterfs.files.TwitterFsDirectory;
 import com.cafeform.iumfs.FileFactory;
-import com.cafeform.iumfs.Files;
 import com.cafeform.iumfs.InvalidUserException;
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.Request;
@@ -16,8 +13,6 @@ import com.cafeform.iumfs.twitterfs.files.StreamTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.UserTimelineFileImpl;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  *
@@ -76,16 +71,7 @@ public class TwitterFsFileFactory implements FileFactory
         if ("/".equals(pathname))
         {
             return account.getRootDirectory();
-        }
-        
-        if (isReplyPostFile(pathname))
-        {
-            // Post file for reply can be exist any place under root dir.
-            return new PostFile(
-                    account, 
-                    pathname, 
-                    Files.getNameFromPathName(pathname) + " ");
-        }
+        }       
         
         return lookup(account.getRootDirectory(), pathname);
     }
@@ -163,16 +149,5 @@ public class TwitterFsFileFactory implements FileFactory
                 ("".equals(directory.getName()) ? "/":(directory.getName())));
                      
         return null;
-    }
-
-    /**
-     * See if file name start with @ mark.
-     * @param pathname
-     * @return 
-     */
-    private boolean isReplyPostFile (String pathname)
-    {
-        String name = Files.getNameFromPathName(pathname);
-        return name.startsWith("@");
     }
 }

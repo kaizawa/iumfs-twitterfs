@@ -17,7 +17,6 @@ package com.cafeform.iumfs.twitterfs.files;
 
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.NotADirectoryException;
-import com.cafeform.iumfs.NotSupportedException;
 import com.cafeform.iumfs.twitterfs.Account;
 import com.cafeform.iumfs.twitterfs.IumfsTwitterFactory;
 import com.cafeform.iumfs.twitterfs.MessageSeparator;
@@ -30,17 +29,10 @@ import twitter4j.TwitterException;
 public class PostFile extends TwitterFsFile 
 {
     protected static final int MAX_LENGTH = 140;
-    private String prefix;
 
     public PostFile (Account account, String name)
     {
-        this(account, name, null);
-    }
-    
-    public PostFile (Account account, String name, String prefix)
-    {
         super(account, name);
-        this.prefix = prefix;
     }
 
     @Override
@@ -65,10 +57,6 @@ public class PostFile extends TwitterFsFile
             Status status = null;
             Twitter twitter = IumfsTwitterFactory.getInstance(getUsername());            
 
-            if (getPath().equals("/post") == false) {
-                throw new NotSupportedException();
-            }
-
             /*
              * Get a strings written as a file data.
              */
@@ -81,7 +69,7 @@ public class PostFile extends TwitterFsFile
              */
             MessageSeparator sep = new MessageSeparator(
                     wholeMessage, 
-                    getPrefix());
+                    "");
             while (sep.hasNext()) 
             {
                 String msg = (String) sep.next();
@@ -101,11 +89,6 @@ public class PostFile extends TwitterFsFile
             throw new FileNotFoundException();
         } 
     }    
-
-    private String getPrefix ()
-    {
-        return prefix;
-    }
 
     @Override
     public void addFile (IumfsFile file) throws NotADirectoryException
