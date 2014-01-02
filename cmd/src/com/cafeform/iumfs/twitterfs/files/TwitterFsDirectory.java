@@ -26,9 +26,9 @@ public class TwitterFsDirectory extends TwitterFsFile
 { 
     Map<String, IumfsFile> fileMap = new ConcurrentHashMap<>();
     
-    public TwitterFsDirectory(Account account, String name)
+    public TwitterFsDirectory(Account account, String pathname)
     {
-        super(account, name);
+        super(account, pathname);
         setDirectory(true);
     }
 

@@ -39,9 +39,9 @@ abstract public class TwitterFsFile extends AbstractIumfsFile
         this.account = account;
     }
 
-    public TwitterFsFile(Account account, String name)
+    public TwitterFsFile(Account account, String pathname)
     {
-        super(name);
+        super(pathname);
         this.account = account;
         Date now = new Date();
         setAtime(now.getTime());

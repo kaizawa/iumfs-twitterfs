@@ -30,9 +30,9 @@ public class PostFile extends TwitterFsFile
 {
     protected static final int MAX_LENGTH = 140;
 
-    public PostFile (Account account, String name)
+    public PostFile (Account account, String pathname)
     {
-        super(account, name);
+        super(account, pathname);
     }
 
     @Override

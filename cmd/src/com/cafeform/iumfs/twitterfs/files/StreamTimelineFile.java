@@ -22,9 +22,9 @@ import twitter4j.UserStreamListener;
 public class StreamTimelineFile extends AbstractTimelineFile
 {
 
-    public StreamTimelineFile (Account account, String filename)
+    public StreamTimelineFile (Account account, String pathname)
     {
-        super(account, filename);
+        super(account, pathname);
         // Invokde timeline retrieving thread. 
         TwitterFactoryAdapter.setUserStreamListener(getUsername(), listener);
     }

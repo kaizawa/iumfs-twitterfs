@@ -24,9 +24,9 @@ abstract public class AbstractUsersDirectory extends TwitterFsDirectory
     private Date lastUpdate = new Date(0);
     private ScheduledExecutorService pool = null;
 
-    public AbstractUsersDirectory (Account account, String name)
+    public AbstractUsersDirectory (Account account, String pathname)
     {
-        super(account, name);
+        super(account, pathname);
     }
 
     @Override

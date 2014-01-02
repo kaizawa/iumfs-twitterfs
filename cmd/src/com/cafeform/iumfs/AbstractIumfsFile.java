@@ -16,8 +16,6 @@
 package com.cafeform.iumfs;
 
 import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 abstract public class AbstractIumfsFile implements IumfsFile
 {
@@ -28,11 +26,11 @@ abstract public class AbstractIumfsFile implements IumfsFile
     private long ctime; // Modify time(msec)
     private long mtime; // Modify time(msec)
     protected boolean directory = false;
-    String pathName;
+    String pathname;
     
-    public AbstractIumfsFile(String pathName)
+    public AbstractIumfsFile(String pathname)
     {
-        this.pathName = pathName;
+        this.pathname = pathname;
         init();
     }
 
@@ -112,12 +110,12 @@ abstract public class AbstractIumfsFile implements IumfsFile
     @Override
     public String getPath () 
     {
-        return pathName;
+        return pathname;
     }
     
     @Override
     public String getName ()
     {
-        return Files.getNameFromPathName(pathName);
+        return Files.getNameFromPathName(pathname);
     }
 }

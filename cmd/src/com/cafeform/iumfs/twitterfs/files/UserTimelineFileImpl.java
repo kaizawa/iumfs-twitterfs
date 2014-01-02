@@ -19,9 +19,9 @@ import twitter4j.TwitterException;
 public class UserTimelineFileImpl extends AbstractNonStreamTimelineFile
 implements UserTimelineFile
 {
-    public UserTimelineFileImpl (Account account, String filename)
+    public UserTimelineFileImpl (Account account, String pathname)
     {
-        super(account, filename);
+        super(account, pathname);
     }
 
     @Override

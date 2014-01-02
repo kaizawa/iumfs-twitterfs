@@ -28,9 +28,9 @@ abstract public class AbstractNonStreamTimelineFile extends AbstractTimelineFile
     }
     protected long interval = 0L;
 
-    public AbstractNonStreamTimelineFile (Account account, String filename)
+    public AbstractNonStreamTimelineFile (Account account, String pathname)
     {
-        super(account, filename);
+        super(account, pathname);
     }
 
     public void getTimeline ()

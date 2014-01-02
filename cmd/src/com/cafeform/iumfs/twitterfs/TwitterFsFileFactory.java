@@ -4,6 +4,7 @@ import com.cafeform.iumfs.twitterfs.files.FollowersDirectory;
 import com.cafeform.iumfs.twitterfs.files.PostFile;
 import com.cafeform.iumfs.twitterfs.files.TwitterFsDirectory;
 import com.cafeform.iumfs.FileFactory;
+import com.cafeform.iumfs.Files;
 import com.cafeform.iumfs.InvalidUserException;
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.Request;
@@ -76,6 +77,11 @@ public class TwitterFsFileFactory implements FileFactory
             return account.getRootDirectory();
         }       
         
+        if (isReliesFile(pathname)) 
+        {
+            return new PostFile(account, pathname);
+        }
+        
         return lookup(account.getRootDirectory(), pathname);
     }
 
@@ -114,7 +120,7 @@ public class TwitterFsFileFactory implements FileFactory
         {
             pathname = pathname.substring(1);
         }
-        
+
         String[] paths = pathname.split("/", 2);
 
         for (IumfsFile file : directory.listFiles())
@@ -151,5 +157,10 @@ public class TwitterFsFileFactory implements FileFactory
                 ("".equals(directory.getName()) ? "/":(directory.getName())));
                      
         return null;
+    }
+
+    private boolean isReliesFile (String pathname)
+    {
+        return pathname.startsWith("/replies/");
     }
 }

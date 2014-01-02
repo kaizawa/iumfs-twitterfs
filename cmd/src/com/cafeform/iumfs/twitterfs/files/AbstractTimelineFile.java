@@ -63,13 +63,13 @@ abstract public class AbstractTimelineFile extends TwitterFsFile
      * Constractor for twitter file
      *
      * @param account Twitter account
-     * @param filename
+     * @param pathname
      */
     public AbstractTimelineFile(
             Account account,
-            String filename)
+            String pathname)
     {
-        super(account, filename);
+        super(account, pathname);
         this.is_timeline = true;
     }
 

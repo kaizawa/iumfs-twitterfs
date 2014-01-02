@@ -23,9 +23,9 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
 {
     public DefaultTimelineFile (
             Account account, 
-            String filename)
+            String pathname)
     {
-        super(account, filename);
+        super(account, pathname);
         interval = calculateInterval();
         if (autoUpdateEnabled)
         {
