@@ -39,7 +39,7 @@ implements UserTimelineFile
                 break;
             default:
                 if (getPath().startsWith(FollowersDirectory.PATH_NAME + "/" ) ||
-                        getPath().startsWith(FollowersDirectory.PATH_NAME + "/" ))
+                        getPath().startsWith(FriendsDirectory.PATH_NAME + "/" ))
                 {
                     statuses = twitter.getUserTimeline(name, paging);
                 } else
