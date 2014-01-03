@@ -22,6 +22,8 @@ import com.cafeform.iumfs.twitterfs.TwitterFactoryAdapter;
 import com.cafeform.iumfs.twitterfs.MessageSeparator;
 import java.io.FileNotFoundException;
 import java.nio.ByteBuffer;
+import java.util.Date;
+import java.util.logging.Level;
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -85,14 +87,25 @@ public class PostFile extends TwitterFsFile
                 logger.finest("Text: " + msg);
                 logger.fine("Status updated");
             }
+            Date now = new Date();
+            setAtime(now.getTime());            
+            setMtime(now.getTime());
+            setCtime(now.getTime());            
             return 0;
         } 
         catch (TwitterException ex) 
         {
+            if (ex.getErrorCode() == 187)
+            {
+                // Code 187: Status is a duplicate.
+                // The message seems to have written already.
+                logger.log(Level.INFO, "Status is a duplicate. Ignored.");
+                return 0;
+            }
             /* 
              * Convert TwitterException to FileNotFoundException 
              */
-            logger.severe("TwitterException when writing");
+            logger.log(Level.SEVERE, "TwitterException when writing", ex);
             throw new FileNotFoundException();
         } 
     }    

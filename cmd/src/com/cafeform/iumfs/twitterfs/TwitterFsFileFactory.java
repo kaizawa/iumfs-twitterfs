@@ -63,7 +63,7 @@ public class TwitterFsFileFactory implements FileFactory
          * to have finished setting up twitter account. 
          * Create default root directory swap it to existing root directory.
          */
-        logger.log(Level.FINE, "Map size="
+        logger.log(Level.FINER, "Map size="
                 + account.getRootDirectory().listFiles().length);
         if (1 == account.getRootDirectory().listFiles().length)
         {
