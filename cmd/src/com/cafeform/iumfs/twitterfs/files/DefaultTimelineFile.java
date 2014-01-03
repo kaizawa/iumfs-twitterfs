@@ -162,6 +162,8 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
         // Need to take MAX_PAGES into account, since API would be called 
         // MAX_PAGES times per each trial.
         val = (RATE_LIMIT_WINDOW * 60 / rateLimit) * 1000 * MAX_PAGES;
+        // Add margin, try not to exceed rate limit accidentally.
+        val += INTERVAL_MARGIN;
         logger.log(Level.FINE, "Calculate interval for " + getName()
                 + " timeline" + " is " + val);
         return val;

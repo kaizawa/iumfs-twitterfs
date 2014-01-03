@@ -5,8 +5,6 @@
  */
 package com.cafeform.iumfs.handler;
 
-import com.cafeform.iumfs.handler.RequestHandler;
-import com.cafeform.iumfs.FileType;
 import static com.cafeform.iumfs.FileType.VREG;
 import com.cafeform.iumfs.Util;
 import com.cafeform.iumfs.IumfsFile;
@@ -25,12 +23,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static com.cafeform.iumfs.Util.*;
 import java.nio.ByteBuffer;
-import java.util.Collections;
-import javafx.print.Collation;
 import static com.cafeform.iumfs.handler.AbstractRequestHandler.*;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import org.mockito.Matchers;
 import org.mockito.*;
 
 /**

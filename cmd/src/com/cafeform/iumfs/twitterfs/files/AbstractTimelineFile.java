@@ -51,6 +51,7 @@ abstract public class AbstractTimelineFile extends TwitterFsFile
     protected static final int RETWEET_RATE_LIMIT = 15;
     protected static final int DEFAULT_RATE_LIMIT = 15;
     protected static final int RATE_LIMIT_WINDOW = 15; // min
+    protected static final int INTERVAL_MARGIN = 1000; // 1sec
     protected static final String CONT = "(cont) ";
     protected long last_id = 1;
     protected long base_id = 0;
