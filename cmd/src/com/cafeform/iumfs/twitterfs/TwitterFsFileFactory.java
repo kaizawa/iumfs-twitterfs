@@ -16,14 +16,16 @@ import com.cafeform.iumfs.twitterfs.files.StreamTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.UserTimelineFileImpl;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import twitter4j.User;
 
 /**
  * Factory class for TwitterFS file.
  */
 public class TwitterFsFileFactory implements FileFactory
 {
-    static final Logger logger = 
-            Logger.getLogger(TwitterFsFileFactory.class.getName());
+
+    static final Logger logger
+            = Logger.getLogger(TwitterFsFileFactory.class.getName());
 
     @Override
     public IumfsFile getFile (Request request)
@@ -40,12 +42,12 @@ public class TwitterFsFileFactory implements FileFactory
     {
         if (username.isEmpty())
         {
-            throw new InvalidUserException("Unknown user \"" + username + 
-                    "\" specified");
+            throw new InvalidUserException("Unknown user \"" + username
+                    + "\" specified");
         }
 
         logger.log(Level.FINER, "pathname=" + pathname + ", usernaem=" + username);
-               
+
         Account account = AccountMap.get(username);
 
         if (account == null)
@@ -75,8 +77,8 @@ public class TwitterFsFileFactory implements FileFactory
         if ("/".equals(pathname))
         {
             return account.getRootDirectory();
-        }               
-        
+        }
+
         return lookup(account, account.getRootDirectory(), pathname);
     }
 
@@ -87,10 +89,11 @@ public class TwitterFsFileFactory implements FileFactory
         rootDir.addFile(new StreamTimelineFile(account, "/home"));
         rootDir.addFile(new DefaultTimelineFile(account, "/mentions"));
         rootDir.addFile(new DefaultTimelineFile(account, "/retweets_of_me"));
-        rootDir.addFile(new UserTimelineFileImpl(account, "/user"));        
+        rootDir.addFile(account.getUserTimelineManager().
+                getTimelineFile(account, "/user"));
         rootDir.addFile(new FriendsDirectory(account));
-        rootDir.addFile(new FollowersDirectory(account));     
-        rootDir.addFile(new RepliesDirectory(account));  
+        rootDir.addFile(new FollowersDirectory(account));
+        rootDir.addFile(new RepliesDirectory(account));
         return rootDir;
     }
 
@@ -102,16 +105,16 @@ public class TwitterFsFileFactory implements FileFactory
     }
 
     /**
-     * Lookup pathname under directory.
-     * This method is recursively called. So pathname could be relative path.
-     * 
+     * Lookup pathname under directory. This method is recursively called. So
+     * pathname could be relative path.
+     *
      * @param directory
-     * @param pathname 
-     * @return 
+     * @param pathname
+     * @return
      */
-    private IumfsFile lookup(
-            Account account, 
-            IumfsFile directory, 
+    private IumfsFile lookup (
+            Account account,
+            IumfsFile directory,
             String pathname)
     {
         if (pathname.startsWith("/"))
@@ -120,7 +123,7 @@ public class TwitterFsFileFactory implements FileFactory
         }
 
         String[] paths = pathname.split("/", 2);
-        
+
         for (IumfsFile file : directory.listFiles())
         {
             // check first element of pathname exist within directory.
@@ -129,44 +132,54 @@ public class TwitterFsFileFactory implements FileFactory
                 // Found. See if it's target directory entry.
                 if (1 == paths.length)
                 {
-                    logger.log(Level.FINER, "Found " + paths[0] + 
-                            " in " + directory.getName());
+                    logger.log(Level.FINER, "Found " + paths[0]
+                            + " in " + directory.getName());
                     return file;
-                }
-                else
+                } else
                 {
                     if (file.isDirectory())
                     {
                         // path is correct, but not a target entry
                         // dig more.
                         return lookup(account, file, paths[1]);
-                    }
-                    else 
+                    } else
                     {
-                        logger.log(Level.WARNING, paths[0] + " is expected" +
-                                " to be directory, but regular file.");
+                        logger.log(Level.WARNING, paths[0] + " is expected"
+                                + " to be directory, but regular file.");
                         // the entry must be directory but file!
                         return null;
                     }
                 }
             }
         }
-        
-        if (directory.getPath().equals(RepliesDirectory.PATH_NAME) &&
-               1 == paths.length)
+
+        // If file is under /replies directory and file name is
+        // valid twitter screen name, create PostFile for reply.
+        if (directory.getPath().equals(RepliesDirectory.PATH_NAME)
+                && 1 == paths.length)
         {
-            // This is lookup request for PostFile for reply.
-            // Create new one and return it.
-            return new PostFile(
-                    account, 
-                    pathname, 
-                    "@" + Files.getNameFromPathName(pathname) + " "
-            );
+            String screenName = Files.getNameFromPathName(pathname);
+            User user = TwitterFactoryAdapter.lookupUser(
+                    account.getUsername(),
+                    screenName);
+            if (null != user)
+            {
+                logger.log(Level.FINER, screenName + 
+                    " is a valid twitter accoutn");
+                // Create new one and return it. 
+                return new PostFile(
+                        account,
+                        pathname,
+                        "@" + screenName + " "
+                );
+            }
+            logger.log(Level.FINER, screenName + 
+                    " is not a valid twitter accoutn");
         }
-        
-        logger.log(Level.FINER, "Cannot find " + paths[0] + " in " + 
-                ("".equals(directory.getName()) ? "/":(directory.getName())));
-                     
+
+        logger.log(Level.FINER, "Cannot find " + paths[0] + " in "
+                + ("".equals(directory.getName()) ? "/" : (directory.getName())));
+
         return null;
     }
 }

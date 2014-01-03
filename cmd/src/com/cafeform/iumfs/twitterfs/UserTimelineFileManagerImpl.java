@@ -14,7 +14,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Manage user timelines for each account
+ * Manage user timelines for each account.
+ * This can eliminate duplicate timeline file being created for followers 
+ * directory and friends directory.
  */
 public class UserTimelineFileManagerImpl implements UserTimelineFileManager
 {
@@ -107,21 +109,28 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
     }
 
     @Override
-    public IumfsFile getTimelineFile (Account account, String pathName)
+    public IumfsFile getTimelineFile (Account account, String pathname)
     {
-        String name  = Files.getNameFromPathName(pathName);
+        String username;
+        if ("/user".equals(pathname)) {
+            // For authenticated user
+            username = account.getUsername();
+        } else {
+            // For account under followers and friends directory
+            username  = Files.getNameFromPathName(pathname);
+        }
 
         IumfsFile newFile;
         // Lookup existing UserTimeline by name.
-        UserTimelineFile userTimelineFile = lookupUserTimeline(name);
+        UserTimelineFile userTimelineFile = lookupUserTimeline(username);
         if (null == userTimelineFile)
         {
-             userTimelineFile = new UserTimelineFileImpl(account, pathName);
+             userTimelineFile = new UserTimelineFileImpl(account, pathname);
              addUserTimeLine(userTimelineFile);
         }
         
         // Create adopter instance which include actual timeline file.
-        newFile = new UserTimelineFileAdapter(pathName, userTimelineFile);
+        newFile = new UserTimelineFileAdapter(pathname, userTimelineFile);
         return newFile;
     }
 }

@@ -64,7 +64,7 @@ public class TwitterFsFileFactoryTest extends TwitterFsTestBase
     }
     
     /**
-     * Anyfile shouldn't be found without Token other than "setup"
+     * Verify any file other than setup is not found without Token
      */
     @Test 
     public void testLookupFileWithoutToken ()
@@ -87,8 +87,8 @@ public class TwitterFsFileFactoryTest extends TwitterFsTestBase
         }
     }
     
-        /**
-     * Anyfile shouldn't be found without Token other than setup
+    /**
+     * Verify expected files can be found.
      */
     @Test 
     public void testLookupFileWithToken ()
@@ -106,14 +106,14 @@ public class TwitterFsFileFactoryTest extends TwitterFsTestBase
             if (RepliesDirectory.PATH_NAME.equals("/" + dir))
             {
                 // Should exist any file if it's under /replies direcotry.
-                assertNotNull("/" + dir + "/hoge is found with token" ,
-                    fileFactory.getFile(USER1, "/" + dir + "/hoge"));                                
+                assertNotNull("/" + dir + "/hoge is not found with token" ,
+                        fileFactory.getFile(USER1, "/" + dir + "/hoge"));                                
             }
             else 
             {
                 // Should not exist any file under directory                
-                assertNull("/" + dir + "/hoge is not found with token" ,
-                    fileFactory.getFile(USER1, "/" + dir + "/hoge"));                                                                        
+                assertNull("/" + dir + "/hoge is found with token" ,
+                        fileFactory.getFile(USER1, "/" + dir + "/hoge"));                                                                        
             }
         }
         

@@ -19,7 +19,6 @@ import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.Request;
 import com.cafeform.iumfs.Response;
 import com.cafeform.iumfs.ResponseImpl;
-import com.cafeform.iumfs.handler.AbstractRequestHandler;
 
 /**
  *  RMDIR request class

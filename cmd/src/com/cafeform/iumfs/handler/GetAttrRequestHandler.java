@@ -41,7 +41,7 @@ public class GetAttrRequestHandler extends AbstractRequestHandler
     public Response getResponse(Request request, IumfsFile file) 
     {
         Response response = new ResponseImpl();
-        if (null == file || false == file.exists()) {
+        if (null == file || !file.exists()) {
              // Unknown file
              // return ENOENT
             response.setResponseHeader(request.getType(), ENOENT, 0);

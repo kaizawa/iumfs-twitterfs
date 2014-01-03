@@ -1,7 +1,7 @@
 #!/bin/sh
 
 pids=""
-pids=`jps -l|grep twitterfs | awk '{print $1}'`
+pids=`jps -l|grep TwitterFs | awk '{print $1}'`
 for pid in $pids
 do
 	if [ "$pid" -ne "" ]; then

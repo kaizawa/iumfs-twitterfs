@@ -14,6 +14,7 @@ import twitter4j.ResponseList;
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
+import twitter4j.User;
 import twitter4j.UserStreamListener;
 
 /**
@@ -43,20 +44,24 @@ public class TwitterFsTestBase {
     @Before
     public void setUp () throws TwitterException
     {
-        Twitter twitter = mock(Twitter.class);
+        Twitter mockTwitter = mock(Twitter.class);
+        User mockUser = mock(User.class);
         @SuppressWarnings("unchecked") 
         ResponseList<Status> mockStatuses 
                 = (ResponseList<Status>)mock(ResponseList.class);
         // Always returns 0 length list
         when(mockStatuses.size()).thenReturn(0);
-        when(twitter.getUserTimeline(
+        when(mockTwitter.getUserTimeline(
                 (Paging)anyObject())).thenReturn(mockStatuses);
-        when(twitter.getUserTimeline(
-                anyString(), (Paging)anyObject())).thenReturn(mockStatuses);        
+        when(mockTwitter.getUserTimeline(
+                anyString(), (Paging)anyObject())).thenReturn(mockStatuses);   
         
         // Mocked Twitter
         PowerMockito.mockStatic(TwitterFactoryAdapter.class);
-        when(TwitterFactoryAdapter.getInstance(anyString())).thenReturn(twitter);
+        when(TwitterFactoryAdapter.getInstance(anyString())).
+                thenReturn(mockTwitter);
+        when(TwitterFactoryAdapter.lookupUser(anyString(), anyString())).
+                thenReturn(mockUser);
         PowerMockito.doNothing().when(TwitterFactoryAdapter.class);
         TwitterFactoryAdapter.setUserStreamListener(anyString(), 
                 (UserStreamListener) anyObject());

@@ -18,16 +18,11 @@ package com.cafeform.iumfs.handler;
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.NotSupportedException;
 import com.cafeform.iumfs.Request;
-import com.cafeform.iumfs.RequestImpl;
 import com.cafeform.iumfs.Response;
 import com.cafeform.iumfs.ResponseImpl;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *  READ Request class

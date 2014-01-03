@@ -27,8 +27,6 @@ import java.io.FileNotFoundException;
  */
 public class WriteRequestHandler extends AbstractRequestHandler {
 
-    private static final String CONT = "(cont) ";
-
     @Override
     public Response getResponse(Request request, IumfsFile file) 
     {
