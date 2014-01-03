@@ -66,7 +66,7 @@ public class RequestListener implements Runnable
                 IumfsFile file = fileFactory.getFile(request);
                 handler = handlerFactory.getHandler(request.getType());
                 response = handler.getResponse(request, file);
-                logger.log(Level.FINE, request.getType() + " replied with" +
+                logger.log(Level.FINE, request.getType() + " returned with " +
                         response.getResult() + ".");                                
             }
             catch (RuntimeException ex) 
