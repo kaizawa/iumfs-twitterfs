@@ -61,10 +61,13 @@ public class RequestListener implements Runnable
                     logger.severe("Request object is null");
                     System.exit(1);
                 }
+                logger.log(Level.FINE, request.getType() + " recieved.");                
                 
                 IumfsFile file = fileFactory.getFile(request);
                 handler = handlerFactory.getHandler(request.getType());
                 response = handler.getResponse(request, file);
+                logger.log(Level.FINE, request.getType() + " replied with" +
+                        response.getResult() + ".");                                
             }
             catch (RuntimeException ex) 
             {
@@ -73,9 +76,17 @@ public class RequestListener implements Runnable
                  * if exception happend.
                  * Convert RuntimeException to EIO error.
                  */
-                ex.printStackTrace();
-                logger.log(Level.SEVERE, "Failed to handle request.", ex);
-                response = new ResponseImpl(request.getType(), EIO);
+                if (null != request)
+                {
+                    logger.log(Level.SEVERE, "Failed to handle " +
+                            request.getType(), ex);
+                    response = new ResponseImpl(request.getType(), EIO);                    
+                }
+                else 
+                {
+                    logger.log(Level.SEVERE, "Cannot read request", ex);
+                    System.exit(1);                
+                }
             } 
             catch (IOException ex)
             {

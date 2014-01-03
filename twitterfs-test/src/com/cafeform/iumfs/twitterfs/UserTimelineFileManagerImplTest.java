@@ -12,7 +12,7 @@ import com.cafeform.iumfs.twitterfs.files.FriendsDirectory;
 import com.cafeform.iumfs.twitterfs.files.UserTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.UserTimelineFileImpl;
 import java.lang.reflect.Field;
-import java.util.concurrent.BlockingQueue;
+import java.util.Queue;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyObject;
@@ -112,8 +112,8 @@ public class UserTimelineFileManagerImplTest extends TwitterFsTestBase
         Field field = instance.getClass().getDeclaredField("userTimelineQueue");
         field.setAccessible(true);
         @SuppressWarnings("unchecked")
-        BlockingQueue<UserTimelineFile> userTimelineQueue = 
-                (BlockingQueue<UserTimelineFile>)field.get(instance);
+        Queue<UserTimelineFile> userTimelineQueue = 
+                (Queue<UserTimelineFile>)field.get(instance);
 
         // lookup
         IumfsFile result1 = instance.getTimelineFile(account, pathName1); 
@@ -124,7 +124,7 @@ public class UserTimelineFileManagerImplTest extends TwitterFsTestBase
         
         // Only 2 UserTimelineFile should be found.
         // means, 2nd time lookup shouldn't add new another timeline file.
-        assertTrue(3 > userTimelineQueue.size());
+        assertEquals(2, userTimelineQueue.size());
     }
     
     /**
@@ -143,26 +143,32 @@ public class UserTimelineFileManagerImplTest extends TwitterFsTestBase
         
         account = new AccountImpl(USER1);        
         
-        UserTimelineFileManager instance = account.getUserTimelineManager();
+        UserTimelineFileManager manager = account.getUserTimelineManager();
         // Firs time lookup
-        instance.getTimelineFile(account, pathName1);
-        instance.getTimelineFile(account, pathName2);  
+        manager.getTimelineFile(account, pathName1);
+        manager.getTimelineFile(account, pathName2);  
         
-        Field field = instance.getClass().getDeclaredField("userTimelineQueue");
+        Field field = manager.getClass().getDeclaredField("userTimelineQueue");
         field.setAccessible(true);
         @SuppressWarnings("unchecked")
-        BlockingQueue<UserTimelineFile> userTimelineQueue = 
-                (BlockingQueue<UserTimelineFile>)field.get(instance);
+        Queue<UserTimelineFile> userTimelineQueue = 
+                (Queue<UserTimelineFile>)field.get(manager);
 
         // 2nd time lookup
-        IumfsFile result1 = instance.getTimelineFile(account, pathName1); 
-        IumfsFile result2 = instance.getTimelineFile(account, pathName2); 
+        IumfsFile result1 = manager.getTimelineFile(account, pathName1); 
+        IumfsFile result2 = manager.getTimelineFile(account, pathName2); 
 
         assertEquals(fileName1, result1.getName());
         assertEquals(fileName2, result2.getName());  
         
         // Only 2 UserTimelineFile should be found.
         // means, 2nd time lookup shouldn't add new another timeline file.
+        
+        for(UserTimelineFile file : userTimelineQueue)
+        {
+            System.out.println(file.getName() + " " + file.hashCode());
+        }
+        
         assertEquals(2, userTimelineQueue.size());
     }
 }

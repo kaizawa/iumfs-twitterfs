@@ -8,4 +8,6 @@ import java.nio.ByteBuffer;
 public interface Response {
     public ByteBuffer getBuffer();
     public void setResponseHeader(RequestType requestType, long result, long datalen);
+    public RequestType getRequestType ();
+    public long getResult ();
 }

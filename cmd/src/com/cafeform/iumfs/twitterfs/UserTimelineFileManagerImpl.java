@@ -5,9 +5,10 @@ import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.twitterfs.files.UserTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.UserTimelineFileImpl;
 import com.cafeform.iumfs.twitterfs.files.UserTimelineFileAdapter;
-import java.util.concurrent.BlockingQueue;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -23,8 +24,10 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
     static final Logger logger = Logger.getLogger(
             UserTimelineFileManagerImpl.class.getName());
     private ScheduledExecutorService userTimelineScheduler = null;
-    private final BlockingQueue<UserTimelineFile> userTimelineQueue = 
-            new LinkedBlockingQueue<>();
+    private final Queue<UserTimelineFile> userTimelineQueue = 
+            new ReEnterableListQueue<>();
+    private final Map<String, UserTimelineFile> userTimeLineMap =
+            new ConcurrentHashMap<>();
 
     /**
      * Add user time line which will be feching by dequeing in order.

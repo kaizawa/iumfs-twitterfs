@@ -72,7 +72,7 @@ implements UserTimelineFile
     {
         if (obj instanceof UserTimelineFileImpl)
         {
-            return this.getName().endsWith(((UserTimelineFileImpl)obj).getName());
+            return this.getName().equals(((UserTimelineFileImpl)obj).getName());
         }
         return false;
     }
@@ -82,5 +82,11 @@ implements UserTimelineFile
     {
         int hash = 3;
         return hash;
+    }
+    
+    @Override
+    public String toString ()
+    {
+        return getName();
     }
 }

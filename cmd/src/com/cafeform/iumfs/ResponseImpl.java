@@ -9,12 +9,15 @@ import java.nio.ByteOrder;
  */
 public class ResponseImpl implements Response
 {
+    private RequestType requestType = null;
+    private long result = 0;
     final public static int RESPONSE_HEADER_SIZE = 24; // long x 3
     protected ByteBuffer buffer;
     
     public ResponseImpl (RequestType requestType, long result)
     {
         this();
+        this.requestType = requestType;
         setResponseHeader(requestType, result, 0);
     }
     
@@ -45,8 +48,12 @@ public class ResponseImpl implements Response
      * @param datalen
      */
     @Override
-    public final void setResponseHeader(RequestType requestType, long result, long datalen) 
+    public final void setResponseHeader(
+            RequestType requestType, 
+            long result, 
+            long datalen) 
     {
+        this.result = result;
         /*
          * Response structure passed from damon to control device.
          *  8+8+8=24 bytes
@@ -62,5 +69,16 @@ public class ResponseImpl implements Response
         buffer.putLong(requestType.longVal());
         buffer.putLong(result);
         buffer.putLong(datalen);
+    }
+    
+    @Override
+    public RequestType getRequestType ()
+    {
+        return requestType;
+    }
+    @Override
+    public long getResult ()
+    {
+        return result;
     }
 }
