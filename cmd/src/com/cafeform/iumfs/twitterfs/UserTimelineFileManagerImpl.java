@@ -2,9 +2,10 @@ package com.cafeform.iumfs.twitterfs;
 
 import com.cafeform.iumfs.Files;
 import com.cafeform.iumfs.IumfsFile;
-import com.cafeform.iumfs.twitterfs.files.UserTimelineFile;
+import com.cafeform.iumfs.twitterfs.files.NormalTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.UserTimelineFileImpl;
 import com.cafeform.iumfs.twitterfs.files.UserTimelineFileAdapter;
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,6 +14,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import twitter4j.TwitterException;
 
 /**
  * Manage user timelines for each account.
@@ -24,17 +26,15 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
     static final Logger logger = Logger.getLogger(
             UserTimelineFileManagerImpl.class.getName());
     private ScheduledExecutorService userTimelineScheduler = null;
-    private final Queue<UserTimelineFile> userTimelineQueue = 
+    private final Queue<NormalTimelineFile> userTimelineQueue = 
             new ReEnterableListQueue<>();
-    private final Map<String, UserTimelineFile> userTimeLineMap =
-            new ConcurrentHashMap<>();
 
     /**
      * Add user time line which will be feching by dequeing in order.
      *
      * @param newFile
      */
-    private void addUserTimeLine (UserTimelineFile newFile)
+    private void addUserTimeLine (NormalTimelineFile newFile)
     {
         // Start user timeline updater scheduler
         startScheduler();
@@ -66,19 +66,24 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
                 {
                     try
                     {
-                        UserTimelineFile nextFile = userTimelineQueue.poll();
+                        NormalTimelineFile nextFile = userTimelineQueue.poll();
                         if (null != nextFile)
                         {
                             nextFile.getTimeline();
                             userTimelineQueue.offer(nextFile);    
                         }
                     } 
+                    catch (TwitterException ex)
+                    {
+                        logger.log(Level.INFO,
+                                "Got a TwitterException.", ex);
+                    }
                     catch (Exception ex)
                     {
                         logger.log(
-                                Level.SEVERE,
-                                "User timeline watcher thread is down "
-                                + "due to " + ex.toString(), ex);
+                                Level.INFO,
+                                "User timeline watcher thread got an "
+                                + "Exception.", ex);
                     }
                 }
             };
@@ -97,9 +102,9 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
      * @param name
      * @return 
      */
-    private UserTimelineFile lookupUserTimeline (String name) 
+    private NormalTimelineFile lookupUserTimeline (String name) 
     {
-       for(UserTimelineFile file : userTimelineQueue)
+       for(NormalTimelineFile file : userTimelineQueue)
        {
            if (file.getName().equals(name))
            {
@@ -125,7 +130,7 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
 
         IumfsFile newFile;
         // Lookup existing UserTimeline by name.
-        UserTimelineFile userTimelineFile = lookupUserTimeline(username);
+        NormalTimelineFile userTimelineFile = lookupUserTimeline(username);
         if (null == userTimelineFile)
         {
              userTimelineFile = new UserTimelineFileImpl(account, pathname);

@@ -3,6 +3,7 @@ package com.cafeform.iumfs.twitterfs.files;
 import com.cafeform.iumfs.twitterfs.Account;
 import com.cafeform.iumfs.twitterfs.TwitterFactoryAdapter;
 import static com.cafeform.iumfs.twitterfs.files.TwitterFsFile.logger;
+import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import twitter4j.Paging;
 import twitter4j.ResponseList;
@@ -17,13 +18,12 @@ import twitter4j.TwitterException;
  * @author kaizawa
  */
 public class UserTimelineFileImpl extends AbstractNonStreamTimelineFile
-implements UserTimelineFile
 {
     public UserTimelineFileImpl (Account account, String pathname)
     {
         super(account, pathname);
     }
-
+    
     @Override
     protected ResponseList<Status> getTimeLine (Paging paging)
             throws TwitterException

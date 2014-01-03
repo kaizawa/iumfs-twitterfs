@@ -3,10 +3,13 @@ package com.cafeform.iumfs.twitterfs.files;
 import com.cafeform.iumfs.twitterfs.Account;
 import com.cafeform.iumfs.twitterfs.TwitterFactoryAdapter;
 import static com.cafeform.iumfs.twitterfs.files.TwitterFsFile.logger;
+import java.io.UnsupportedEncodingException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
+import static java.util.logging.Level.*;
+import java.util.logging.Logger;
 import twitter4j.Paging;
 import twitter4j.ResponseList;
 import twitter4j.Status;
@@ -14,15 +17,16 @@ import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
 /**
- * Represents non-streaming timelines.
- * That includs mentions, home and retweets_of_me but not user timeline.
- * 
+ * Represents non-streaming timelines. That includs mentions, home and
+ * retweets_of_me but not user timeline.
+ *
  * @author kaizawa
  */
 public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
 {
+
     public DefaultTimelineFile (
-            Account account, 
+            Account account,
             String pathname)
     {
         super(account, pathname);
@@ -33,17 +37,23 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
             startAutoUpdateThread();
         }
     }
-    
+
     /**
      * Initialise routine for this type of file
      */
     private void readAhead ()
     {
-        /*
-        * If not stream timeline, read 1 page(20 tweets)
-        * as initial read.
-        */
-        getTimeline(1, 20, last_id);
+        try
+        {
+            /*
+             * If not stream timeline, read 1 page(20 tweets)
+             * as initial read.
+             */
+            getTimeline();
+        } catch (TwitterException ex)
+        {
+            logger.log(INFO, "Cannot get " + getName() + " timeline", ex);
+        }
     }
 
     @Override
@@ -53,7 +63,7 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
         ResponseList<Status> statuses = null;
         String name = getName();
 
-        try 
+        try
         {
             switch (name)
             {
@@ -71,17 +81,16 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
                     logger.severe("Unknown timeline(\"" + name
                             + "\") specified.");
                     System.exit(1);
-            }    
-        } 
-        catch (TwitterException ex)
+            }
+        } catch (TwitterException ex)
         {
             logger.log(Level.SEVERE,
                     "Got Twitter Exception statusCode = " + ex.getStatusCode(),
                     ex);
-        } 
+        }
         return statuses;
     }
-    
+
     final protected void startAutoUpdateThread ()
     {
         // TODO: each time line should use same thread pool
@@ -93,10 +102,18 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
             @Override
             public void run ()
             {
-                getTimeline();
+                try
+                {
+                    getTimeline();
+                } 
+                catch (TwitterException ex)
+                {
+                    logger.log(INFO, "Cannot get " + getName() + 
+                            " timeline.", ex);
+                }
             }
         };
-        
+
         executor = Executors.newSingleThreadScheduledExecutor();
         // retrieve periodically
         executor.scheduleAtFixedRate(
@@ -105,13 +122,13 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
                 getInterval(),
                 TimeUnit.MILLISECONDS);
     }
- 
+
     /**
      * Calculate rate limit based on type of timeline
      *
      * @return the interval
      */
-    public long getInterval()
+    public long getInterval ()
     {
         return interval;
     }
@@ -119,7 +136,7 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
     /**
      * @return the interval
      */
-    private long calculateInterval()
+    private long calculateInterval ()
     {
         String name = getName();
         int rateLimit = 0;

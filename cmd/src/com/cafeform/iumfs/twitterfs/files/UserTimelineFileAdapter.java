@@ -8,17 +8,18 @@ import com.cafeform.iumfs.NotSupportedException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import twitter4j.TwitterException;
 
 /**
  * Adapter of UserTimelineFile.
  * All methods but getPathname call apapteee's method.
  */
-public class UserTimelineFileAdapter implements UserTimelineFile
+public class UserTimelineFileAdapter implements NormalTimelineFile
 {
-    private final IumfsFile file;
+    private final NormalTimelineFile file;
     private final String pathname;
     
-    public UserTimelineFileAdapter (String pathname, IumfsFile file)
+    public UserTimelineFileAdapter (String pathname, NormalTimelineFile file)
     {
         if (!(file instanceof UserTimelineFileImpl))
         {
@@ -42,13 +43,15 @@ public class UserTimelineFileAdapter implements UserTimelineFile
     }
 
     @Override
-    public long read (ByteBuffer buf, long size, long offset) throws FileNotFoundException, IOException, NotSupportedException
+    public long read (ByteBuffer buf, long size, long offset) 
+            throws FileNotFoundException, IOException, NotSupportedException
     {
         return file.read(buf, size, offset);
     }
 
     @Override
-    public long write (byte[] buf, long size, long offset) throws NotSupportedException, FileNotFoundException
+    public long write (byte[] buf, long size, long offset) 
+            throws NotSupportedException, FileNotFoundException
     {
         return file.write(buf, size, 0);
     }
@@ -162,8 +165,8 @@ public class UserTimelineFileAdapter implements UserTimelineFile
     }
 
     @Override
-    public void getTimeline ()
+    public void getTimeline () throws TwitterException
     {
-        file.getAtime();
+        file.getTimeline();
     }
 }

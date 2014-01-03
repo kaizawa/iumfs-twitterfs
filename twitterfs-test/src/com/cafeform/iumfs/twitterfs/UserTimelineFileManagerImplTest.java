@@ -9,7 +9,7 @@ package com.cafeform.iumfs.twitterfs;
 import com.cafeform.iumfs.twitterfs.files.FollowersDirectory;
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.twitterfs.files.FriendsDirectory;
-import com.cafeform.iumfs.twitterfs.files.UserTimelineFile;
+import com.cafeform.iumfs.twitterfs.files.NormalTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.UserTimelineFileImpl;
 import java.lang.reflect.Field;
 import java.util.Queue;
@@ -112,8 +112,8 @@ public class UserTimelineFileManagerImplTest extends TwitterFsTestBase
         Field field = instance.getClass().getDeclaredField("userTimelineQueue");
         field.setAccessible(true);
         @SuppressWarnings("unchecked")
-        Queue<UserTimelineFile> userTimelineQueue = 
-                (Queue<UserTimelineFile>)field.get(instance);
+        Queue<NormalTimelineFile> userTimelineQueue = 
+                (Queue<NormalTimelineFile>)field.get(instance);
 
         // lookup
         IumfsFile result1 = instance.getTimelineFile(account, pathName1); 
@@ -151,8 +151,8 @@ public class UserTimelineFileManagerImplTest extends TwitterFsTestBase
         Field field = manager.getClass().getDeclaredField("userTimelineQueue");
         field.setAccessible(true);
         @SuppressWarnings("unchecked")
-        Queue<UserTimelineFile> userTimelineQueue = 
-                (Queue<UserTimelineFile>)field.get(manager);
+        Queue<NormalTimelineFile> userTimelineQueue = 
+                (Queue<NormalTimelineFile>)field.get(manager);
 
         // 2nd time lookup
         IumfsFile result1 = manager.getTimelineFile(account, pathName1); 
@@ -164,7 +164,7 @@ public class UserTimelineFileManagerImplTest extends TwitterFsTestBase
         // Only 2 UserTimelineFile should be found.
         // means, 2nd time lookup shouldn't add new another timeline file.
         
-        for(UserTimelineFile file : userTimelineQueue)
+        for(NormalTimelineFile file : userTimelineQueue)
         {
             System.out.println(file.getName() + " " + file.hashCode());
         }

@@ -13,8 +13,10 @@ import twitter4j.TwitterException;
 /**
  * Represents non-streaming timelines.
  */
-abstract public class AbstractNonStreamTimelineFile extends AbstractTimelineFile
+abstract public class AbstractNonStreamTimelineFile 
+extends AbstractTimelineFile implements NormalTimelineFile
 {
+
     protected static boolean autoUpdateEnabled = true;
 
     public static boolean isAutoUpdateEnabled ()
@@ -34,6 +36,7 @@ abstract public class AbstractNonStreamTimelineFile extends AbstractTimelineFile
     }
 
     public void getTimeline ()
+            throws TwitterException
     {
         getTimeline(max_statues, last_id);
     }
@@ -44,10 +47,12 @@ abstract public class AbstractNonStreamTimelineFile extends AbstractTimelineFile
      *
      * @param count
      * @param since
+     * @throws twitter4j.TwitterException
      */
-    public void getTimeline (int count, long since)
+    protected void getTimeline (int count, long since) 
+            throws TwitterException
     {
-        int cnt = 0;
+        int cnt;
         int page = 1; // page start from 1 !!
         /*
          * Retrieve status up to max_pages.
@@ -70,68 +75,61 @@ abstract public class AbstractNonStreamTimelineFile extends AbstractTimelineFile
      * @param count
      * @param since
      * @return
+     * @throws twitter4j.TwitterException
      */
     synchronized public int getTimeline (int page, int count, long since)
+            throws TwitterException
     {
         ResponseList<Status> statuses;
         String name = getName();
 
         Paging paging = new Paging(page, count, since);
-        try
-        {
-            statuses = getTimeLine(paging);
-           
-            logger.fine("Got " + name + " timeline, "
-                    + statuses.size() + " Statuses in page " + page);
+        statuses = getTimeLine(paging);
 
-            if (statuses.size() == 0)
-            {
-                // last status
-                return 0;
-            }
-            // Set first status(newest) as last_id.
-            last_id = statuses.get(0).getId();
-            for (Status status : statuses)
-            {
-                logger.finer("Read Status id=" + status.getId());
-                logger.finest(statusToFormattedString(status));
-                setLength(length() + statusToFormattedString(status).getBytes("UTF-8").length);
-                status_list.add(status);
-            }
-            if (initial_read)
-            {
-                /*
-                 * Set last status(oldest) to base_id.
-                 */
-                base_id = statuses.get(statuses.size() - 1).getId();
-                logger.finer("base_id = " + base_id);
-                initial_read = false;
-            }
+        logger.fine("Got " + name + " timeline, "
+                + statuses.size() + " Statuses in page " + page);
 
-            logger.fine("new file_size is " + length());
-            java.util.Collections.sort(status_list);
-            /*
-             * Timelie is update. So changed mtime and ctime
-             */
-            Date now = new Date();
-            setMtime(now.getTime());
-            setCtime(now.getTime());
-            return statuses.size();
-        } 
-        catch (TwitterException ex)
+        if (statuses.size() == 0)
         {
-            logger.log(Level.SEVERE,
-                    "Got Twitter Exception statusCode = " + ex.getStatusCode(),
-                    ex);
-            return 0;
-        } catch (UnsupportedEncodingException ex)
-        {
-            logger.log(Level.SEVERE, "Cannot decode string in timeline", ex);
+            // last status
             return 0;
         }
+        // Set first status(newest) as last_id.
+        last_id = statuses.get(0).getId();
+        for (Status status : statuses)
+        {
+            logger.finer("Read Status id=" + status.getId());
+            logger.finest(statusToFormattedString(status));
+            try {
+                setLength(length() + statusToFormattedString(status).
+                        getBytes("UTF-8").length);
+            } catch (UnsupportedEncodingException ex)
+            {
+                logger.log(Level.INFO, "Cannot decode text in timeline.");
+            }
+            status_list.add(status);
+        }
+        if (initial_read)
+        {
+            /*
+             * Set last status(oldest) to base_id.
+             */
+            base_id = statuses.get(statuses.size() - 1).getId();
+            logger.finer("base_id = " + base_id);
+            initial_read = false;
+        }
+
+        logger.fine("new file_size is " + length());
+        java.util.Collections.sort(status_list);
+        /*
+         * Timelie is update. So changed mtime and ctime
+         */
+        Date now = new Date();
+        setMtime(now.getTime());
+        setCtime(now.getTime());
+        return statuses.size();
     }
 
-    
     abstract protected ResponseList<Status> getTimeLine (Paging paging)
             throws TwitterException;
 }
