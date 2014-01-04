@@ -45,12 +45,12 @@ abstract public class AbstractTimelineFile extends TwitterFsFileImpl
 {
     // Rate limit for each timeline is copied from
     // https://dev.twitter.com/docs/rate-limiting/1.1/limits
-    protected static final int MENTION_RATE_LIMIT = 15;
-    protected static final int USER_RATE_LIMIT = 180;
-    protected static final int HOME_RATE_LIMIT = 15;
-    protected static final int RETWEET_RATE_LIMIT = 15;
-    protected static final int DEFAULT_RATE_LIMIT = 15;
-    protected static final int RATE_LIMIT_WINDOW = 15; // min
+    public static final int MENTION_RATE_LIMIT = 15;
+    public static final int USER_RATE_LIMIT = 180;
+    public static final int HOME_RATE_LIMIT = 15;
+    public static final int RETWEET_RATE_LIMIT = 15;
+    public static final int DEFAULT_RATE_LIMIT = 15;
+    public static final int RATE_LIMIT_WINDOW = 15; // min
     protected static final int INTERVAL_MARGIN = 1000; // 1sec
     protected static final String CONT = "(cont) ";
     protected long last_id = 1;
