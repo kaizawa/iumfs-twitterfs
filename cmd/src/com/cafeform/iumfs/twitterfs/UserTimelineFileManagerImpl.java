@@ -77,7 +77,8 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
                     catch (TwitterException ex)
                     {
                         logger.log(Level.INFO, "Failed to get " + 
-                                nextFile.getName() + " timeline." , ex);
+                                nextFile.getName() + " timeline by " +
+                                nextFile.getAccount().getUsername() + ".", ex);
                     }
                     catch (Exception ex)
                     {
