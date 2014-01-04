@@ -120,9 +120,6 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
                         } catch (InterruptedException exi)
                         {
                         }
-
-                        logger.log(Level.INFO, getAccount().getUsername() + 
-                                ": " + ex.getErrorMessage());
                     }
                     else 
                     {

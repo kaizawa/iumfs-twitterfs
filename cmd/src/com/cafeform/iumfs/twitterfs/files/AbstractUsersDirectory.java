@@ -3,6 +3,7 @@ package com.cafeform.iumfs.twitterfs.files;
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.NotADirectoryException;
 import com.cafeform.iumfs.twitterfs.Account;
+import static com.cafeform.iumfs.twitterfs.files.AbstractNonStreamTimelineFile.getWaitSec;
 import static com.cafeform.iumfs.twitterfs.files.TwitterFsFileImpl.logger;
 import java.util.Date;
 import java.util.concurrent.Executors;
@@ -13,11 +14,12 @@ import twitter4j.TwitterException;
 import twitter4j.User;
 
 /**
- * Directory entry which includes users name as file. 
- * Entries under this directory are dynamically created.
+ * Directory entry which includes users name as file. Entries under this
+ * directory are dynamically created.
  */
 abstract public class AbstractUsersDirectory extends TwitterFsDirectory
 {
+
     private static final long UPDATE_INTERVAL = 3600000; // 1h 
     private static final long REQUEST_INTERVAL = 60000;  // 1m
 
@@ -44,7 +46,7 @@ abstract public class AbstractUsersDirectory extends TwitterFsDirectory
             //    Terminated.
             if (null == pool || pool.isTerminated())
             {
-                pool = Executors.newSingleThreadScheduledExecutor();                
+                pool = Executors.newSingleThreadScheduledExecutor();
                 pool.execute(new UsersUpdater());
                 pool.shutdown();
                 lastUpdate = new Date();
@@ -61,6 +63,7 @@ abstract public class AbstractUsersDirectory extends TwitterFsDirectory
      */
     private class UsersUpdater implements Runnable
     {
+
         long cursor = -1;
 
         @Override
@@ -74,27 +77,49 @@ abstract public class AbstractUsersDirectory extends TwitterFsDirectory
                 try
                 {
                     usersList = getUsersList(cursor);
-                     
+
                     for (User user : usersList)
                     {
                         IumfsFile newFile = account.getUserTimelineManager().
                                 getTimelineFile(
-                                        account, 
-                                        "/" + getName() + "/" + 
-                                                user.getScreenName());
+                                        account,
+                                        "/" + getName() + "/"
+                                        + user.getScreenName());
                         addFile(newFile);
                     }
                     cursor = usersList.getNextCursor();
-                }
-                catch (TwitterException ex)
+                } catch (TwitterException ex)
                 {
-                    logger.log(Level.WARNING, "Unable to get users list for " +
-                            getName() + ". " + ex.getMessage(), ex);
+                    if (ex.exceededRateLimitation())
+                    {
+                        // User Timeline rate limit exceeds.                                            
+                        // wait for reset time.                                            
+                        long waitSec = getWaitSec(ex.getRateLimitStatus());
+                        logger.log(Level.INFO,
+                                getAccount().getUsername()
+                                + " exceeds rate limit for retrieving "
+                                + getName()
+                                + " list. wait for " + waitSec
+                                + " sec.");
+                        try
+                        {
+                            Thread.sleep(waitSec * 1000);
+                        } catch (InterruptedException exi)
+                        {
+                        }
+
+                        logger.log(Level.INFO, getAccount().getUsername()
+                                + ": " + ex.getErrorMessage());
+                    } else
+                    {
+                        logger.log(Level.WARNING, "Unable to get users list for "
+                                + getName() + ". " + ex.getMessage(), ex);
+                    }
                 }
 
                 logger.log(Level.FINER, "Got " + usersList.size()
-                        + " users data for " + getName() + 
-                        ". Next cursor = " + cursor);
+                        + " users data for " + getName()
+                        + ". Next cursor = " + cursor);
 
                 // Wait REQUEST_INTERVAL to avoid exceeding 
                 // rate limit of twitter api.
@@ -104,9 +129,10 @@ abstract public class AbstractUsersDirectory extends TwitterFsDirectory
                     try
                     {
                         Thread.sleep(REQUEST_INTERVAL);
-                        } catch (InterruptedException ex){}
+                    } catch (InterruptedException ex)
+                    {
                     }
-                    else
+                } else
                 {
                     // Have gotton all users data.
                     break;
@@ -114,8 +140,8 @@ abstract public class AbstractUsersDirectory extends TwitterFsDirectory
             }
         }
     }
-    
-    abstract protected PagableResponseList<User> getUsersList (long cursor) 
+
+    abstract protected PagableResponseList<User> getUsersList (long cursor)
             throws TwitterException;
 
     @Override
