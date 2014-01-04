@@ -21,6 +21,7 @@ import com.cafeform.iumfs.twitterfs.Account;
 import com.cafeform.iumfs.twitterfs.TwitterFactoryAdapter;
 import com.cafeform.iumfs.twitterfs.MessageSeparator;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.logging.Level;
@@ -59,7 +60,7 @@ public class PostFile extends TwitterFsFileImpl
     
     @Override
     public long write (byte[] buf, long size, long offset)
-            throws FileNotFoundException 
+            throws FileNotFoundException, IOException 
     {
         try 
         {
@@ -95,18 +96,24 @@ public class PostFile extends TwitterFsFileImpl
         } 
         catch (TwitterException ex) 
         {
-            if (ex.getErrorCode() == 187)
+            switch(ex.getErrorCode())
             {
-                // Code 187: Status is a duplicate.
-                // The message seems to have written already.
-                logger.log(Level.INFO, "Status is a duplicate. Ignored.");
-                return 0;
+                case 185: 
+                case 187:                    
+                    // Code 185:User is over daily status update limit.
+                    // Code 187: Status is a duplicate. Have written already.                    
+                    logger.log(Level.INFO, getAccount().getUsername() + ": " +
+                            ex.getErrorMessage());
+                    break;
+                default:
+                    logger.log(Level.SEVERE, getAccount().getUsername() + 
+                            " failed to post status.", ex);
             }
             /* 
-             * Convert TwitterException to FileNotFoundException 
+             * Convert TwitterException to IOException 
              */
-            logger.log(Level.SEVERE, "TwitterException when writing", ex);
-            throw new FileNotFoundException();
+
+            throw new IOException();
         } 
     }    
 

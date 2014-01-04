@@ -44,7 +44,7 @@ public interface IumfsFile
      * @throws java.io.FileNotFoundException
      */
     public long write(byte[] buf, long size, long offset)
-            throws NotSupportedException, FileNotFoundException;       
+            throws NotSupportedException, FileNotFoundException, IOException;       
     /**
      * 
      * @return 

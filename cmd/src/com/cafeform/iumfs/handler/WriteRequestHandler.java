@@ -21,6 +21,7 @@ import com.cafeform.iumfs.Request;
 import com.cafeform.iumfs.Response;
 import com.cafeform.iumfs.ResponseImpl;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * <p>Write Request class</p>
@@ -49,6 +50,10 @@ public class WriteRequestHandler extends AbstractRequestHandler {
         catch (FileNotFoundException ex)
         {
             response.setResponseHeader(request.getType(), ENOENT, 0);
+            return response;
+        } catch (IOException ex)
+        {
+            response.setResponseHeader(request.getType(), EIO, 0);
             return response;
         }
         /*

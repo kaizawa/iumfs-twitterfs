@@ -52,7 +52,8 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
             getTimeline();
         } catch (TwitterException ex)
         {
-            logger.log(INFO, "Cannot get " + getName() + " timeline", ex);
+            logger.log(INFO, "Cannot get " + getName() + " timeline: ", 
+                    ex.getErrorMessage());
         }
     }
 

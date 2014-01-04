@@ -52,7 +52,7 @@ public class UserTimelineFileAdapter implements NormalTimelineFile
 
     @Override
     public long write (byte[] buf, long size, long offset) 
-            throws NotSupportedException, FileNotFoundException
+            throws NotSupportedException, FileNotFoundException, IOException
     {
         return file.write(buf, size, 0);
     }
