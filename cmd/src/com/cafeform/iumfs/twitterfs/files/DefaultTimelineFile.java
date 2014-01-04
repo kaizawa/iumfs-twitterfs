@@ -120,10 +120,15 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
                         } catch (InterruptedException exi)
                         {
                         }
-                    }
 
-                    logger.log(INFO, "Cannot get " + getName()
-                            + " timeline.", ex);
+                        logger.log(Level.INFO, getAccount().getUsername() + 
+                                ": " + ex.getErrorMessage());
+                    }
+                    else 
+                    {
+                        logger.log(INFO, getAccount().getUsername() + 
+                            ": Cannot get " + getName() + " timeline.", ex);
+                    }
                 }
             }
         };

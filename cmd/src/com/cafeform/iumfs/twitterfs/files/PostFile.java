@@ -98,22 +98,18 @@ public class PostFile extends TwitterFsFileImpl
         {
             switch(ex.getErrorCode())
             {
-                case 185: 
-                case 187:                    
-                    // Code 185:User is over daily status update limit.
-                    // Code 187: Status is a duplicate. Have written already.                    
-                    logger.log(Level.INFO, getAccount().getUsername() + ": " +
+                case 185: // User is over daily status update limit.
+                case 187: // Status is a duplicate. Have written already.                                        
+                    logger.log(Level.INFO, getAccount().getUsername() + " : " +
                             ex.getErrorMessage());
                     break;
                 default:
                     logger.log(Level.SEVERE, getAccount().getUsername() + 
                             " failed to post status.", ex);
             }
-            /* 
-             * Convert TwitterException to IOException 
-             */
-
-            throw new IOException();
+            // We need to return 0 (= means success) even in this situaion.
+            // Otherwise kernel module continually send write request.
+            return 0;
         } 
     }    
 
