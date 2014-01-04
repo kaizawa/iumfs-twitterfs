@@ -2,14 +2,15 @@ package com.cafeform.iumfs.twitterfs;
 
 import com.cafeform.iumfs.Files;
 import com.cafeform.iumfs.IumfsFile;
-import static com.cafeform.iumfs.twitterfs.files.AbstractTimelineFile.*;
+import com.cafeform.iumfs.twitterfs.files.AbstractNonStreamTimelineFile;
+import static com.cafeform.iumfs.twitterfs.files.AbstractNonStreamTimelineFile.*;
 import com.cafeform.iumfs.twitterfs.files.NormalTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.UserTimelineFileImpl;
 import com.cafeform.iumfs.twitterfs.files.UserTimelineFileAdapter;
 import java.util.Queue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import static java.util.concurrent.TimeUnit.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import twitter4j.TwitterException;
@@ -60,8 +61,8 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
             userTimelineScheduler.scheduleAtFixedRate(
                     queueWatcher,
                     0,
-                    UserTimelineFileImpl.calculateInterval(),
-                    TimeUnit.MILLISECONDS);
+                    USER_INTERVAL,
+                    MILLISECONDS);
         }
     }
 
@@ -137,11 +138,7 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
                 {
                     // User Timeline rate limit exceeds.                                            
                     // wait for reset time.                                            
-                    long waitSec = ex.getRateLimitStatus().
-                            getSecondsUntilReset();
-                    waitSec = Math.max(
-                            waitSec,
-                            RATE_LIMIT_WINDOW * 60);
+                    long waitSec = getWaitSec(ex.getRateLimitStatus());
                     logger.log(Level.INFO,
                             nextFile.getAccount().getUsername()
                             + " exceeds rate limit for user "

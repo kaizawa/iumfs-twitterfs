@@ -1,8 +1,10 @@
 package com.cafeform.iumfs.twitterfs.files;
 
 import com.cafeform.iumfs.twitterfs.Account;
+import static com.cafeform.iumfs.twitterfs.files.AbstractTimelineFile.MAX_PAGES;
 import static com.cafeform.iumfs.twitterfs.files.AbstractTimelineFile.MAX_STATUSES;
 import twitter4j.Paging;
+import twitter4j.RateLimitStatus;
 import twitter4j.ResponseList;
 import twitter4j.Status;
 import twitter4j.TwitterException;
@@ -10,10 +12,29 @@ import twitter4j.TwitterException;
 /**
  * Represents non-streaming timelines.
  */
-abstract public class AbstractNonStreamTimelineFile 
-extends AbstractTimelineFile implements NormalTimelineFile
+abstract public class AbstractNonStreamTimelineFile
+        extends AbstractTimelineFile implements NormalTimelineFile
 {
 
+    // Rate limit for each timeline is copied from
+    // https://dev.twitter.com/docs/rate-limiting/1.1/limits
+    public static final int MENTION_RATE_LIMIT = 15;
+    public static final int USER_RATE_LIMIT = 180;
+    public static final int HOME_RATE_LIMIT = 15;
+    public static final int RETWEET_RATE_LIMIT = 15;
+    public static final int DEFAULT_RATE_LIMIT = 15;
+    public static final long MEMNITON_INTERVAL = 
+            calculateIntervalByRateLimit(MENTION_RATE_LIMIT);    
+    public static final long USER_INTERVAL = 
+            calculateIntervalByRateLimit(USER_RATE_LIMIT);    
+    public static final long HOME_INTERVAL = 
+            calculateIntervalByRateLimit(HOME_RATE_LIMIT);
+    public static final long RETWEET_INTEVAL = 
+            calculateIntervalByRateLimit(RETWEET_RATE_LIMIT);
+    public static final long DEFAULT_INTERVAL =
+            calculateIntervalByRateLimit(DEFAULT_RATE_LIMIT);
+    public static final int RATE_LIMIT_WINDOW = 15; // min    
+    protected static final int INTERVAL_MARGIN = 0; // 0 sec
     protected static boolean autoUpdateEnabled = true;
 
     public static boolean isAutoUpdateEnabled ()
@@ -47,7 +68,7 @@ extends AbstractTimelineFile implements NormalTimelineFile
      * @param since
      * @throws twitter4j.TwitterException
      */
-    protected void getTimeline (int count, long since) 
+    protected void getTimeline (int count, long since)
             throws TwitterException
     {
         int cnt;
@@ -112,4 +133,57 @@ extends AbstractTimelineFile implements NormalTimelineFile
 
     abstract protected ResponseList<Status> getTimeLine (Paging paging)
             throws TwitterException;
+
+    /**
+     * @param rateLimit
+     * @return the interval
+     */
+    public static long calculateIntervalByRateLimit (int rateLimit)
+    {
+        long val;
+        // Need to take MAX_PAGES into account, since API would be called 
+        // MAX_PAGES times per each trial.
+        val = (RATE_LIMIT_WINDOW * 60 / rateLimit) * 1000 * MAX_PAGES;
+        // Add margin, try not to exceed rate limit accidentally.
+        val += INTERVAL_MARGIN;
+        return val;
+    }
+        
+    public static long calculateIntervalByName (String name)
+    {
+        int rateLimit = 0;
+
+        switch (name)
+        {
+            case "mentions":
+                rateLimit = MENTION_RATE_LIMIT;
+                break;
+            case "home":
+                rateLimit = HOME_RATE_LIMIT;
+                break;
+            case "user":
+                rateLimit = USER_RATE_LIMIT;
+                break;
+            case "retweets_of_me":
+                rateLimit = RETWEET_RATE_LIMIT;
+                break;
+            default:
+                rateLimit = DEFAULT_RATE_LIMIT;
+        }
+        return calculateIntervalByRateLimit(rateLimit);
+    }
+    
+    /**
+     * calculate wait time from RateLimiteStatus
+     * @param status
+     * @return 
+     */
+    public static long getWaitSec(RateLimitStatus status) 
+    {
+        long waitSec = status.getSecondsUntilReset();
+        waitSec = Math.min(waitSec, RATE_LIMIT_WINDOW * 60);
+        // At least 1 sec to wait.
+        waitSec = Math.max(waitSec, 1);
+        return waitSec;
+    }
 }

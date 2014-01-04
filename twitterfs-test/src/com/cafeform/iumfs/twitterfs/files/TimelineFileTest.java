@@ -5,12 +5,13 @@ import com.cafeform.iumfs.twitterfs.AccountImpl;
 import com.cafeform.iumfs.twitterfs.TwitterFsTestBase;
 import com.cafeform.iumfs.twitterfs.files.DefaultTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.AbstractNonStreamTimelineFile;
-import static com.cafeform.iumfs.twitterfs.files.AbstractTimelineFile.INTERVAL_MARGIN;
+import static com.cafeform.iumfs.twitterfs.files.AbstractNonStreamTimelineFile.INTERVAL_MARGIN;
 import java.util.HashMap;
 import java.util.Map;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+import twitter4j.TwitterException;
 
 /**
  *
@@ -19,8 +20,10 @@ import org.junit.Test;
 public class TimelineFileTest extends TwitterFsTestBase
 {    
     @Before
-    public void setUp()
+    @Override
+    public void setUp() throws TwitterException
     {
+        super.setUp();
         AbstractNonStreamTimelineFile.setAutoUpdateEnabled(false);
     }
     
@@ -30,6 +33,7 @@ public class TimelineFileTest extends TwitterFsTestBase
         Map<String, Long> intervalMap = new HashMap<>();
         intervalMap.put("/mentions", 60000L + INTERVAL_MARGIN);
         intervalMap.put("/home", 60000L + INTERVAL_MARGIN);
+        intervalMap.put("/user", 5000L + INTERVAL_MARGIN);        
         intervalMap.put("/retweets_of_me", 60000L + INTERVAL_MARGIN);
         // must use default value        
         intervalMap.put("/DummmyFillle", 60000L + INTERVAL_MARGIN); 

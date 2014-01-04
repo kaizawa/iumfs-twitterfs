@@ -10,6 +10,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import twitter4j.Paging;
+import twitter4j.RateLimitStatus;
 import twitter4j.ResponseList;
 import twitter4j.Status;
 import twitter4j.Twitter;
@@ -54,7 +55,12 @@ public class TwitterFsTestBase {
         when(mockTwitter.getUserTimeline(
                 (Paging)anyObject())).thenReturn(mockStatuses);
         when(mockTwitter.getUserTimeline(
-                anyString(), (Paging)anyObject())).thenReturn(mockStatuses);   
+                anyString(), (Paging)anyObject())).thenReturn(mockStatuses);
+        RateLimitStatus mockRateLimitStatus = mock(RateLimitStatus.class);
+        when(mockRateLimitStatus.getLimit()).thenReturn(0);
+        when(mockRateLimitStatus.getRemaining()).thenReturn(0);
+        when(mockRateLimitStatus.getSecondsUntilReset()).thenReturn(0);
+        when(mockStatuses.getRateLimitStatus()).thenReturn(mockRateLimitStatus);
         
         // Mocked Twitter
         PowerMockito.mockStatic(TwitterFactoryAdapter.class);

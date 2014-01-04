@@ -2,14 +2,14 @@ package com.cafeform.iumfs.twitterfs.files;
 
 import com.cafeform.iumfs.twitterfs.Account;
 import com.cafeform.iumfs.twitterfs.TwitterFactoryAdapter;
+import static com.cafeform.iumfs.twitterfs.files.AbstractNonStreamTimelineFile.RATE_LIMIT_WINDOW;
+import static com.cafeform.iumfs.twitterfs.files.AbstractNonStreamTimelineFile.getWaitSec;
 import static com.cafeform.iumfs.twitterfs.files.TwitterFsFileImpl.logger;
-import java.io.UnsupportedEncodingException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import static java.util.logging.Level.*;
-import java.util.logging.Logger;
 import twitter4j.Paging;
 import twitter4j.ResponseList;
 import twitter4j.Status;
@@ -30,7 +30,7 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
             String pathname)
     {
         super(account, pathname);
-        interval = calculateInterval();
+        interval = calculateIntervalByName(getName());
         if (autoUpdateEnabled)
         {
             readAhead();
@@ -101,6 +101,25 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
                     getTimeline();
                 } catch (TwitterException ex)
                 {
+                    if (ex.exceededRateLimitation())
+                    {
+                        // User Timeline rate limit exceeds.                                            
+                        // wait for reset time.                                            
+                        long waitSec = getWaitSec(ex.getRateLimitStatus());
+                        logger.log(Level.INFO,
+                                getAccount().getUsername()
+                                + " exceeds rate limit for "
+                                + getName()
+                                + " timeline. wait for " + waitSec
+                                + " sec.");
+                        try
+                        {
+                            Thread.sleep(waitSec * 1000);
+                        } catch (InterruptedException exi)
+                        {
+                        }
+                    }
+
                     logger.log(INFO, "Cannot get " + getName()
                             + " timeline.", ex);
                 }
@@ -124,41 +143,5 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
     public long getInterval ()
     {
         return interval;
-    }
-
-    /**
-     * @return the interval
-     */
-    private long calculateInterval ()
-    {
-        String name = getName();
-        int rateLimit = 0;
-        long val;
-
-        switch (name)
-        {
-            case "mentions":
-                rateLimit = MENTION_RATE_LIMIT;
-                break;
-            case "home":
-                rateLimit = HOME_RATE_LIMIT;
-                break;
-            case "user":
-                rateLimit = USER_RATE_LIMIT;
-                break;
-            case "retweets_of_me":
-                rateLimit = RETWEET_RATE_LIMIT;
-                break;
-            default:
-                rateLimit = DEFAULT_RATE_LIMIT;
-        }
-        // Need to take MAX_PAGES into account, since API would be called 
-        // MAX_PAGES times per each trial.
-        val = (RATE_LIMIT_WINDOW * 60 / rateLimit) * 1000 * MAX_PAGES;
-        // Add margin, try not to exceed rate limit accidentally.
-        val += INTERVAL_MARGIN;
-        logger.log(Level.FINE, "Calculate interval for " + getName()
-                + " timeline" + " is " + val);
-        return val;
     }
 }

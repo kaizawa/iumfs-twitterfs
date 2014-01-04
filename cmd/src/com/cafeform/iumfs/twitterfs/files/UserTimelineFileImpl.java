@@ -61,20 +61,6 @@ public class UserTimelineFileImpl extends AbstractNonStreamTimelineFile
         return statuses;
     }
 
-    /**
-     * @return the interval
-     */
-    public static long calculateInterval ()
-    {
-        long val;
-
-        // Need to take MAX_PAGES into account, since API would be called 
-        // MAX_PAGES times per each trial.
-        val = (RATE_LIMIT_WINDOW * 60 / USER_RATE_LIMIT) * 1000 * MAX_PAGES;
-        logger.log(Level.FINE, "Calculate interval for user timeline is " + val);
-        return val;
-    }
-
     // Compare object by its Name (not pathname)
     @Override
     public boolean equals (Object obj)
