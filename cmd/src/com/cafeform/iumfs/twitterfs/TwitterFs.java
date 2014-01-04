@@ -30,7 +30,6 @@ import java.util.logging.Logger;
  *
  */
 public class TwitterFs {
-    static final String version = "1.0.4";  // version
     private static final Logger logger = Logger.getLogger(TwitterFs.class.getName());
 
     public static void main(String args[]) {
