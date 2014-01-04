@@ -58,36 +58,30 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
 
     @Override
     protected ResponseList<Status> getTimeLine (Paging paging)
+            throws TwitterException
     {
         Twitter twitter = TwitterFactoryAdapter.getInstance(getUsername());
         ResponseList<Status> statuses = null;
         String name = getName();
 
-        try
+        switch (name)
         {
-            switch (name)
-            {
-                case "mentions":
-                    statuses = twitter.getMentionsTimeline(paging);
-                    break;
-                case "home":
-                    // For home TL, stream API should be used.
-                    statuses = twitter.getHomeTimeline(paging);
-                    break;
-                case "retweets_of_me":
-                    statuses = twitter.getRetweetsOfMe(paging);
-                    break;
-                default:
-                    logger.severe("Unknown timeline(\"" + name
-                            + "\") specified.");
-                    System.exit(1);
-            }
-        } catch (TwitterException ex)
-        {
-            logger.log(Level.SEVERE,
-                    "Got Twitter Exception statusCode = " + ex.getStatusCode(),
-                    ex);
+            case "mentions":
+                statuses = twitter.getMentionsTimeline(paging);
+                break;
+            case "home":
+                // For home TL, stream API should be used.
+                statuses = twitter.getHomeTimeline(paging);
+                break;
+            case "retweets_of_me":
+                statuses = twitter.getRetweetsOfMe(paging);
+                break;
+            default:
+                logger.severe("Unknown timeline(\"" + name
+                        + "\") specified.");
+                System.exit(1);
         }
+
         return statuses;
     }
 
@@ -105,11 +99,10 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
                 try
                 {
                     getTimeline();
-                } 
-                catch (TwitterException ex)
+                } catch (TwitterException ex)
                 {
-                    logger.log(INFO, "Cannot get " + getName() + 
-                            " timeline.", ex);
+                    logger.log(INFO, "Cannot get " + getName()
+                            + " timeline.", ex);
                 }
             }
         };

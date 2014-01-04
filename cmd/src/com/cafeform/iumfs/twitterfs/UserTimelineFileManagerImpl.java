@@ -64,9 +64,10 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
                 @Override
                 public void run ()
                 {
+                    NormalTimelineFile nextFile = null;
                     try
                     {
-                        NormalTimelineFile nextFile = userTimelineQueue.poll();
+                        nextFile = userTimelineQueue.poll();
                         if (null != nextFile)
                         {
                             nextFile.getTimeline();
@@ -75,15 +76,14 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
                     } 
                     catch (TwitterException ex)
                     {
-                        logger.log(Level.INFO,
-                                "Got a TwitterException.", ex);
+                        logger.log(Level.INFO, "Failed to get " + 
+                                nextFile.getName() + " timeline." , ex);
                     }
                     catch (Exception ex)
                     {
                         logger.log(
-                                Level.INFO,
-                                "User timeline watcher thread got an "
-                                + "Exception.", ex);
+                                Level.INFO, "User timeline watcher thread " + 
+                                        "got an Exception.", ex);
                     }
                 }
             };
