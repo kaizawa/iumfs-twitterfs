@@ -53,11 +53,11 @@ abstract public class AbstractTimelineFile extends TwitterFsFileImpl
     public static final int RATE_LIMIT_WINDOW = 15; // min
     protected static final int INTERVAL_MARGIN = 1000; // 1sec
     protected static final String CONT = "(cont) ";
-    protected long last_id = 1;
-    protected long base_id = 0;
-    protected List<Status> status_list = new ArrayList<>();
-    protected static final int max_statues = Prefs.getInt("maxStatuses");
-    protected boolean initial_read = true;
+    protected long lastId = 1;
+    protected long baseId = 0;
+    protected List<Status> statusList = new ArrayList<>();
+    protected static final int MAX_STATUSES = Prefs.getInt("maxStatuses");
+    protected boolean initialRead = true;
     static protected final int MAX_PAGES = Prefs.getInt("maxPages");
 
     /**
@@ -71,7 +71,7 @@ abstract public class AbstractTimelineFile extends TwitterFsFileImpl
             String pathname)
     {
         super(account, pathname);
-        this.is_timeline = true;
+        this.isTimeline = true;
     }
 
     /**
@@ -109,7 +109,7 @@ abstract public class AbstractTimelineFile extends TwitterFsFileImpl
          * ------------------curr_offset------------------>|
          *                                   |<-copy_size->|
          */
-        for (Status status : status_list)
+        for (Status status : statusList)
         {
             try
             {
@@ -222,11 +222,11 @@ abstract public class AbstractTimelineFile extends TwitterFsFileImpl
             logger.finest(statusToFormattedString(status));
             setLength(length()
                     + statusToFormattedString(status).getBytes("UTF-8").length);
-            status_list.add(status);
-            last_id = status.getId();
+            statusList.add(status);
+            lastId = status.getId();
 
             logger.fine("new file_size is " + length());
-            java.util.Collections.sort(status_list);
+            java.util.Collections.sort(statusList);
             /*
              * Timelie is update. So changed mtime and ctime
              */

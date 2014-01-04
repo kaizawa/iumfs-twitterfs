@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 abstract public class TwitterFsFileImpl extends AbstractIumfsFile 
 implements TwitterFsFile
 {
-    protected boolean is_timeline = false;
+    protected boolean isTimeline = false;
     protected static final Logger logger = Logger.getLogger(TwitterFsFileImpl.class.getName());
     protected Account account;
 
@@ -55,7 +55,7 @@ implements TwitterFsFile
     @Override
     public boolean isTimeline() 
     {
-        return is_timeline;
+        return isTimeline;
     }
     
     /*

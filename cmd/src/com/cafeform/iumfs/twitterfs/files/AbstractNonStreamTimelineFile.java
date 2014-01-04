@@ -1,10 +1,7 @@
 package com.cafeform.iumfs.twitterfs.files;
 
 import com.cafeform.iumfs.twitterfs.Account;
-import static com.cafeform.iumfs.twitterfs.files.AbstractTimelineFile.max_statues;
-import java.io.UnsupportedEncodingException;
-import java.util.Date;
-import java.util.logging.Level;
+import static com.cafeform.iumfs.twitterfs.files.AbstractTimelineFile.MAX_STATUSES;
 import twitter4j.Paging;
 import twitter4j.ResponseList;
 import twitter4j.Status;
@@ -35,10 +32,11 @@ extends AbstractTimelineFile implements NormalTimelineFile
         super(account, pathname);
     }
 
+    @Override
     public void getTimeline ()
             throws TwitterException
     {
-        getTimeline(max_statues, last_id);
+        getTimeline(MAX_STATUSES, lastId);
     }
 
     /**
@@ -95,38 +93,20 @@ extends AbstractTimelineFile implements NormalTimelineFile
             return 0;
         }
         // Set first status(newest) as last_id.
-        last_id = statuses.get(0).getId();
+        lastId = statuses.get(0).getId();
         for (Status status : statuses)
         {
-            logger.finer("Read Status id=" + status.getId());
-            logger.finest(statusToFormattedString(status));
-            try {
-                setLength(length() + statusToFormattedString(status).
-                        getBytes("UTF-8").length);
-            } catch (UnsupportedEncodingException ex)
-            {
-                logger.log(Level.INFO, "Cannot decode text in timeline.");
-            }
-            status_list.add(status);
+            addStatusToList(status);
         }
-        if (initial_read)
+        if (initialRead)
         {
             /*
              * Set last status(oldest) to base_id.
              */
-            base_id = statuses.get(statuses.size() - 1).getId();
-            logger.finer("base_id = " + base_id);
-            initial_read = false;
+            baseId = statuses.get(statuses.size() - 1).getId();
+            logger.finer("base_id = " + baseId);
+            initialRead = false;
         }
-
-        logger.fine("new file_size is " + length());
-        java.util.Collections.sort(status_list);
-        /*
-         * Timelie is update. So changed mtime and ctime
-         */
-        Date now = new Date();
-        setMtime(now.getTime());
-        setCtime(now.getTime());
         return statuses.size();
     }
 
