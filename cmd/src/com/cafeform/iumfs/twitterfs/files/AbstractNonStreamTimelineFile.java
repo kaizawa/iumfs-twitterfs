@@ -34,7 +34,8 @@ abstract public class AbstractNonStreamTimelineFile
     public static final long DEFAULT_INTERVAL =
             calculateIntervalByRateLimit(DEFAULT_RATE_LIMIT);
     public static final int RATE_LIMIT_WINDOW = 15; // min    
-    protected static final int INTERVAL_MARGIN = 0; // 0 sec
+    // Margin for calculated interval.
+    protected static final int INTERVAL_MARGIN = 500; // 500 ms
     protected static boolean autoUpdateEnabled = true;
 
     public static boolean isAutoUpdateEnabled ()
