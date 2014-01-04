@@ -99,7 +99,8 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
                 try
                 {
                     getTimeline();
-                } catch (TwitterException ex)
+                } 
+                catch (TwitterException ex)
                 {
                     if (ex.exceededRateLimitation())
                     {
