@@ -76,6 +76,13 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
                     } 
                     catch (TwitterException ex)
                     {
+                        if (401 == ex.getErrorCode())
+                        {
+                            logger.log(Level.INFO, 
+                                    nextFile.getAccount().getUsername() +
+                                            "not authorized to get " + 
+                                            nextFile.getName() + " timeline.");
+                        }
                         logger.log(Level.INFO, "Failed to get " + 
                                 nextFile.getName() + " timeline by " +
                                 nextFile.getAccount().getUsername() + ".", ex);
