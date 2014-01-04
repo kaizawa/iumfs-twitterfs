@@ -133,10 +133,10 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
                 }
             } catch (TwitterException ex)
             {
-                        // User Timeline rate limit exceeds.                        
-                // wait for reset time.                        
                 if (ex.exceededRateLimitation())
                 {
+                    // User Timeline rate limit exceeds.                                            
+                    // wait for reset time.                                            
                     long waitSec = ex.getRateLimitStatus().
                             getSecondsUntilReset();
                     waitSec = Math.max(
@@ -150,22 +150,23 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
                     try
                     {
                         Thread.sleep(waitSec * 1000);
-                    } catch (InterruptedException exi)
-                    {
-                    }
+                    } catch (InterruptedException exi){}
                 }
-                // Authentication error. could be locked account.                        
-                if (401 == ex.getErrorCode())
+                else if (401 == ex.getStatusCode())
                 {
+                    // Authentication error. could be locked account.                                                            
                     logger.log(Level.INFO,
                             nextFile.getAccount().getUsername()
                             + " not authorized to get "
                             + nextFile.getName() + " timeline.");
+                } 
+                else 
+                {
+                    // Unknown TwitterException
+                    logger.log(Level.INFO, "Failed to get "
+                            + nextFile.getName() + " timeline by "
+                            + nextFile.getAccount().getUsername() + ".", ex);
                 }
-                // Unknown TwitterException
-                logger.log(Level.INFO, "Failed to get "
-                        + nextFile.getName() + " timeline by "
-                        + nextFile.getAccount().getUsername() + ".", ex);
             } catch (Exception ex)
             {
                 logger.log(
