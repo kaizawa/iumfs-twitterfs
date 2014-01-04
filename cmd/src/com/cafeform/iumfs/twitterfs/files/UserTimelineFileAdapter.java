@@ -5,6 +5,7 @@ import com.cafeform.iumfs.FileType;
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.NotADirectoryException;
 import com.cafeform.iumfs.NotSupportedException;
+import com.cafeform.iumfs.twitterfs.Account;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -168,5 +169,35 @@ public class UserTimelineFileAdapter implements NormalTimelineFile
     public void getTimeline () throws TwitterException
     {
         file.getTimeline();
+    }
+
+    @Override
+    public Account getAccount ()
+    {
+        return file.getAccount();
+    }
+
+    @Override
+    public void setAccount (Account account)
+    {
+        file.setAccount(account);
+    }
+
+    @Override
+    public boolean isTimeline ()
+    {
+        return file.isTimeline();
+    }
+
+    @Override
+    public String getUsername ()
+    {
+        return file.getUsername();
+    }
+
+    @Override
+    public void setDirectory (boolean directory)
+    {
+        file.setDirectory(directory);
     }
 }
