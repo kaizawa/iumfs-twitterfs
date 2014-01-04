@@ -41,7 +41,7 @@ import twitter4j.Status;
  * 
  * @author kaizawa
  */
-abstract public class AbstractTimelineFile extends TwitterFsFile
+abstract public class AbstractTimelineFile extends TwitterFsFileImpl
 {
     // Rate limit for each timeline is copied from
     // https://dev.twitter.com/docs/rate-limiting/1.1/limits
@@ -252,7 +252,7 @@ abstract public class AbstractTimelineFile extends TwitterFsFile
     }
 
     @Override
-    protected String getUsername()
+    public String getUsername()
     {
         return account.getUsername();
     }

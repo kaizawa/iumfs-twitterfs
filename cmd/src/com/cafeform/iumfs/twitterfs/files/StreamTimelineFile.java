@@ -3,7 +3,7 @@ package com.cafeform.iumfs.twitterfs.files;
 import com.cafeform.iumfs.twitterfs.Account;
 import com.cafeform.iumfs.twitterfs.TwitterFactoryAdapter;
 import com.cafeform.iumfs.twitterfs.Prefs;
-import static com.cafeform.iumfs.twitterfs.files.TwitterFsFile.logger;
+import static com.cafeform.iumfs.twitterfs.files.TwitterFsFileImpl.logger;
 import java.util.logging.Level;
 import twitter4j.DirectMessage;
 import twitter4j.StallWarning;

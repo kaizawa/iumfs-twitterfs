@@ -15,100 +15,14 @@
  */
 package com.cafeform.iumfs.twitterfs.files;
 
-import com.cafeform.iumfs.AbstractIumfsFile;
-import com.cafeform.iumfs.FileType;
-import static com.cafeform.iumfs.FileType.*;
-import com.cafeform.iumfs.NotSupportedException;
+import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.twitterfs.Account;
-import java.util.Date;
-import java.util.logging.Logger;
 
-abstract public class TwitterFsFile extends AbstractIumfsFile 
+public interface TwitterFsFile extends IumfsFile 
 {
-    protected boolean is_timeline = false;
-    protected static final Logger logger = Logger.getLogger(TwitterFsFile.class.getName());
-    protected Account account;
-
-    public Account getAccount()
-    {
-        return account;
-    }
-
-    public void setAccount(Account account)
-    {
-        this.account = account;
-    }
-
-    public TwitterFsFile(Account account, String pathname)
-    {
-        super(pathname);
-        this.account = account;
-        Date now = new Date();
-        setAtime(now.getTime());
-        setCtime(now.getTime());
-        setMtime(now.getTime());          
-    }
-
-    public boolean isTimeline() 
-    {
-        return is_timeline;
-    }
-    
-    /*
-     *Return file type
-     * If direcory, return VDIR, othewise VREG.(reqular file)
-     */
-    @Override
-    public FileType getFileType() 
-    {
-        if (isDirectory()) 
-        {
-            return VDIR;
-        } else {
-            return VREG;
-        }
-    }
-    
-    protected String getUsername()
-    {
-        return account.getUsername();
-    }
-    
-    @Override
-    public boolean isDirectory()
-    {
-        return directory;
-    }
-    
-    public void setDirectory(boolean directory) 
-    {
-        this.directory = directory;
-    }
-    
-    @Override
-    public void create()
-    {
-        throw new NotSupportedException();
-    }   
-    
-    @Override
-    public boolean mkdir()
-    {
-        throw new NotSupportedException();        
-    }    
-    
-    @Override
-    public boolean delete ()
-    {
-        throw new NotSupportedException();
-    }   
-    
-    /*
-     * If TwitterFsFile instance is returned, the file is always exists.
-     */
-    @Override
-    public boolean exists() 
-    {
-        return true;
-    }
+    public Account getAccount();
+    public void setAccount(Account account);
+    public boolean isTimeline();
+    public String getUsername();
+    public void setDirectory(boolean directory); 
 }

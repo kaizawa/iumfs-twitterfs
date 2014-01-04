@@ -28,7 +28,7 @@ import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
-public class PostFile extends TwitterFsFile 
+public class PostFile extends TwitterFsFileImpl 
 {
     protected static final int MAX_LENGTH = 140;
     private String prefix;

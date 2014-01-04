@@ -15,7 +15,7 @@ import java.nio.ByteBuffer;
  *
  * @author ka78231
  */
-public class SetupFile extends TwitterFsFile {
+public class SetupFile extends TwitterFsFileImpl {
     private String script;
 
     public SetupFile(Account account, String pathname)

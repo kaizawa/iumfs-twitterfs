@@ -22,7 +22,7 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class TwitterFsDirectory extends TwitterFsFile
+public class TwitterFsDirectory extends TwitterFsFileImpl
 { 
     Map<String, IumfsFile> fileMap = new ConcurrentHashMap<>();
     

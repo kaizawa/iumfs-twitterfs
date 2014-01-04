@@ -1,12 +1,11 @@
 package com.cafeform.iumfs.twitterfs.files;
 
-import com.cafeform.iumfs.IumfsFile;
 import twitter4j.TwitterException;
 
 /**
  * 
  */
-public interface NormalTimelineFile extends IumfsFile
+public interface NormalTimelineFile extends TwitterFsFile
 {
     public void getTimeline () throws TwitterException;
 }

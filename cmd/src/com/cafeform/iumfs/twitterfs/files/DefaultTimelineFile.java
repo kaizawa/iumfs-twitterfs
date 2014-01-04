@@ -2,7 +2,7 @@ package com.cafeform.iumfs.twitterfs.files;
 
 import com.cafeform.iumfs.twitterfs.Account;
 import com.cafeform.iumfs.twitterfs.TwitterFactoryAdapter;
-import static com.cafeform.iumfs.twitterfs.files.TwitterFsFile.logger;
+import static com.cafeform.iumfs.twitterfs.files.TwitterFsFileImpl.logger;
 import java.io.UnsupportedEncodingException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
