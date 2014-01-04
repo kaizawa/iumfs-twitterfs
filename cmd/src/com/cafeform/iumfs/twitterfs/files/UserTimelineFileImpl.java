@@ -12,18 +12,19 @@ import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
 /**
- * Represents Authenticated user timeline and friends timeline 
- * which is affected by statuses/user_timeline rate limit
+ * Represents Authenticated user timeline and friends timeline which is affected
+ * by statuses/user_timeline rate limit
  *
  * @author kaizawa
  */
 public class UserTimelineFileImpl extends AbstractNonStreamTimelineFile
 {
+
     public UserTimelineFileImpl (Account account, String pathname)
     {
         super(account, pathname);
     }
-    
+
     @Override
     protected ResponseList<Status> getTimeLine (Paging paging)
             throws TwitterException
@@ -38,24 +39,33 @@ public class UserTimelineFileImpl extends AbstractNonStreamTimelineFile
                 statuses = twitter.getUserTimeline(paging);
                 break;
             default:
-                if (getPath().startsWith(FollowersDirectory.PATH_NAME + "/" ) ||
-                        getPath().startsWith(FriendsDirectory.PATH_NAME + "/" ))
+                if (getPath().startsWith(FollowersDirectory.PATH_NAME + "/")
+                        || getPath().startsWith(FriendsDirectory.PATH_NAME + "/"))
                 {
                     statuses = twitter.getUserTimeline(name, paging);
                 } else
                 {
-                    logger.warning("Unknown timeline file " + getPath() +
-                            " specified.");
+                    logger.warning("Unknown timeline file " + getPath()
+                            + " specified.");
                     System.exit(1);
                 }
         }
+        logger.log(Level.FINER, "UserTimeline rate limit for "
+                + getAccount().getUsername()
+                + ": "
+                + statuses.getRateLimitStatus().getRemaining()
+                + "/"
+                + statuses.getRateLimitStatus().getLimit()
+                + " reset in "
+                + statuses.getRateLimitStatus().getSecondsUntilReset()
+                + " sec.");
         return statuses;
     }
-    
+
     /**
      * @return the interval
      */
-    public static long calculateInterval()
+    public static long calculateInterval ()
     {
         long val;
 
@@ -65,14 +75,14 @@ public class UserTimelineFileImpl extends AbstractNonStreamTimelineFile
         logger.log(Level.FINE, "Calculate interval for user timeline is " + val);
         return val;
     }
-    
+
     // Compare object by its Name (not pathname)
     @Override
-    public boolean equals(Object obj)
+    public boolean equals (Object obj)
     {
         if (obj instanceof UserTimelineFileImpl)
         {
-            return this.getName().equals(((UserTimelineFileImpl)obj).getName());
+            return this.getName().equals(((UserTimelineFileImpl) obj).getName());
         }
         return false;
     }
@@ -83,7 +93,7 @@ public class UserTimelineFileImpl extends AbstractNonStreamTimelineFile
         int hash = 3;
         return hash;
     }
-    
+
     @Override
     public String toString ()
     {
