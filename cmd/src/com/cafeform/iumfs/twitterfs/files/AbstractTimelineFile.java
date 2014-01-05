@@ -26,11 +26,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import twitter4j.Status;
 
 /**
@@ -73,18 +71,42 @@ abstract public class AbstractTimelineFile extends TwitterFsFileImpl
     {
         super(account, pathname);
         this.isTimeline = true;
-        String backupDir = System.getProperty(BACKUP_DIR, DEFAULT_BACKUP_DIR);
+        String backupDir = System.getProperty(
+                BACKUP_DIR, 
+                DEFAULT_BACKUP_DIR);
+        String backupEnabled = System.getProperty(
+                BACKUP_ENABLED, 
+                DEAULT_BACKUP_ENABLED);
         String backupFile = backupDir + "/" + account.getUsername() + "-" + 
                 Files.getNameFromPathName(pathname);
         try
         {
-            statusList = new SerializableList<>(backupFile, false);
+            statusList = new SerializableList<>(
+                    backupFile,
+                    Boolean.parseBoolean(backupEnabled));
         } 
         catch (IOException ex)
         {
             throw new IllegalStateException("Cannot create backup file "
                     + backupFile, ex);
         }
+        if (Boolean.parseBoolean(backupEnabled)) 
+        {
+            int fileSize = 0;
+            // Update file size from list
+            for (Status status : statusList) 
+            {
+                try
+                {
+                    fileSize += statusToFormattedString(status).
+                            getBytes("UTF-8").length;
+                } catch (UnsupportedEncodingException ex)
+                {
+                    logger.log(Level.SEVERE, "Cannot decode string in timeline", ex);
+                }
+            }
+            setLength(fileSize);
+        }       
     }
 
     /**
