@@ -7,8 +7,10 @@
 package com.cafeform.iumfs.twitterfs.files;
 
 import com.cafeform.iumfs.twitterfs.Account;
+import com.cafeform.iumfs.twitterfs.AccountImpl;
 import com.cafeform.iumfs.twitterfs.TwitterFsTestBase;
 import static com.cafeform.iumfs.twitterfs.files.AbstractNonStreamTimelineFile.RATE_LIMIT_WINDOW;
+import java.util.ArrayList;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +36,7 @@ public class AbstractNonStreamTimelineFileTest extends TwitterFsTestBase
     public void setUp () throws TwitterException
     {
         super.setUp();
+        account = new AccountImpl(USER1);
     }
     
     @After
@@ -69,7 +72,6 @@ public class AbstractNonStreamTimelineFileTest extends TwitterFsTestBase
     @Test
     public void testGetTimeline_0args () throws Exception
     {
-        System.out.println("getTimeline");
         AbstractNonStreamTimelineFile file = 
                 new DummyTimelineFile(account, "/user");
         file.getTimeline();
@@ -180,11 +182,13 @@ public class AbstractNonStreamTimelineFileTest extends TwitterFsTestBase
      */ 
     private class DummyTimelineFile extends AbstractNonStreamTimelineFile
     {
-        ResponseList statuses = new DummyResponseList<>();            
+        ResponseList<Status> statuses = new DummyResponseList<>();            
         public DummyTimelineFile (Account account, String pathname)
         {
             super(account, pathname);
-
+            // Override default SerializableList, since mock object
+            // cannot be serialized.
+            statusList = new ArrayList<>();
         }
         
         public void addStatus (Status status) 

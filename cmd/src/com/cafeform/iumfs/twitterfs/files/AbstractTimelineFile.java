@@ -15,11 +15,14 @@
  */
 package com.cafeform.iumfs.twitterfs.files;
 
+import com.cafeform.iumfs.Files;
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.NotADirectoryException;
 import com.cafeform.iumfs.NotSupportedException;
 import com.cafeform.iumfs.twitterfs.Account;
 import com.cafeform.iumfs.twitterfs.Prefs;
+import com.cafeform.iumfs.twitterfs.SerializableList;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
@@ -27,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import twitter4j.Status;
 
 /**
@@ -46,10 +50,16 @@ abstract public class AbstractTimelineFile extends TwitterFsFileImpl
     protected static final String CONT = "(cont) ";
     protected long lastId = 1;
     protected long baseId = 0;
-    protected List<Status> statusList = new ArrayList<>();
+    protected List<Status> statusList;
     protected static final int MAX_STATUSES = Prefs.getInt("maxStatuses");
     protected boolean initialRead = true;
     static protected final int MAX_PAGES = Prefs.getInt("maxPages");
+
+    public static final String BACKUP_DIR = "BackupDirectory";    
+    public static final String DEFAULT_BACKUP_DIR = "/var/tmp/twitterfs";
+    public static final String BACKUP_ENABLED = "UseBackup";
+    public static final String DEAULT_BACKUP_ENABLED = "true";
+    
 
     /**
      * Constractor for twitter file
@@ -63,6 +73,18 @@ abstract public class AbstractTimelineFile extends TwitterFsFileImpl
     {
         super(account, pathname);
         this.isTimeline = true;
+        String backupDir = System.getProperty(BACKUP_DIR, DEFAULT_BACKUP_DIR);
+        String backupFile = backupDir + "/" + account.getUsername() + "-" + 
+                Files.getNameFromPathName(pathname);
+        try
+        {
+            statusList = new SerializableList<>(backupFile, false);
+        } 
+        catch (IOException ex)
+        {
+            throw new IllegalStateException("Cannot create backup file "
+                    + backupFile, ex);
+        }
     }
 
     /**
