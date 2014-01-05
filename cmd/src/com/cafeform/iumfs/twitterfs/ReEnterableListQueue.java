@@ -8,13 +8,19 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- *
- * @author kaizawa
+ * This class works as Queue, but element never get removed by poll() call. 
+ * The element remains in internal Map and iterator always returns list
+ * which includes element which was retrieved by poll().
+ * 
  * @param <E>
  */
 public class ReEnterableListQueue<E> implements Queue<E>
 {
+    // Queue. But it only keeps element's toString() value.
+    // Actual object is stored in Map below.
     private final Queue<String> nameQueue = new LinkedBlockingQueue<>();
+    // Map. which keeps actual object of element.
+    // iterator() return list of value of this map.
     private final Map<String, E> elementMap = new ConcurrentHashMap<>();
 
     @Override
@@ -23,6 +29,7 @@ public class ReEnterableListQueue<E> implements Queue<E>
         elementMap.put(element.toString(), element);
         return nameQueue.add(element.toString());        
     }
+
 
     @Override
     public boolean offer (E element)
@@ -37,7 +44,11 @@ public class ReEnterableListQueue<E> implements Queue<E>
         String elementName =  nameQueue.remove();        
         return elementMap.remove(elementName);
     }
-
+    
+    /**
+     * Return first element in queue.
+     * But element's object itself is remains in internal Map.
+     */
     @Override
     public E poll ()
     {

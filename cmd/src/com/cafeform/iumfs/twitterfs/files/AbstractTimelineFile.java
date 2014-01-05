@@ -217,10 +217,7 @@ abstract public class AbstractTimelineFile extends TwitterFsFileImpl
             lastId = status.getId();
 
             logger.fine("new file_size is " + length());
-            java.util.Collections.sort(statusList);
-            /*
-             * Timelie is update. So changed mtime and ctime
-             */
+             // Timelie is update. So changed mtime and ctime
             Date now = new Date();
             setMtime(now.getTime());
             setCtime(now.getTime());

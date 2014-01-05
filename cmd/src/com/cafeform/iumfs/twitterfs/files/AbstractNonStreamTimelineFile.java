@@ -8,6 +8,7 @@ import twitter4j.RateLimitStatus;
 import twitter4j.ResponseList;
 import twitter4j.Status;
 import twitter4j.TwitterException;
+import java.util.Collections;
 
 /**
  * Represents non-streaming timelines.
@@ -114,18 +115,17 @@ abstract public class AbstractNonStreamTimelineFile
             // last status
             return 0;
         }
-        // Set first status(newest) as last_id.
-        lastId = statuses.get(0).getId();
+        // Reverse the order, since first element of the list is newest one.
+        Collections.reverse(statuses);
         for (Status status : statuses)
         {
             addStatusToList(status);
         }
+        
         if (initialRead)
         {
-            /*
-             * Set last status(oldest) to base_id.
-             */
-            baseId = statuses.get(statuses.size() - 1).getId();
+            // Set first status(oldest) to base_id.
+            baseId = statuses.get(0).getId();
             logger.finer("base_id = " + baseId);
             initialRead = false;
         }
