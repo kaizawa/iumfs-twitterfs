@@ -19,13 +19,6 @@ import twitter4j.TwitterException;
  */
 public class TimelineFileTest extends TwitterFsTestBase
 {    
-    @Before
-    @Override
-    public void setUp() throws TwitterException
-    {
-        super.setUp();
-        AbstractNonStreamTimelineFile.setAutoUpdateEnabled(false);
-    }
     
     @Test
     public void testDefaultTimelineFileIntervals ()

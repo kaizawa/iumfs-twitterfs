@@ -1,5 +1,7 @@
 package com.cafeform.iumfs.twitterfs;
 
+import com.cafeform.iumfs.twitterfs.files.AbstractNonStreamTimelineFile;
+import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import static org.mockito.Matchers.anyObject;
@@ -17,6 +19,7 @@ import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.User;
 import twitter4j.UserStreamListener;
+import java.util.Date;
 
 /**
  *
@@ -45,22 +48,21 @@ public class TwitterFsTestBase {
     @Before
     public void setUp () throws TwitterException
     {
+        // Disable autoupdate of user timeline
+        AbstractNonStreamTimelineFile.setAutoUpdateEnabled(false);
+
         Twitter mockTwitter = mock(Twitter.class);
         User mockUser = mock(User.class);
         @SuppressWarnings("unchecked") 
-        ResponseList<Status> mockStatuses 
-                = (ResponseList<Status>)mock(ResponseList.class);
-        // Always returns 0 length list
-        when(mockStatuses.size()).thenReturn(0);
+                
+                
+        // Mock ResponseList which has zero Status.
+        ResponseList<Status> mockStatuses = new DummyResponseList<>();
+        
         when(mockTwitter.getUserTimeline(
                 (Paging)anyObject())).thenReturn(mockStatuses);
         when(mockTwitter.getUserTimeline(
                 anyString(), (Paging)anyObject())).thenReturn(mockStatuses);
-        RateLimitStatus mockRateLimitStatus = mock(RateLimitStatus.class);
-        when(mockRateLimitStatus.getLimit()).thenReturn(0);
-        when(mockRateLimitStatus.getRemaining()).thenReturn(0);
-        when(mockRateLimitStatus.getSecondsUntilReset()).thenReturn(0);
-        when(mockStatuses.getRateLimitStatus()).thenReturn(mockRateLimitStatus);
         
         // Mocked Twitter
         PowerMockito.mockStatic(TwitterFactoryAdapter.class);
@@ -71,5 +73,47 @@ public class TwitterFsTestBase {
         PowerMockito.doNothing().when(TwitterFactoryAdapter.class);
         TwitterFactoryAdapter.setUserStreamListener(anyString(), 
                 (UserStreamListener) anyObject());
+    }
+   
+    
+    public static RateLimitStatus getRateLimitStatus () 
+    {
+        RateLimitStatus mockRateLimitStatus = mock(RateLimitStatus.class);
+        when(mockRateLimitStatus.getLimit()).thenReturn(0);
+        when(mockRateLimitStatus.getRemaining()).thenReturn(0);
+        when(mockRateLimitStatus.getSecondsUntilReset()).thenReturn(0);
+        return mockRateLimitStatus;
+    }
+    
+    public static Status createStatus (long id)  
+    {
+        Status status = mock(Status.class);
+        when(status.getId()).thenReturn(id);
+        
+        User user = mock(User.class);
+        when(user.getName()).thenReturn("");
+        when(user.getScreenName()).thenReturn("");
+
+        when(status.getUser()).thenReturn(user);
+        when(status.getText()).thenReturn("");
+        when(status.getCreatedAt()).thenReturn(new Date());
+        
+        return status;
+    }
+    
+    public class DummyResponseList<T> extends ArrayList<T> 
+    implements ResponseList<T>
+    {
+        @Override
+        public RateLimitStatus getRateLimitStatus ()
+        {
+            return TwitterFsTestBase.getRateLimitStatus();
+        }
+
+        @Override
+        public int getAccessLevel ()
+        {
+            return 0;
+        }
     }
 }

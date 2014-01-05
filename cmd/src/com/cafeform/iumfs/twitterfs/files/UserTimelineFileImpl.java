@@ -25,7 +25,7 @@ public class UserTimelineFileImpl extends AbstractNonStreamTimelineFile
     }
 
     @Override
-    protected ResponseList<Status> getTimeLine (Paging paging)
+    protected ResponseList<Status> getTimeline (Paging paging)
             throws TwitterException
     {
         Twitter twitter = TwitterFactoryAdapter.getInstance(getUsername());

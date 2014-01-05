@@ -105,7 +105,7 @@ abstract public class AbstractNonStreamTimelineFile
         String name = getName();
 
         Paging paging = new Paging(page, count, since);
-        statuses = getTimeLine(paging);
+        statuses = getTimeline(paging);
 
         logger.fine("Got " + name + " timeline, "
                 + statuses.size() + " Statuses in page " + page);
@@ -132,7 +132,7 @@ abstract public class AbstractNonStreamTimelineFile
         return statuses.size();
     }
 
-    abstract protected ResponseList<Status> getTimeLine (Paging paging)
+    abstract protected ResponseList<Status> getTimeline (Paging paging)
             throws TwitterException;
 
     /**

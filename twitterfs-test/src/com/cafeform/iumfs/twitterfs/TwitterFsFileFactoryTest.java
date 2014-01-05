@@ -29,7 +29,6 @@ public class TwitterFsFileFactoryTest extends TwitterFsTestBase
     public void setUp() throws TwitterException
     {
         super.setUp();
-        AbstractNonStreamTimelineFile.setAutoUpdateEnabled(false);
         fileFactory = new TwitterFsFileFactory();
         AccountMap.remove(USER1);
     }
