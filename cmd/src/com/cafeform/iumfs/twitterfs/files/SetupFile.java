@@ -10,6 +10,7 @@ import com.cafeform.iumfs.NotSupportedException;
 import com.cafeform.iumfs.twitterfs.Account;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import static java.util.logging.Level.*;
 
 /**
  *
@@ -67,7 +68,7 @@ public class SetupFile extends TwitterFsFileImpl {
             byte[] bytes = script.getBytes("UTF-8");        
             setLength(bytes.length);            
         } catch (UnsupportedEncodingException ex) {
-            logger.severe(ex.getMessage());
+            log(SEVERE, ex.getMessage());
         }        
     }
 

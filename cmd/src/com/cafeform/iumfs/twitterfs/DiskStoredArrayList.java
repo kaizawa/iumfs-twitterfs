@@ -1,9 +1,9 @@
 package com.cafeform.iumfs.twitterfs;
 
 import java.io.IOException;
-import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OptionalDataException;
 import java.io.Serializable;
 import java.lang.ref.SoftReference;
 import java.nio.file.Files;
@@ -21,13 +21,14 @@ import java.util.logging.Logger;
 /**
  *
  */
-public class SerializableList<T> implements List<T>, Serializable
+public class DiskStoredArrayList<T> implements List<T>, Serializable
 {
-    static final Logger logger = Logger.getLogger(SerializableList.class.getName());
+
+    static final Logger logger = Logger.getLogger(DiskStoredArrayList.class.getName());
     private SoftReference<CopyOnWriteArrayList<T>> reference;
     private final Path backupFile;
 
-    public SerializableList (String pathName, boolean useBackup)
+    public DiskStoredArrayList (String pathName, boolean useBackup)
             throws IOException
     {
         backupFile = Paths.get(pathName);
@@ -36,7 +37,7 @@ public class SerializableList<T> implements List<T>, Serializable
 
         if (useBackup && Files.exists(backupFile))
         {
-            arrayList = readObject();
+            arrayList = readFile();
         } else
         {
             Files.deleteIfExists(backupFile);
@@ -45,7 +46,7 @@ public class SerializableList<T> implements List<T>, Serializable
             arrayList = new CopyOnWriteArrayList<>();
         }
         reference = new SoftReference<>(arrayList);
-        writeObject(arrayList);
+        writeFile(arrayList);
     }
 
     /**
@@ -57,45 +58,57 @@ public class SerializableList<T> implements List<T>, Serializable
 
         if (null == (arrayList = reference.get()))
         {
-            arrayList = readObject();
+            arrayList = readFile();
             logger.log(FINER, "Deserialized " + backupFile.getFileName());
             reference = new SoftReference<>(arrayList);
         }
         return arrayList;
     }
 
-    private CopyOnWriteArrayList<T> readObject ()
+    synchronized private CopyOnWriteArrayList<T> readFile ()
     {
-        try
+        // Insatnce is gone. deserialize from file.
+        try (ObjectInputStream inputStream
+                = new ObjectInputStream(Files.newInputStream(backupFile)))
         {
-
-            // Insatnce is gone. deserialize from file.
-            ObjectInputStream inputStream
-                    = new ObjectInputStream(Files.newInputStream(backupFile));
-            @SuppressWarnings("unchecked")                        
-            CopyOnWriteArrayList<T> arrayList = 
-                    (CopyOnWriteArrayList<T>) inputStream.readObject();
+            @SuppressWarnings("unchecked")
+            CopyOnWriteArrayList<T> arrayList
+                    = (CopyOnWriteArrayList<T>) inputStream.readObject();
             return arrayList;
-        } catch (IOException | ClassNotFoundException ex)
+        } catch (OptionalDataException ex)
         {
-            throw new IllegalStateException("Cannot get instance", ex);
+            logger.log(WARNING, "Backup timeline file " + 
+                    backupFile.getFileName() + " is corrupted. Recreating.");
+            try
+            {
+                Files.deleteIfExists(backupFile);
+                Files.createFile(backupFile);
+            } catch (IOException exi)
+            {
+                throw new IllegalStateException("Cannot re-create " + 
+                        backupFile.getFileName(),
+                        exi);
+            }
+            // Create initial instance            
+            return new CopyOnWriteArrayList<>();
+        } 
+        catch (IOException | ClassNotFoundException ex)
+        {
+            throw new IllegalStateException("Cannot deserialize "
+                    + backupFile.getFileName() + ".", ex);
         }
     }
 
-    private void writeObject (CopyOnWriteArrayList<T> arrayList)
+    synchronized private void writeFile (CopyOnWriteArrayList<T> arrayList)
     {
-        try
+        try (ObjectOutputStream outputStream = new ObjectOutputStream(
+                Files.newOutputStream(backupFile, WRITE));)
         {
-            Files.newOutputStream(backupFile, WRITE);
-            ObjectOutputStream outputStream
-                    = new ObjectOutputStream(
-                            Files.newOutputStream(backupFile, WRITE));
             outputStream.writeObject(arrayList);
-
         } catch (IOException ex)
         {
             throw new IllegalStateException("Cannot serialize "
-                    + backupFile.getFileName(), ex);
+                    + backupFile.getFileName() + ".", ex);
         }
     }
 
@@ -140,7 +153,7 @@ public class SerializableList<T> implements List<T>, Serializable
     {
         CopyOnWriteArrayList<T> arrayList = getInstance();
         boolean result = arrayList.add(e);
-        writeObject(arrayList);
+        writeFile(arrayList);
         return result;
     }
 
@@ -149,7 +162,7 @@ public class SerializableList<T> implements List<T>, Serializable
     {
         CopyOnWriteArrayList<T> arrayList = getInstance();
         boolean result = arrayList.remove(o);
-        writeObject(arrayList);
+        writeFile(arrayList);
         return result;
     }
 
@@ -164,7 +177,7 @@ public class SerializableList<T> implements List<T>, Serializable
     {
         CopyOnWriteArrayList<T> arrayList = getInstance();
         boolean result = arrayList.addAll(c);
-        writeObject(arrayList);
+        writeFile(arrayList);
         return result;
     }
 
@@ -173,7 +186,7 @@ public class SerializableList<T> implements List<T>, Serializable
     {
         CopyOnWriteArrayList<T> arrayList = getInstance();
         boolean result = arrayList.addAll(index, c);
-        writeObject(arrayList);
+        writeFile(arrayList);
         return result;
     }
 
@@ -182,7 +195,7 @@ public class SerializableList<T> implements List<T>, Serializable
     {
         CopyOnWriteArrayList<T> arrayList = getInstance();
         boolean result = arrayList.removeAll(c);
-        writeObject(arrayList);
+        writeFile(arrayList);
         return result;
     }
 
@@ -191,7 +204,7 @@ public class SerializableList<T> implements List<T>, Serializable
     {
         CopyOnWriteArrayList<T> arrayList = getInstance();
         boolean result = arrayList.retainAll(c);
-        writeObject(arrayList);
+        writeFile(arrayList);
         return result;
     }
 
@@ -200,7 +213,7 @@ public class SerializableList<T> implements List<T>, Serializable
     {
         CopyOnWriteArrayList<T> arrayList = getInstance();
         arrayList.clear();
-        writeObject(arrayList);
+        writeFile(arrayList);
     }
 
     @Override
@@ -214,7 +227,7 @@ public class SerializableList<T> implements List<T>, Serializable
     {
         CopyOnWriteArrayList<T> arrayList = getInstance();
         T result = arrayList.set(index, element);
-        writeObject(arrayList);
+        writeFile(arrayList);
         return result;
     }
 
@@ -223,7 +236,7 @@ public class SerializableList<T> implements List<T>, Serializable
     {
         CopyOnWriteArrayList<T> arrayList = getInstance();
         arrayList.add(index, element);
-        writeObject(arrayList);
+        writeFile(arrayList);
     }
 
     @Override
@@ -231,7 +244,7 @@ public class SerializableList<T> implements List<T>, Serializable
     {
         CopyOnWriteArrayList<T> arrayList = getInstance();
         T result = arrayList.remove(index);
-        writeObject(arrayList);
+        writeFile(arrayList);
         return result;
     }
 

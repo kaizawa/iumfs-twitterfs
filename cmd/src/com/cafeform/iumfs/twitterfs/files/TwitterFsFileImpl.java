@@ -21,13 +21,16 @@ import static com.cafeform.iumfs.FileType.*;
 import com.cafeform.iumfs.NotSupportedException;
 import com.cafeform.iumfs.twitterfs.Account;
 import java.util.Date;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+import static java.util.logging.Level.*;
 
 abstract public class TwitterFsFileImpl extends AbstractIumfsFile 
 implements TwitterFsFile
 {
     protected boolean isTimeline = false;
-    protected static final Logger logger = Logger.getLogger(TwitterFsFileImpl.class.getName());
+    protected static final Logger logger = 
+            Logger.getLogger(TwitterFsFileImpl.class.getName());
     protected Account account;
 
     @Override
@@ -116,5 +119,20 @@ implements TwitterFsFile
     public boolean exists() 
     {
         return true;
+    }
+    
+    protected void log(Level level, String msg, Throwable thrown)
+    {
+        logger.log(
+                level, 
+                getAccount().getUsername() + ":" + getName() + " " + msg, 
+                thrown);
+    }
+    
+    protected void log(Level level, String msg)
+    {
+        logger.log(
+                level, 
+                getAccount().getUsername() + ":" + getName() + " " + msg);
     }
 }

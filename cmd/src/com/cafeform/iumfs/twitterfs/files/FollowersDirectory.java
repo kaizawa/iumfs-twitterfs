@@ -6,6 +6,8 @@ import twitter4j.PagableResponseList;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.User;
+import static java.util.logging.Level.*;
+
 
 /**
  * Followers directory which contains timeline file of authenticated user.

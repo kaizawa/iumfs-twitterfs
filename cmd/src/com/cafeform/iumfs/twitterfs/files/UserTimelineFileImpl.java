@@ -2,13 +2,12 @@ package com.cafeform.iumfs.twitterfs.files;
 
 import com.cafeform.iumfs.twitterfs.Account;
 import com.cafeform.iumfs.twitterfs.TwitterFactoryAdapter;
-import static com.cafeform.iumfs.twitterfs.files.TwitterFsFileImpl.logger;
-import java.util.logging.Level;
 import twitter4j.Paging;
 import twitter4j.ResponseList;
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
+import static java.util.logging.Level.*;
 
 /**
  * Represents Authenticated user timeline and friends timeline which is affected
@@ -44,12 +43,12 @@ public class UserTimelineFileImpl extends AbstractNonStreamTimelineFile
                     statuses = twitter.getUserTimeline(name, paging);
                 } else
                 {
-                    logger.warning("Unknown timeline file " + getPath()
+                    log(WARNING, "Unknown timeline file " + getPath()
                             + " specified.");
                     System.exit(1);
                 }
         }
-        logger.log(Level.FINER, "UserTimeline rate limit for "
+        log(FINER, "UserTimeline rate limit for "
                 + getAccount().getUsername()
                 + ": "
                 + statuses.getRateLimitStatus().getRemaining()

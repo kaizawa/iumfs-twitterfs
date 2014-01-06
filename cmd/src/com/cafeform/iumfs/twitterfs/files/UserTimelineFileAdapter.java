@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import twitter4j.TwitterException;
+import static java.util.logging.Level.*;
 
 /**
  * Adapter of UserTimelineFile.

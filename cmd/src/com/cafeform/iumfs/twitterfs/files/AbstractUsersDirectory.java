@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import twitter4j.PagableResponseList;
 import twitter4j.TwitterException;
 import twitter4j.User;
+import static java.util.logging.Level.*;
 
 /**
  * Directory entry which includes users name as file. Entries under this
@@ -53,7 +54,7 @@ abstract public class AbstractUsersDirectory extends TwitterFsDirectory
             }
         } else
         {
-            logger.log(Level.FINER, "updater not called");
+            log(FINER, "updater not called");
         }
         return super.listFiles();
     }
@@ -69,11 +70,11 @@ abstract public class AbstractUsersDirectory extends TwitterFsDirectory
         @Override
         public void run ()
         {
-            logger.log(Level.FINER, "updater for " + getName() + " is called");
+            log(FINER, "updater for " + getName() + " is called");
             PagableResponseList<User> usersList = null;
             while (true)
             {
-                logger.log(Level.FINER, "cursor = " + cursor);
+                log(FINER, "cursor = " + cursor);
                 try
                 {
                     usersList = getUsersList(cursor);
@@ -95,7 +96,7 @@ abstract public class AbstractUsersDirectory extends TwitterFsDirectory
                         // User Timeline rate limit exceeds.                                            
                         // wait for reset time.                                            
                         long waitSec = getWaitSec(ex.getRateLimitStatus());
-                        logger.log(Level.INFO,
+                        log(INFO,
                                 getAccount().getUsername()
                                 + " exceeds rate limit for retrieving "
                                 + getName()
@@ -108,16 +109,16 @@ abstract public class AbstractUsersDirectory extends TwitterFsDirectory
                         {
                         }
 
-                        logger.log(Level.INFO, getAccount().getUsername()
+                        log(INFO, getAccount().getUsername()
                                 + ": " + ex.getErrorMessage());
                     } else
                     {
-                        logger.log(Level.WARNING, "Unable to get users list for "
+                        log(WARNING, "Unable to get users list for "
                                 + getName() + ". " + ex.getMessage(), ex);
                     }
                 }
 
-                logger.log(Level.FINER, "Got " + usersList.size()
+                log(FINER, "Got " + usersList.size()
                         + " users data for " + getName()
                         + ". Next cursor = " + cursor);
 
@@ -147,7 +148,7 @@ abstract public class AbstractUsersDirectory extends TwitterFsDirectory
     @Override
     public void addFile (IumfsFile file) throws NotADirectoryException
     {
-        logger.log(Level.FINEST, file.getName() + " is added.");
+        log(FINEST, file.getName() + " is added.");
         super.addFile(file);
     }
 }

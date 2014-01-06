@@ -9,6 +9,8 @@ import twitter4j.ResponseList;
 import twitter4j.Status;
 import twitter4j.TwitterException;
 import java.util.Collections;
+import static java.util.logging.Level.FINE;
+import static java.util.logging.Level.FINER;
 
 /**
  * Represents non-streaming timelines.
@@ -107,7 +109,7 @@ abstract public class AbstractNonStreamTimelineFile
         Paging paging = new Paging(page, count, since);
         statuses = getTimeline(paging);
 
-        logger.fine("Got " + name + " timeline, "
+        log(FINE, "Got " + name + " timeline, "
                 + statuses.size() + " Statuses in page " + page);
 
         if (statuses.size() == 0)
@@ -126,7 +128,7 @@ abstract public class AbstractNonStreamTimelineFile
         {
             // Set first status(oldest) to base_id.
             baseId = statuses.get(0).getId();
-            logger.finer("base_id = " + baseId);
+            log(FINER, "base_id = " + baseId);
             initialRead = false;
         }
         return statuses.size();

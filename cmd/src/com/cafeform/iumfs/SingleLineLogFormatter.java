@@ -40,11 +40,18 @@ public final class SingleLineLogFormatter extends Formatter {
         Throwable throwable = rec.getThrown();        
         if (null != throwable)
         {
-            line.append(throwable.getMessage());
+            line.append(throwable.toString());
             line.append("\n");                
+            if(null != throwable.getCause())
+            {
+                line. append("Nested exception:");
+                line.append(throwable.getCause().toString());
+                line.append("\n");         
+            }
             for(StackTraceElement element : throwable.getStackTrace())
             {
                 line.append(element.getClassName());
+                line.append(".");
                 line.append(element.getMethodName());
                 line.append("\n");                
             }

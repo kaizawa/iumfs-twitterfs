@@ -15,6 +15,7 @@ import twitter4j.ResponseList;
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
+import static java.util.logging.Level.*;
 
 /**
  * Represents non-streaming timelines. That includs mentions, home and
@@ -52,8 +53,8 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
             getTimeline();
         } catch (TwitterException ex)
         {
-            logger.log(INFO, "Cannot get " + getName() + " timeline: ", 
-                    ex.getErrorMessage());
+            log(INFO, "Cannot get " + getName() + " timeline: " + 
+                    ex.getErrorMessage(), ex);
         }
     }
 
@@ -78,7 +79,7 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
                 statuses = twitter.getRetweetsOfMe(paging);
                 break;
             default:
-                logger.severe("Unknown timeline(\"" + name
+                log(SEVERE, "Unknown timeline(\"" + name
                         + "\") specified.");
                 System.exit(1);
         }
@@ -108,7 +109,7 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
                         // User Timeline rate limit exceeds.                                            
                         // wait for reset time.                                            
                         long waitSec = getWaitSec(ex.getRateLimitStatus());
-                        logger.log(Level.INFO,
+                        log(INFO,
                                 getAccount().getUsername()
                                 + " exceeds rate limit for "
                                 + getName()
@@ -123,7 +124,7 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
                     }
                     else 
                     {
-                        logger.log(INFO, getAccount().getUsername() + 
+                        log(INFO, getAccount().getUsername() + 
                             ": Cannot get " + getName() + " timeline.", ex);
                     }
                 }

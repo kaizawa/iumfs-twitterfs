@@ -21,7 +21,7 @@ import com.cafeform.iumfs.NotADirectoryException;
 import com.cafeform.iumfs.NotSupportedException;
 import com.cafeform.iumfs.twitterfs.Account;
 import com.cafeform.iumfs.twitterfs.Prefs;
-import com.cafeform.iumfs.twitterfs.SerializableList;
+import com.cafeform.iumfs.twitterfs.DiskStoredArrayList;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
@@ -29,6 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
+import static java.util.logging.Level.*;
 import twitter4j.Status;
 
 /**
@@ -57,7 +58,6 @@ abstract public class AbstractTimelineFile extends TwitterFsFileImpl
     public static final String DEFAULT_BACKUP_DIR = "/var/tmp/twitterfs";
     public static final String BACKUP_ENABLED = "UseBackup";
     public static final String DEAULT_BACKUP_ENABLED = "true";
-    
 
     /**
      * Constractor for twitter file
@@ -81,7 +81,7 @@ abstract public class AbstractTimelineFile extends TwitterFsFileImpl
                 Files.getNameFromPathName(pathname);
         try
         {
-            statusList = new SerializableList<>(
+            statusList = new DiskStoredArrayList<>(
                     backupFile,
                     Boolean.parseBoolean(backupEnabled));
         } 
@@ -90,6 +90,7 @@ abstract public class AbstractTimelineFile extends TwitterFsFileImpl
             throw new IllegalStateException("Cannot create backup file "
                     + backupFile, ex);
         }
+        
         if (Boolean.parseBoolean(backupEnabled)) 
         {
             int fileSize = 0;
@@ -102,7 +103,7 @@ abstract public class AbstractTimelineFile extends TwitterFsFileImpl
                             getBytes("UTF-8").length;
                 } catch (UnsupportedEncodingException ex)
                 {
-                    logger.log(Level.SEVERE, "Cannot decode string in timeline", ex);
+                    log(SEVERE, "Cannot decode string in timeline", ex);
                 }
             }
             setLength(fileSize);
@@ -155,38 +156,38 @@ abstract public class AbstractTimelineFile extends TwitterFsFileImpl
                 long status_length = bytes.length;
                 rel_offset = 0;
 
-                logger.finer("Read status_list id=" + status.getId()
+                log(FINER, "Read status_list id=" + status.getId()
                         + ", status_length=" + status_length);
 
-                logger.finest(text);
+                log(FINEST, text);
 
                 /*
                  * Calculate current offset by adding number of characters to 
                  * previous offset.
                  */
                 curr_offset += status_length;
-                logger.finer("curr_off=" + curr_offset);
+                log(FINER, "curr_off=" + curr_offset);
                 if (curr_offset < offset)
                 {
-                    logger.finer("offset not yet reached");
+                    log(FINER, "offset not yet reached");
                     continue;
                 } else if (prev_offset >= offset)
                 {
-                    logger.finer("prev_offset >= offset");
+                    log(FINER, "prev_offset >= offset");
                     /*
                      * Already exceed offset. set relative offset to 0.
                      */
                     rel_offset = 0;
                 } else
                 {
-                    logger.finer("prev_offset < offset");
+                    log(FINER, "prev_offset < offset");
                     /*
                      * offset is within this status.
                      * calculate relative offset.
                      */
                     rel_offset = offset - prev_offset;
                 }
-                logger.finer("rel_offset = " + rel_offset);
+                log(FINER, "rel_offset = " + rel_offset);
 
                 if (curr_size + status_length >= size)
                 {
@@ -195,7 +196,7 @@ abstract public class AbstractTimelineFile extends TwitterFsFileImpl
                      * Copy necessary data size and won't read any more. 
                      */
                     copy_size = size - curr_size - rel_offset;
-                    logger.finer("copy_Size = " + copy_size
+                    log(FINER, "copy_Size = " + copy_size
                             + ". No need to read more Status");
                 } else
                 {
@@ -203,7 +204,7 @@ abstract public class AbstractTimelineFile extends TwitterFsFileImpl
                      * need more data... copy all status data to buffer.
                      */
                     copy_size = bytes.length - rel_offset;
-                    logger.finer("copy_Size = " + copy_size + ". need to read more Status");
+                    log(FINER, "copy_Size = " + copy_size + ". need to read more Status");
                 }
                 /*
                  * write to buffer
@@ -212,16 +213,16 @@ abstract public class AbstractTimelineFile extends TwitterFsFileImpl
                 curr_size += copy_size;
                 if (curr_size >= size)
                 {
-                    logger.finer("currSize >= size");
+                    log(FINER, "currSize >= size");
                     break;
                 }
-                logger.finer("curr_size < size. continue for statement.");
+                log(FINER, "curr_size < size. continue for statement.");
             } catch (UnsupportedEncodingException ex)
             {
-                logger.log(Level.INFO, "Cannot decode text in timeline.", ex);
+                log(Level.INFO, "Cannot decode text in timeline.", ex);
             }
         }
-        logger.fine("curr_size = " + curr_size);
+        log(FINE, "curr_size = " + curr_size);
         return curr_size;
     }
 
@@ -253,21 +254,21 @@ abstract public class AbstractTimelineFile extends TwitterFsFileImpl
     {
         try
         {
-            logger.finer("Read Status id=" + status.getId());
-            logger.finest(statusToFormattedString(status));
+            log(FINER, "Read Status id=" + status.getId());
+            log(FINEST, statusToFormattedString(status));
             setLength(length()
                     + statusToFormattedString(status).getBytes("UTF-8").length);
             statusList.add(status);
             lastId = status.getId();
 
-            logger.fine("new file_size is " + length());
+            log(FINE, "new file_size is " + length());
              // Timelie is update. So changed mtime and ctime
             Date now = new Date();
             setMtime(now.getTime());
             setCtime(now.getTime());
         } catch (UnsupportedEncodingException ex)
         {
-            logger.log(Level.SEVERE, "Cannot decode string in timeline", ex);
+            log(SEVERE, "Cannot decode string in timeline", ex);
         }
     }
 

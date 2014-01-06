@@ -18,7 +18,7 @@ public class SerializableListTest
     {
         try
         {
-            List<Integer> list = new SerializableList<>(fileName, false);
+            List<Integer> list = new DiskStoredArrayList<>(fileName, false);
 
             for (int i = 0; i < 100; i++)
             {
@@ -37,13 +37,13 @@ public class SerializableListTest
         try
         {
             // First create file from scrach.
-            List<Integer> list = new SerializableList<>(fileName, false);
+            List<Integer> list = new DiskStoredArrayList<>(fileName, false);
             for (int i = 0; i < 100; i++)
             {
                 list.add(i);
             }
             
-            list = new SerializableList<>(fileName, true);
+            list = new DiskStoredArrayList<>(fileName, true);
             assertEquals(100, list.size());                        
 
         } catch (IllegalStateException ex)
@@ -57,7 +57,7 @@ public class SerializableListTest
     {
         try
         {
-            List<Integer> list = new SerializableList<>(fileName, false);
+            List<Integer> list = new DiskStoredArrayList<>(fileName, false);
 
             for (int i = 0 ; i < 100; i++)
             {

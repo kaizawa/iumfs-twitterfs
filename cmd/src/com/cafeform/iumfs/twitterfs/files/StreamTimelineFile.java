@@ -14,6 +14,8 @@ import twitter4j.TwitterStreamFactory;
 import twitter4j.User;
 import twitter4j.UserList;
 import twitter4j.UserStreamListener;
+import static java.util.logging.Level.*;
+
 
 /**
  * Represents Stream timeline.
@@ -34,8 +36,8 @@ public class StreamTimelineFile extends AbstractTimelineFile
         @Override
         public void onStatus (Status status)
         {
-            logger.log(Level.FINER, "Read Status id=" + status.getId());
-            logger.finest(AbstractTimelineFile.statusToFormattedString(status));
+            log(FINER, "Read Status id=" + status.getId());
+            log(FINEST, AbstractTimelineFile.statusToFormattedString(status));
             addStatusToList(status);
         }
 

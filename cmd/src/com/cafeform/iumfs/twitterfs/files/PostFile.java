@@ -28,6 +28,7 @@ import java.util.logging.Level;
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
+import static java.util.logging.Level.*;
 
 public class PostFile extends TwitterFsFileImpl 
 {
@@ -71,8 +72,8 @@ public class PostFile extends TwitterFsFileImpl
              * Get a strings written as a file data.
              */
             String wholeMessage = new String(buf);
-            logger.finer ("Orig Text:" + wholeMessage);
-            logger.finest ("whole_msg.length() = " + wholeMessage.length());
+            log (FINER, "Orig Text:" + wholeMessage);
+            log (FINEST, "whole_msg.length() = " + wholeMessage.length());
             int left = wholeMessage.length();
             /*
              * Post strings to twitter every 140 characters.
@@ -85,8 +86,8 @@ public class PostFile extends TwitterFsFileImpl
                 String msg = (String) sep.next();
 
                 status = twitter.updateStatus(msg);
-                logger.finest("Text: " + msg);
-                logger.fine("Status updated");
+                log(FINEST, "Text: " + msg);
+                log(FINE, "Status updated");
             }
             Date now = new Date();
             setAtime(now.getTime());            
@@ -100,11 +101,11 @@ public class PostFile extends TwitterFsFileImpl
             {
                 case 185: // User is over daily status update limit.
                 case 187: // Status is a duplicate. Have written already.                                        
-                    logger.log(Level.INFO, getAccount().getUsername() + " : " +
+                    log(INFO, getAccount().getUsername() + " : " +
                             ex.getErrorMessage());
                     break;
                 default:
-                    logger.log(Level.SEVERE, getAccount().getUsername() + 
+                    log(SEVERE, getAccount().getUsername() + 
                             " failed to post status.", ex);
             }
             // We need to return 0 (= means success) even in this situaion.
