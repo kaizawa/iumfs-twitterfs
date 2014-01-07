@@ -11,10 +11,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import static java.nio.file.StandardOpenOption.WRITE;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import static java.util.logging.Level.*;
 import java.util.logging.Logger;
 
@@ -27,6 +33,12 @@ public class DiskStoredArrayList<T> implements List<T>, Serializable
     static final Logger logger = Logger.getLogger(DiskStoredArrayList.class.getName());
     private SoftReference<CopyOnWriteArrayList<T>> reference;
     private final Path backupFile;
+    private final ScheduledExecutorService writeScheduler
+            = Executors.newSingleThreadScheduledExecutor();
+    private static final int WRITE_DELAY = 5000; // msec
+    private static final int MAX_DELAY = 10000; // msec
+    private long delayStart = 0;
+    ScheduledFuture future;
 
     public DiskStoredArrayList (String pathName, boolean useBackup)
             throws IOException
@@ -37,16 +49,22 @@ public class DiskStoredArrayList<T> implements List<T>, Serializable
 
         if (useBackup && Files.exists(backupFile))
         {
+            // Create from backup file.
             arrayList = readFile();
         } else
         {
-            Files.deleteIfExists(backupFile);
-            Files.createFile(backupFile);
             // Create initial instance            
-            arrayList = new CopyOnWriteArrayList<>();
+            arrayList = resetArrayList();
         }
         reference = new SoftReference<>(arrayList);
         writeFile(arrayList);
+    }
+    
+    private CopyOnWriteArrayList<T> resetArrayList () throws IOException 
+    {
+        Files.deleteIfExists(backupFile);
+        Files.createFile(backupFile);
+        return new CopyOnWriteArrayList<>();
     }
 
     /**
@@ -77,25 +95,55 @@ public class DiskStoredArrayList<T> implements List<T>, Serializable
             return arrayList;
         } catch (OptionalDataException ex)
         {
-            logger.log(WARNING, "Backup timeline file " + 
-                    backupFile.getFileName() + " is corrupted. Recreating.");
+            logger.log(WARNING, "Backup timeline file "
+                    + backupFile.getFileName() + " is corrupted. Recreating.");
             try
             {
-                Files.deleteIfExists(backupFile);
-                Files.createFile(backupFile);
+                // Create initial instance               
+                return resetArrayList();
             } catch (IOException exi)
             {
-                throw new IllegalStateException("Cannot re-create " + 
-                        backupFile.getFileName(),
+                throw new IllegalStateException("Cannot re-create "
+                        + backupFile.getFileName(),
                         exi);
             }
-            // Create initial instance            
-            return new CopyOnWriteArrayList<>();
-        } 
-        catch (IOException | ClassNotFoundException ex)
+        } catch (IOException | ClassNotFoundException ex)
         {
             throw new IllegalStateException("Cannot deserialize "
                     + backupFile.getFileName() + ".", ex);
+        }
+    }
+
+    private void deferredWriteFile (final CopyOnWriteArrayList<T> arrayList)
+    {
+        if (null == future || !future.cancel(true))
+        {
+            // This is a new schedule
+            delayStart = new Date().getTime();
+        }
+
+        long now = new Date().getTime();
+        boolean expired =  (now - delayStart) > MAX_DELAY;
+        
+        if (expired)
+        {
+            // Expired max wait time. Write it now.
+            writeFile(arrayList);
+        } else
+        {
+            future = writeScheduler.schedule(
+                    new Runnable()
+                    {
+                        @Override
+                        public void run ()
+                        {
+                            logger.log(FINE, "Flush timeline list to "
+                                    + backupFile.getFileName());
+                            writeFile(arrayList);
+                        }
+                    },
+                    WRITE_DELAY,
+                    TimeUnit.MILLISECONDS);
         }
     }
 
@@ -153,7 +201,7 @@ public class DiskStoredArrayList<T> implements List<T>, Serializable
     {
         CopyOnWriteArrayList<T> arrayList = getInstance();
         boolean result = arrayList.add(e);
-        writeFile(arrayList);
+        deferredWriteFile(arrayList);
         return result;
     }
 
