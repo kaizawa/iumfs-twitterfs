@@ -88,7 +88,7 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
     }
 
     @Override
-    public IumfsFile getTimelineFile (Account account, String pathname)
+    synchronized public IumfsFile getTimelineFile (Account account, String pathname)
     {
         String username;
         if ("/user".equals(pathname))
