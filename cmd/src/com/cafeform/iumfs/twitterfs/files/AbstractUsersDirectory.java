@@ -91,31 +91,7 @@ abstract public class AbstractUsersDirectory extends TwitterFsDirectory
                     cursor = usersList.getNextCursor();
                 } catch (TwitterException ex)
                 {
-                    if (ex.exceededRateLimitation())
-                    {
-                        // User Timeline rate limit exceeds.                                            
-                        // wait for reset time.                                            
-                        long waitSec = getWaitSec(ex.getRateLimitStatus());
-                        log(INFO,
-                                getAccount().getUsername()
-                                + " exceeds rate limit for retrieving "
-                                + getName()
-                                + " list. wait for " + waitSec
-                                + " sec.");
-                        try
-                        {
-                            Thread.sleep(waitSec * 1000);
-                        } catch (InterruptedException exi)
-                        {
-                        }
-
-                        log(INFO, getAccount().getUsername()
-                                + ": " + ex.getErrorMessage());
-                    } else
-                    {
-                        log(WARNING, "Unable to get users list for "
-                                + getName() + ". " + ex.getMessage(), ex);
-                    }
+                    handleTwitterException(ex);
                 }
 
                 log(FINER, "Got " + usersList.size()
@@ -138,6 +114,35 @@ abstract public class AbstractUsersDirectory extends TwitterFsDirectory
                     // Have gotton all users data.
                     break;
                 }
+            }
+        }
+
+        private void handleTwitterException (TwitterException ex)
+        {
+            if (ex.exceededRateLimitation())
+            {
+                        // User Timeline rate limit exceeds.                                            
+                // wait for reset time.                                            
+                long waitSec = getWaitSec(ex.getRateLimitStatus());
+                log(INFO,
+                        getAccount().getUsername()
+                        + " exceeds rate limit for retrieving "
+                        + getName()
+                        + " list. wait for " + waitSec
+                        + " sec.");
+                try
+                {
+                    Thread.sleep(waitSec * 1000);
+                } catch (InterruptedException exi)
+                {
+                }
+
+                log(INFO, getAccount().getUsername()
+                        + ": " + ex.getErrorMessage());
+            } else
+            {
+                log(WARNING, "Unable to get users list for "
+                        + getName() + ". " + ex.getMessage(), ex);
             }
         }
     }

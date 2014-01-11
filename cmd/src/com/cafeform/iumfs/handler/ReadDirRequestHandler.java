@@ -49,6 +49,10 @@ public class ReadDirRequestHandler extends AbstractRequestHandler
          * set after we know actuall data size.
          */
         buffer.position(ResponseImpl.RESPONSE_HEADER_SIZE);
+        
+        logger.log(
+                Level.FINE, 
+                "Found " + directory.listFiles().length + " entries.");
 
         /*
          * Note, File object here is just used to express file name.

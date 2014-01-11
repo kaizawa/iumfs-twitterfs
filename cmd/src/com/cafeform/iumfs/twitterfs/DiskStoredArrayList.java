@@ -99,7 +99,7 @@ public class DiskStoredArrayList<T> implements List<T>, Serializable
                 stopWatch.start();
             }
             arrayList = readFile();
-            logger.log(FINER, "Read list from" + backupFile.getFileName());
+            logger.log(FINER, "Read list from " + backupFile.getFileName());
             if (logger.isLoggable(FINER))      
             {
                 logger.log(FINER, 

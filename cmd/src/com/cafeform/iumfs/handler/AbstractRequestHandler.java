@@ -35,18 +35,12 @@ public abstract class AbstractRequestHandler implements RequestHandler
     final public static long ENOTDIR = 20;
     final public static long EINVAL = 22;
 
-    private long request_type;
-    private long size;
-    private long offset;
-    private String pathname;
-    private String server;
-    private String basepath;
-    private String fullPath;
     private String username;
     private String password;
     private byte[] data;
-    private long flags;
-    protected static final Logger logger = Logger.getLogger("iumfs");
+    
+    protected static final Logger logger = 
+            Logger.getLogger(AbstractRequestHandler.class.getName());
     IumfsFile file;    
 
     /**
