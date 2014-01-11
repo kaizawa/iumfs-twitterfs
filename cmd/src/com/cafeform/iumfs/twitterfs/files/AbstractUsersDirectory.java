@@ -3,12 +3,12 @@ package com.cafeform.iumfs.twitterfs.files;
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.NotADirectoryException;
 import com.cafeform.iumfs.twitterfs.Account;
+import com.cafeform.iumfs.twitterfs.UserTimelineManagerFactory;
 import static com.cafeform.iumfs.twitterfs.files.AbstractNonStreamTimelineFile.getWaitSec;
-import static com.cafeform.iumfs.twitterfs.files.TwitterFsFileImpl.logger;
+import com.cafeform.iumfs.utilities.Util;
 import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.logging.Level;
 import twitter4j.PagableResponseList;
 import twitter4j.TwitterException;
 import twitter4j.User;
@@ -64,7 +64,6 @@ abstract public class AbstractUsersDirectory extends TwitterFsDirectory
      */
     private class UsersUpdater implements Runnable
     {
-
         long cursor = -1;
 
         @Override
@@ -81,8 +80,8 @@ abstract public class AbstractUsersDirectory extends TwitterFsDirectory
 
                     for (User user : usersList)
                     {
-                        IumfsFile newFile = account.getUserTimelineManager().
-                                getTimelineFile(
+                        IumfsFile newFile = UserTimelineManagerFactory.
+                                getInstance().getTimelineFile(
                                         account,
                                         "/" + getName() + "/"
                                         + user.getScreenName());
@@ -103,12 +102,7 @@ abstract public class AbstractUsersDirectory extends TwitterFsDirectory
                 // Also wait if this is first try and failed with exception.
                 if (0 != cursor)
                 {
-                    try
-                    {
-                        Thread.sleep(REQUEST_INTERVAL);
-                    } catch (InterruptedException ex)
-                    {
-                    }
+                    Util.sleep(REQUEST_INTERVAL);
                 } else
                 {
                     // Have gotton all users data.
@@ -130,12 +124,7 @@ abstract public class AbstractUsersDirectory extends TwitterFsDirectory
                         + getName()
                         + " list. wait for " + waitSec
                         + " sec.");
-                try
-                {
-                    Thread.sleep(waitSec * 1000);
-                } catch (InterruptedException exi)
-                {
-                }
+                Util.sleep(waitSec * 1000);
 
                 log(INFO, getAccount().getUsername()
                         + ": " + ex.getErrorMessage());

@@ -33,7 +33,7 @@ public class AbstractNonStreamTimelineFileTest extends TwitterFsTestBase
     
     @Before
     @Override
-    public void setUp () throws TwitterException
+    public void setUp ()
     {
         super.setUp();
         account = new AccountImpl(USER1);

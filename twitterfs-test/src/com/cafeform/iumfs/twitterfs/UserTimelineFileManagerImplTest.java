@@ -13,14 +13,18 @@ import com.cafeform.iumfs.twitterfs.files.NormalTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.UserTimelineFileImpl;
 import java.lang.reflect.Field;
 import java.util.Queue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Before;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.whenNew;
+import twitter4j.TwitterException;
 
 public class UserTimelineFileManagerImplTest extends TwitterFsTestBase
 {
@@ -34,8 +38,8 @@ public class UserTimelineFileManagerImplTest extends TwitterFsTestBase
         String fileName = "hogehoge";
         String pathName = FollowersDirectory.PATH_NAME + "/" + fileName;
         account = new AccountImpl(USER1);        
-        
-        UserTimelineFileManager instance = account.getUserTimelineManager();
+
+        UserTimelineFileManager instance = UserTimelineManagerFactory.getInstance();
         IumfsFile result = instance.getTimelineFile(account, pathName);
         assertEquals(fileName, result.getName());
         assertEquals(pathName, result.getPath());        
@@ -54,8 +58,8 @@ public class UserTimelineFileManagerImplTest extends TwitterFsTestBase
         // Mocked UserTimelineFile will be returned.
         account = new AccountImpl(USER1);        
         
-        UserTimelineFileManager instance = account.getUserTimelineManager();
-        IumfsFile result = instance.getTimelineFile(account, pathName);
+        UserTimelineFileManager manager = UserTimelineManagerFactory.getInstance();
+        IumfsFile result = manager.getTimelineFile(account, pathName);
         assertEquals(fileName, result.getName());
         assertEquals(pathName, result.getPath());        
     }
@@ -106,18 +110,18 @@ public class UserTimelineFileManagerImplTest extends TwitterFsTestBase
         
         account = new AccountImpl(USER1);        
         
-        UserTimelineFileManager instance = account.getUserTimelineManager();
+        UserTimelineFileManager manager = UserTimelineManagerFactory.getInstance();
 
         // Get userTimelineQuee from UserTimelineFileManager
-        Field field = instance.getClass().getDeclaredField("userTimelineQueue");
+        Field field = manager.getClass().getDeclaredField("userTimelineQueue");
         field.setAccessible(true);
         @SuppressWarnings("unchecked")
         Queue<NormalTimelineFile> userTimelineQueue = 
-                (Queue<NormalTimelineFile>)field.get(instance);
+                (Queue<NormalTimelineFile>)field.get(manager);
 
         // lookup
-        IumfsFile result1 = instance.getTimelineFile(account, pathName1); 
-        IumfsFile result2 = instance.getTimelineFile(account, pathName2); 
+        IumfsFile result1 = manager.getTimelineFile(account, pathName1); 
+        IumfsFile result2 = manager.getTimelineFile(account, pathName2); 
 
         assertEquals(fileName1, result1.getName());
         assertEquals(fileName2, result2.getName());  
@@ -143,7 +147,7 @@ public class UserTimelineFileManagerImplTest extends TwitterFsTestBase
         
         account = new AccountImpl(USER1);        
         
-        UserTimelineFileManager manager = account.getUserTimelineManager();
+        UserTimelineFileManager manager = UserTimelineManagerFactory.getInstance();
         // Firs time lookup
         manager.getTimelineFile(account, pathName1);
         manager.getTimelineFile(account, pathName2);  

@@ -15,11 +15,10 @@
  */
 package com.cafeform.iumfs.twitterfs.files;
 
-import com.cafeform.iumfs.Files;
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.NotADirectoryException;
 import com.cafeform.iumfs.NotSupportedException;
-import com.cafeform.iumfs.StopWatch;
+import com.cafeform.iumfs.utilities.StopWatch;
 import com.cafeform.iumfs.twitterfs.Account;
 import com.cafeform.iumfs.twitterfs.Prefs;
 import com.cafeform.iumfs.twitterfs.DiskStoredArrayList;
@@ -82,18 +81,21 @@ abstract public class AbstractTimelineFile extends TwitterFsFileImpl
         String backupEnabled = System.getProperty(
                 BACKUP_ENABLED, 
                 DEAULT_BACKUP_ENABLED);
-        String backupFile = backupDir + "/" + account.getUsername() + "-" + 
-                Files.getNameFromPathName(pathname);
+        
+        String backupFilePathname = backupDir + "/" +
+                (this instanceof UserTimelineFileImpl? 
+                "" : account.getUsername() + "-") + 
+                getName();
         try
         {
             statusList = new DiskStoredArrayList<>(
-                    backupFile,
+                    backupFilePathname,
                     Boolean.parseBoolean(backupEnabled));
         } 
         catch (IOException ex)
         {
             throw new IllegalStateException("Cannot create backup file "
-                    + backupFile, ex);
+                    + backupFilePathname, ex);
         }
         
         if (Boolean.parseBoolean(backupEnabled)) 

@@ -7,6 +7,7 @@ import static com.cafeform.iumfs.twitterfs.files.AbstractNonStreamTimelineFile.*
 import com.cafeform.iumfs.twitterfs.files.NormalTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.UserTimelineFileImpl;
 import com.cafeform.iumfs.twitterfs.files.UserTimelineFileAdapter;
+import com.cafeform.iumfs.utilities.Util;
 import java.util.Queue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -100,13 +101,14 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
             // For account under followers and friends directory
             username = Files.getNameFromPathName(pathname);
         }
+        String pseudoPathname = "/users/"  + username;
 
         IumfsFile newFile;
         // Lookup existing UserTimeline by name.
         NormalTimelineFile userTimelineFile = lookupUserTimeline(username);
         if (null == userTimelineFile)
         {
-            userTimelineFile = new UserTimelineFileImpl(account, pathname);
+            userTimelineFile = new UserTimelineFileImpl(account, pseudoPathname);
             addUserTimeLine(userTimelineFile);
         }
 
@@ -143,11 +145,8 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
                             nextFile.getAccount().getUsername()
                             + " exceeds rate limit for user "
                             + "timeline. wait for " + waitSec
-                            + " sec.");
-                    try
-                    {
-                        Thread.sleep(waitSec * 1000);
-                    } catch (InterruptedException exi){}
+                            + " sec.");                    
+                    Util.sleep(waitSec * 1000);
                 }
                 else if (401 == ex.getStatusCode())
                 {

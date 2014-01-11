@@ -1,6 +1,6 @@
 package com.cafeform.iumfs.twitterfs.files;
 
-import com.cafeform.iumfs.StopWatch;
+import com.cafeform.iumfs.utilities.StopWatch;
 import com.cafeform.iumfs.twitterfs.Account;
 import static com.cafeform.iumfs.twitterfs.files.AbstractTimelineFile.MAX_PAGES;
 import static com.cafeform.iumfs.twitterfs.files.AbstractTimelineFile.MAX_STATUSES;

@@ -23,7 +23,6 @@ import com.cafeform.iumfs.IumfsFile;
  */
 public interface Account
 {
-    public UserTimelineFileManager getUserTimelineManager ();
     public String getUsername ();
     public void setUsername (String user);
     public void setRootDirectory (IumfsFile rootDir);

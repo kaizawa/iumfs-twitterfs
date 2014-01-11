@@ -1,5 +1,6 @@
 package com.cafeform.iumfs.twitterfs;
 
+import com.cafeform.iumfs.utilities.Util;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -48,7 +49,7 @@ public class SerializableListTest
                 list.add(i);
             }
             
-            try {Thread.sleep(500);} catch (InterruptedException ex) {}
+            Util.sleep(500);
 
             list = new DiskStoredArrayList<>(fileName, true);
             
@@ -90,7 +91,8 @@ public class SerializableListTest
         }
     }
 
-    @Test
+    // This test takes long time..
+    //@Test
     public void testLargeObject () throws IOException
     {
         int total = 0; 
@@ -109,8 +111,8 @@ public class SerializableListTest
             {
                 Byte bytes[] = new Byte[mb];
                 list.add(bytes);
-            }
-            try {Thread.sleep(500);} catch (InterruptedException ex) {}
+                }
+            Util.sleep(500);
 
             total += 100;
             grandList.add(list);

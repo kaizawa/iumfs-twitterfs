@@ -5,6 +5,7 @@ import com.cafeform.iumfs.twitterfs.TwitterFactoryAdapter;
 import static com.cafeform.iumfs.twitterfs.files.AbstractNonStreamTimelineFile.RATE_LIMIT_WINDOW;
 import static com.cafeform.iumfs.twitterfs.files.AbstractNonStreamTimelineFile.getWaitSec;
 import static com.cafeform.iumfs.twitterfs.files.TwitterFsFileImpl.logger;
+import com.cafeform.iumfs.utilities.Util;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -115,12 +116,8 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
                                 + getName()
                                 + " timeline. wait for " + waitSec
                                 + " sec.");
-                        try
-                        {
-                            Thread.sleep(waitSec * 1000);
-                        } catch (InterruptedException exi)
-                        {
-                        }
+                        
+                        Util.sleep(waitSec * 1000);
                     }
                     else 
                     {

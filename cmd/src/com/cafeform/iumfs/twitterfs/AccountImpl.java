@@ -12,16 +12,7 @@ public class AccountImpl implements Account
 {
     static final Logger logger = Logger.getLogger(Account.class.getName());
     private String username;
-
     private IumfsFile rootDir;
-    private final UserTimelineFileManager userTimelineManager = 
-            new UserTimelineFileManagerImpl();
-
-    @Override
-    public UserTimelineFileManager getUserTimelineManager ()
-    {
-        return userTimelineManager;
-    }
 
     public AccountImpl (String username)
     {

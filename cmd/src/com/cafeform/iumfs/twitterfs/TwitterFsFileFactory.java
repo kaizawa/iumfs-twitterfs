@@ -13,7 +13,6 @@ import com.cafeform.iumfs.twitterfs.files.FriendsDirectory;
 import com.cafeform.iumfs.twitterfs.files.RepliesDirectory;
 import com.cafeform.iumfs.twitterfs.files.SetupFile;
 import com.cafeform.iumfs.twitterfs.files.StreamTimelineFile;
-import com.cafeform.iumfs.twitterfs.files.UserTimelineFileImpl;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import twitter4j.User;
@@ -89,7 +88,7 @@ public class TwitterFsFileFactory implements FileFactory
         rootDir.addFile(new StreamTimelineFile(account, "/home"));
         rootDir.addFile(new DefaultTimelineFile(account, "/mentions"));
         rootDir.addFile(new DefaultTimelineFile(account, "/retweets_of_me"));
-        rootDir.addFile(account.getUserTimelineManager().
+        rootDir.addFile(UserTimelineManagerFactory.getInstance().
                 getTimelineFile(account, "/user"));
         rootDir.addFile(new FriendsDirectory(account));
         rootDir.addFile(new FollowersDirectory(account));

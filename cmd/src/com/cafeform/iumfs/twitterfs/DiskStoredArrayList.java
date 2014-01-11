@@ -1,6 +1,6 @@
 package com.cafeform.iumfs.twitterfs;
 
-import com.cafeform.iumfs.StopWatch;
+import com.cafeform.iumfs.utilities.StopWatch;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;

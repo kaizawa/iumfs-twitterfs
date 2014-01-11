@@ -2,6 +2,7 @@ package com.cafeform.iumfs.twitterfs.files;
 
 import com.cafeform.iumfs.FileExistException;
 import com.cafeform.iumfs.FileType;
+import com.cafeform.iumfs.Files;
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.NotADirectoryException;
 import com.cafeform.iumfs.NotSupportedException;
@@ -151,7 +152,7 @@ public class UserTimelineFileAdapter implements NormalTimelineFile
     @Override
     public String getName ()
     {
-        return file.getName();
+        return Files.getNameFromPathName(pathname);
     }
 
     @Override

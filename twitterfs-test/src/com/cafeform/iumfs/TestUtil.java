@@ -1,8 +1,5 @@
 package com.cafeform.iumfs;
 
-import com.cafeform.iumfs.Response;
-import com.cafeform.iumfs.RequestType;
-import com.cafeform.iumfs.RequestImpl;
 import static com.cafeform.iumfs.RequestImpl.*;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
@@ -12,7 +9,7 @@ import static org.junit.Assert.fail;
  *
  * @author kaizawa
  */
-public class Util 
+public class TestUtil 
 {
     public static final String PATHNAME1 = "/dir1/file1";
     public static final String USER1 = "user1";

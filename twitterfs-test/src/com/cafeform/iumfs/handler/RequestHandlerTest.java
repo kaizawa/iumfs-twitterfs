@@ -6,7 +6,7 @@
 package com.cafeform.iumfs.handler;
 
 import static com.cafeform.iumfs.FileType.VREG;
-import com.cafeform.iumfs.Util;
+import com.cafeform.iumfs.TestUtil;
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.Request;
 import com.cafeform.iumfs.RequestFactory;
@@ -21,7 +21,7 @@ import static org.junit.Assert.*;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static com.cafeform.iumfs.Util.*;
+import static com.cafeform.iumfs.TestUtil.*;
 import java.nio.ByteBuffer;
 import static com.cafeform.iumfs.handler.AbstractRequestHandler.*;
 import java.io.IOException;
@@ -62,7 +62,7 @@ public class RequestHandlerTest
     {
         handler = handlerFactory.getHandler(requestType);
         request = RequestFactory.createRequest(
-                Util.createMockBuffer(
+                TestUtil.createMockBuffer(
                         requestType, //type
                         0, //size
                         0, //offset
@@ -106,7 +106,7 @@ public class RequestHandlerTest
         RequestType requestType = CREATE_REQUEST;
         handler = handlerFactory.getHandler(requestType);
         request = RequestFactory.createRequest(
-                Util.createMockBuffer(
+                TestUtil.createMockBuffer(
                         requestType, //type
                         0, //size
                         0, //offset
@@ -140,7 +140,7 @@ public class RequestHandlerTest
         RequestType requestType = GETATTR_REQUEST;
         handler = handlerFactory.getHandler(requestType);
         request = RequestFactory.createRequest (
-                Util.createMockBuffer(
+                TestUtil.createMockBuffer(
                         requestType, //type
                         0, //size
                         0, //offset
@@ -192,7 +192,7 @@ public class RequestHandlerTest
         RequestType requestType = MKDIR_REQUEST;
         handler = handlerFactory.getHandler(requestType);
         request = RequestFactory.createRequest(
-                Util.createMockBuffer(
+                TestUtil.createMockBuffer(
                         requestType, //type
                         0, //size
                         0, //offset
@@ -223,7 +223,7 @@ public class RequestHandlerTest
         RequestType requestType = READDIR_REQUEST;
         handler = handlerFactory.getHandler(requestType);
         request = RequestFactory.createRequest (
-                Util.createMockBuffer (
+                TestUtil.createMockBuffer (
                         requestType, //type
                         0, //size
                         0, //offset
@@ -262,7 +262,7 @@ public class RequestHandlerTest
         RequestType requestType = READ_REQUEST;
         handler = handlerFactory.getHandler(requestType);
         request = RequestFactory.createRequest(
-                Util.createMockBuffer(
+                TestUtil.createMockBuffer(
                         requestType, //type
                         TEXT.length(), //size
                         0, //offset
@@ -298,7 +298,7 @@ public class RequestHandlerTest
         RequestType requestType = REMOVE_REQUEST;
         handler = handlerFactory.getHandler(requestType);
         request = RequestFactory.createRequest(
-                Util.createMockBuffer(
+                TestUtil.createMockBuffer(
                         requestType, //type
                         0, //size
                         0, //offset
@@ -327,7 +327,7 @@ public class RequestHandlerTest
         RequestType requestType = RMDIR_REQUEST;
         handler = handlerFactory.getHandler(requestType);
         request = RequestFactory.createRequest(
-                Util.createMockBuffer(
+                TestUtil.createMockBuffer(
                         requestType, //type
                         0, //size
                         0, //offset
@@ -359,7 +359,7 @@ public class RequestHandlerTest
         RequestType requestType = WRITE_REQUEST;
         handler = handlerFactory.getHandler(requestType);
         request = RequestFactory.createRequest(
-                Util.createMockBuffer(
+                TestUtil.createMockBuffer(
                         requestType, //type
                         0, //size
                         0, //offset

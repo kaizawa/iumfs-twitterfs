@@ -28,26 +28,11 @@ public class UserTimelineFileImpl extends AbstractNonStreamTimelineFile
             throws TwitterException
     {
         Twitter twitter = TwitterFactoryAdapter.getInstance(getUsername());
-        ResponseList<Status> statuses = null;
+        ResponseList<Status> statuses;
         String name = getName();
 
-        switch (name)
-        {
-            case "user":
-                statuses = twitter.getUserTimeline(paging);
-                break;
-            default:
-                if (getPath().startsWith(FollowersDirectory.PATH_NAME + "/")
-                        || getPath().startsWith(FriendsDirectory.PATH_NAME + "/"))
-                {
-                    statuses = twitter.getUserTimeline(name, paging);
-                } else
-                {
-                    log(WARNING, "Unknown timeline file " + getPath()
-                            + " specified.");
-                    System.exit(1);
-                }
-        }
+        statuses = twitter.getUserTimeline(name, paging);
+
         log(FINER, "UserTimeline rate limit for "
                 + getAccount().getUsername()
                 + ": "

@@ -26,7 +26,7 @@ public class TwitterFsFileFactoryTest extends TwitterFsTestBase
 {
     @Before
     @Override
-    public void setUp() throws TwitterException
+    public void setUp()
     {
         super.setUp();
         fileFactory = new TwitterFsFileFactory();

@@ -1,10 +1,10 @@
 package com.cafeform.iumfs.handler;
 
-import com.cafeform.iumfs.Util;
+import com.cafeform.iumfs.TestUtil;
 import com.cafeform.iumfs.Request;
 import com.cafeform.iumfs.RequestFactory;
 import static com.cafeform.iumfs.RequestType.GETATTR_REQUEST;
-import static com.cafeform.iumfs.Util.*;
+import static com.cafeform.iumfs.TestUtil.*;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
@@ -30,7 +30,7 @@ public class RequestFactoryTest
     public void testRequestFactory()
     {
         request = RequestFactory.createRequest(
-                Util.createMockBuffer(
+                TestUtil.createMockBuffer(
                         GETATTR_REQUEST, //type
                         SIZE, //size
                         OFFSET, //offset
