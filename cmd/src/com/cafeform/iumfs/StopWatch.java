@@ -7,34 +7,34 @@ public class StopWatch
     private long startTime = 0;
     private long stopTime = 0;
 
-    public void start ()
+    synchronized public void start ()
     {
-        if (0 != startTime && 0 == stopTime)
-        {
-            throw new IllegalStateException("Already started. Stop first");
-        }
         reset();
         startTime = new Date().getTime();
     }
     
-    public StopWatch stop ()
+    synchronized public StopWatch stop ()
     {
+        if (0 == startTime)
+        {
+            throw new IllegalStateException("Not started.");
+        }
         stopTime = new Date().getTime();
         return this;
     }
     
-    public void reset ()
+    synchronized public void reset ()
     {
         startTime = 0;
         stopTime = 0;
     }
     
     @Override
-    public String toString ()
+    synchronized public String toString ()
     {
         if (0 == startTime)
         {
-            throw new IllegalStateException("Not started");
+            throw new IllegalStateException("Not started.");
         }
         long difference;
         if (0 == stopTime)

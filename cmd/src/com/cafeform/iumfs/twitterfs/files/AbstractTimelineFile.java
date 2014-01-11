@@ -19,6 +19,7 @@ import com.cafeform.iumfs.Files;
 import com.cafeform.iumfs.IumfsFile;
 import com.cafeform.iumfs.NotADirectoryException;
 import com.cafeform.iumfs.NotSupportedException;
+import com.cafeform.iumfs.StopWatch;
 import com.cafeform.iumfs.twitterfs.Account;
 import com.cafeform.iumfs.twitterfs.Prefs;
 import com.cafeform.iumfs.twitterfs.DiskStoredArrayList;
@@ -58,6 +59,7 @@ abstract public class AbstractTimelineFile extends TwitterFsFileImpl
     public static final String DEFAULT_BACKUP_DIR = "/var/tmp/twitterfs";
     public static final String BACKUP_ENABLED = "UseBackup";
     public static final String DEAULT_BACKUP_ENABLED = "true";
+    private StopWatch stopWatch;
 
     /**
      * Constractor for twitter file
@@ -70,6 +72,9 @@ abstract public class AbstractTimelineFile extends TwitterFsFileImpl
             String pathname)
     {
         super(account, pathname);
+        if (logger.isLoggable(FINER)) {
+            stopWatch = new StopWatch();                
+        }
         this.isTimeline = true;
         String backupDir = System.getProperty(
                 BACKUP_DIR, 
@@ -133,6 +138,10 @@ abstract public class AbstractTimelineFile extends TwitterFsFileImpl
         long prev_offset = 0;
         long rel_offset; // relative offset within each status 
         int page = 0;
+
+        if (logger.isLoggable(FINER)) {
+                stopWatch.start();
+        }
 
         /*
          * OLD                                                         NEW
@@ -223,6 +232,10 @@ abstract public class AbstractTimelineFile extends TwitterFsFileImpl
             }
         }
         log(FINE, "curr_size = " + curr_size);
+        if (logger.isLoggable(FINER))      
+        {
+            log(FINER, "read took " + stopWatch.stop().toString());
+        }
         return curr_size;
     }
 
@@ -252,6 +265,9 @@ abstract public class AbstractTimelineFile extends TwitterFsFileImpl
 
     synchronized public void addStatusToList(Status status)
     {
+        if (logger.isLoggable(FINER)) {
+            stopWatch.start();
+        }
         try
         {
             log(FINER, "Adding Status id is " + status.getId());
@@ -269,6 +285,10 @@ abstract public class AbstractTimelineFile extends TwitterFsFileImpl
         } catch (UnsupportedEncodingException ex)
         {
             log(SEVERE, "Cannot decode string in timeline", ex);
+        }
+        if (logger.isLoggable(FINER))      
+        {
+            log(FINER, "addStatusToList took " + stopWatch.stop().toString());
         }
     }
 

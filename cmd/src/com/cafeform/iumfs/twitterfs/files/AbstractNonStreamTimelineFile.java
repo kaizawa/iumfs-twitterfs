@@ -1,5 +1,6 @@
 package com.cafeform.iumfs.twitterfs.files;
 
+import com.cafeform.iumfs.StopWatch;
 import com.cafeform.iumfs.twitterfs.Account;
 import static com.cafeform.iumfs.twitterfs.files.AbstractTimelineFile.MAX_PAGES;
 import static com.cafeform.iumfs.twitterfs.files.AbstractTimelineFile.MAX_STATUSES;
@@ -40,6 +41,7 @@ abstract public class AbstractNonStreamTimelineFile
     // Margin for calculated interval.
     protected static final int INTERVAL_MARGIN = 500; // 500 ms
     protected static boolean autoUpdateEnabled = true;
+    StopWatch stopWatch;
 
     public static boolean isAutoUpdateEnabled ()
     {
@@ -55,13 +57,25 @@ abstract public class AbstractNonStreamTimelineFile
     public AbstractNonStreamTimelineFile (Account account, String pathname)
     {
         super(account, pathname);
+        if (logger.isLoggable(FINER)) {
+            stopWatch = new StopWatch();                
+        }
     }
 
     @Override
     public void getTimeline ()
             throws TwitterException
     {
+        if (logger.isLoggable(FINER)) {
+            stopWatch.start();
+        }
+        
         getTimeline(MAX_STATUSES, lastId);
+
+        if (logger.isLoggable(FINER))      
+        {
+            log(FINER, "getTimeline took " + stopWatch.stop().toString());
+        }
     }
 
     /**
