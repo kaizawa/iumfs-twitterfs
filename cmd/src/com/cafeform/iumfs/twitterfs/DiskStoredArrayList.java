@@ -99,11 +99,11 @@ public class DiskStoredArrayList<T> implements List<T>, Serializable
                 stopWatch.start();
             }
             arrayList = readFile();
-            logger.log(FINER, "Read timeline from" + backupFile.getFileName());
+            logger.log(FINER, "Read list from" + backupFile.getFileName());
             if (logger.isLoggable(FINER))      
             {
                 logger.log(FINER, 
-                        "Read timeline took " + stopWatch.stop().toString());
+                        "Read list took " + stopWatch.stop().toString());
             }
             reference = new SoftReference<>(arrayList);
         }
@@ -122,7 +122,7 @@ public class DiskStoredArrayList<T> implements List<T>, Serializable
             return arrayList;
         } catch (OptionalDataException ex)
         {
-            logger.log(WARNING, "Backup timeline file "
+            logger.log(WARNING, "Backup list file "
                     + backupFile.getFileName() + " is corrupted. Recreating.");
             try
             {
@@ -183,11 +183,11 @@ public class DiskStoredArrayList<T> implements List<T>, Serializable
             
             outputStream.writeObject(arrayList);
 
-            logger.log(FINE, "Wrote timeline to " + backupFile.getFileName());
+            logger.log(FINE, "Wrote list to " + backupFile.getFileName());
             if (logger.isLoggable(FINER))      
             {
                 logger.log(FINER, 
-                        "Write timeline took " + stopWatch.stop().toString());
+                        "Write list took " + stopWatch.stop().toString());
             }
         } catch (IOException ex)
         {
