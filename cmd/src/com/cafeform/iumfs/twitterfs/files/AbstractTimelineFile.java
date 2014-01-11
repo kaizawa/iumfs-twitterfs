@@ -58,7 +58,7 @@ abstract public class AbstractTimelineFile extends TwitterFsFileImpl
     public static final String BACKUP_DIR = "BackupDirectory";    
     public static final String DEFAULT_BACKUP_DIR = "/var/tmp/twitterfs";
     public static final String BACKUP_ENABLED = "UseBackup";
-    public static final String DEAULT_BACKUP_ENABLED = "true";
+    public static final String DEAULT_BACKUP_ENABLED = "false";
     private StopWatch stopWatch;
 
     /**
