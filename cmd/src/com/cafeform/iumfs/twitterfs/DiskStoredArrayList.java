@@ -1,5 +1,6 @@
 package com.cafeform.iumfs.twitterfs;
 
+import com.cafeform.iumfs.StopWatch;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -16,7 +17,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -35,14 +35,27 @@ public class DiskStoredArrayList<T> implements List<T>, Serializable
     private final Path backupFile;
     private final ScheduledExecutorService writeScheduler
             = Executors.newSingleThreadScheduledExecutor();
-    private static final int WRITE_DELAY = 5000; // msec
-    private static final int MAX_DELAY = 10000; // msec
+    private final int writeDelay;
+    private final int maxDelay;
+    private static final int DEFAULT_WRITE_DELAY = 5000; // msec
+    private static final int DEFAULT_MAX_DELAY = 10000; // msec
     private long delayStart = 0;
-    ScheduledFuture future;
-
-    public DiskStoredArrayList (String pathName, boolean useBackup)
+    private ScheduledFuture future;
+    private StopWatch stopWatch;
+    
+    public DiskStoredArrayList (
+            String pathName, 
+            boolean useBackup,
+            int writeDelay,
+            int maxDelay)
             throws IOException
     {
+        if (logger.isLoggable(FINER))
+        {
+            stopWatch = new StopWatch();                
+        }
+        this.writeDelay = writeDelay;
+        this.maxDelay = maxDelay;
         backupFile = Paths.get(pathName);
         Files.createDirectories(backupFile.getParent());
         CopyOnWriteArrayList<T> arrayList;
@@ -57,7 +70,13 @@ public class DiskStoredArrayList<T> implements List<T>, Serializable
             arrayList = resetArrayList();
         }
         reference = new SoftReference<>(arrayList);
-        writeFile(arrayList);
+        writeFile(arrayList);    
+    }
+
+    public DiskStoredArrayList (String pathName, boolean useBackup)
+            throws IOException
+    {
+        this(pathName, useBackup, DEFAULT_WRITE_DELAY, DEFAULT_MAX_DELAY);
     }
     
     private CopyOnWriteArrayList<T> resetArrayList () throws IOException 
@@ -76,8 +95,16 @@ public class DiskStoredArrayList<T> implements List<T>, Serializable
 
         if (null == (arrayList = reference.get()))
         {
+            if (logger.isLoggable(FINER)) {
+                stopWatch.start();
+            }
             arrayList = readFile();
-            logger.log(FINER, "Deserialized " + backupFile.getFileName());
+            logger.log(FINER, "Read timeline from" + backupFile.getFileName());
+            if (logger.isLoggable(FINER))      
+            {
+                logger.log(FINER, 
+                        "Read timeline took " + stopWatch.stop().toString());
+            }
             reference = new SoftReference<>(arrayList);
         }
         return arrayList;
@@ -123,7 +150,7 @@ public class DiskStoredArrayList<T> implements List<T>, Serializable
         }
 
         long now = new Date().getTime();
-        boolean expired =  (now - delayStart) > MAX_DELAY;
+        boolean expired =  (now - delayStart) > maxDelay;
         
         if (expired)
         {
@@ -137,12 +164,10 @@ public class DiskStoredArrayList<T> implements List<T>, Serializable
                         @Override
                         public void run ()
                         {
-                            logger.log(FINE, "Flush timeline list to "
-                                    + backupFile.getFileName());
                             writeFile(arrayList);
                         }
                     },
-                    WRITE_DELAY,
+                    writeDelay,
                     TimeUnit.MILLISECONDS);
         }
     }
@@ -152,7 +177,18 @@ public class DiskStoredArrayList<T> implements List<T>, Serializable
         try (ObjectOutputStream outputStream = new ObjectOutputStream(
                 Files.newOutputStream(backupFile, WRITE));)
         {
+            if (logger.isLoggable(FINER)) {
+                stopWatch.start();
+            }
+            
             outputStream.writeObject(arrayList);
+
+            logger.log(FINE, "Wrote timeline to " + backupFile.getFileName());
+            if (logger.isLoggable(FINER))      
+            {
+                logger.log(FINER, 
+                        "Write timeline took " + stopWatch.stop().toString());
+            }
         } catch (IOException ex)
         {
             throw new IllegalStateException("Cannot serialize "
