@@ -139,7 +139,7 @@ public class DiskStoredArrayList<T> implements List<T>, Serializable
         }
     }
 
-    private void deferredWriteFile (final CopyOnWriteArrayList<T> arrayList)
+    synchronized private void deferredWriteFile (final CopyOnWriteArrayList<T> arrayList)
     {
         // Cancel existing schedule if exist.
         cancelIfExist();
@@ -160,6 +160,7 @@ public class DiskStoredArrayList<T> implements List<T>, Serializable
                         public void run ()
                         {
                             writeFile(arrayList);
+                            clearFuture();
                         }
                     },
                     writeDelay,
@@ -168,7 +169,16 @@ public class DiskStoredArrayList<T> implements List<T>, Serializable
         }
     }
     
-    private void cancelIfExist ()
+    /**
+     * Clear reference to the ScheduledFuture, so that
+     * objects lined from ScheduledFuture can be collected by GC.
+     */
+    synchronized void clearFuture ()
+    {
+        future = null;
+    }
+    
+    synchronized private void cancelIfExist ()
     {
         if (null != future && !future.isDone())
         {
