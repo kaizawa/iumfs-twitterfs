@@ -2,7 +2,6 @@ package com.cafeform.iumfs.twitterfs;
 
 import com.cafeform.iumfs.Files;
 import com.cafeform.iumfs.IumfsFile;
-import com.cafeform.iumfs.twitterfs.files.AbstractNonStreamTimelineFile;
 import static com.cafeform.iumfs.twitterfs.files.AbstractNonStreamTimelineFile.*;
 import com.cafeform.iumfs.twitterfs.files.NormalTimelineFile;
 import com.cafeform.iumfs.twitterfs.files.UserTimelineFileImpl;

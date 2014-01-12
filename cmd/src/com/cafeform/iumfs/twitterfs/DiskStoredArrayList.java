@@ -33,8 +33,6 @@ public class DiskStoredArrayList<T> implements List<T>, Serializable
     static final Logger logger = Logger.getLogger(DiskStoredArrayList.class.getName());
     private SoftReference<CopyOnWriteArrayList<T>> reference;
     private final Path backupFile;
-    private final ScheduledExecutorService writeScheduler
-            = Executors.newSingleThreadScheduledExecutor();
     private final int writeDelay;
     private final int maxDelay;
     private static final int DEFAULT_WRITE_DELAY = 5000; // msec
@@ -143,21 +141,18 @@ public class DiskStoredArrayList<T> implements List<T>, Serializable
 
     private void deferredWriteFile (final CopyOnWriteArrayList<T> arrayList)
     {
-        if (null == future || !future.cancel(true))
-        {
-            // This is a new schedule
-            delayStart = new Date().getTime();
-        }
+        // Cancel existing schedule if exist.
+        cancelIfExist();
 
-        long now = new Date().getTime();
-        boolean expired =  (now - delayStart) > maxDelay;
-        
-        if (expired)
+        if (isExired())
         {
             // Expired max wait time. Write it now.
             writeFile(arrayList);
         } else
         {
+            ScheduledExecutorService writeScheduler
+                    = Executors.newSingleThreadScheduledExecutor();
+
             future = writeScheduler.schedule(
                     new Runnable()
                     {
@@ -169,8 +164,31 @@ public class DiskStoredArrayList<T> implements List<T>, Serializable
                     },
                     writeDelay,
                     TimeUnit.MILLISECONDS);
+            writeScheduler.shutdown();
         }
     }
+    
+    private void cancelIfExist ()
+    {
+        if (null != future && !future.isDone())
+        {
+            // Still waiting to get fred.
+            future.cancel(true);
+        }
+        else 
+        {
+            // first time or alrady done.
+            delayStart = new Date().getTime();                            
+        }
+        future = null;        
+    }
+    
+    private boolean isExired ()
+    {
+        long now = new Date().getTime();
+        return (now - delayStart) > maxDelay; 
+    }
+            
 
     synchronized private void writeFile (CopyOnWriteArrayList<T> arrayList)
     {

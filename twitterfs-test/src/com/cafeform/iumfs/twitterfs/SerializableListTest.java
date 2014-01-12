@@ -92,7 +92,7 @@ public class SerializableListTest
     }
 
     // This test takes long time..
-    //@Test
+    @Test
     public void testLargeObject () throws IOException
     {
         int total = 0; 
