@@ -2,15 +2,12 @@ package com.cafeform.iumfs.twitterfs;
 
 import com.cafeform.iumfs.utilities.Util;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class SerializableListTest
+public class DiskStoredArrayListTest
 {
 
     public static final String fileName = "/var/tmp/iumfs-twitterfs/tesfile";
@@ -92,7 +89,7 @@ public class SerializableListTest
     }
 
     // This test takes long time..
-    @Test
+    //@Test
     public void testLargeObject () throws IOException
     {
         int total = 0; 
