@@ -110,14 +110,14 @@ public class TwitterFactoryAdapter {
                         else 
                         {
                             logger.log(Level.SEVERE, 
-                                    "Unable to get Access Token", ex);                            
+                                    "Unable to get the Access Token", ex);                            
                         }
                     }
                 }
             } 
             catch (IOException | TwitterException ex) 
             {
-                logger.log(Level.SEVERE, "Unable to get Access Token", ex);
+                logger.log(Level.SEVERE, "Unable to get the Access Token", ex);
             }
             Prefs.put(username + "/accessToken", accessToken.getToken());
             Prefs.put(username + "/accessTokenSecret", accessToken.getTokenSecret());

@@ -2,8 +2,8 @@
 
 CLASSPATH=\
 $PWD/cmd/twitterfsd.jar:\
-$PWD/cmd/lib/twitter4j-core-3.0.3.jar:\
-$PWD/cmd/lib/twitter4j-stream-3.0.3.jar:\
+$PWD/cmd/lib/twitter4j-core-3.0.5.jar:\
+$PWD/cmd/lib/twitter4j-stream-3.0.5.jar:\
 $PWD/cmd/lib/iumfs-daemon-core.jar
 
 # To enable logging, modify log.prop file accordingly and use following line.
