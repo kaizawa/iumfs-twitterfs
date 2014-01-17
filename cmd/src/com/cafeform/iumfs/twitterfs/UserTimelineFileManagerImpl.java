@@ -21,12 +21,11 @@ import twitter4j.TwitterException;
  */
 public class UserTimelineFileManagerImpl implements UserTimelineFileManager
 {
-
     static final Logger logger = Logger.getLogger(
             UserTimelineFileManagerImpl.class.getName());
     private ScheduledExecutorService userTimelineScheduler = null;
-    private final Queue<NormalTimelineFile> userTimelineQueue
-            = new ReEnterableListQueue<>();
+    private final Queue<NormalTimelineFile> userTimelineQueue = 
+            new ReEnterableListQueue<>();
 
     /**
      * Add user time line which will be feching by dequeing in order.
@@ -140,34 +139,39 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
                     // User Timeline rate limit exceeds.                                            
                     // wait for reset time.                                            
                     long waitSec = getWaitSec(ex.getRateLimitStatus());
-                    logger.log(Level.INFO,
-                            nextFile.getAccount().getUsername()
-                            + " exceeds rate limit for user "
-                            + "timeline. wait for " + waitSec
-                            + " sec.");                    
+                    log(Level.INFO, "Exceeds rate limit for timeline. wait for " 
+                                    + waitSec + " sec.", ex, nextFile);                    
                     Util.sleep(waitSec * 1000);
                 }
                 else if (401 == ex.getStatusCode())
                 {
                     // Authentication error. could be locked account.                                                            
-                    logger.log(Level.INFO,
-                            nextFile.getAccount().getUsername()
-                            + " not authorized to get "
-                            + nextFile.getName() + " timeline.");
+                    log(Level.INFO, "Not authorized to get timeline.",
+                            ex, nextFile);
                 } 
                 else 
                 {
                     // Unknown TwitterException
-                    logger.log(Level.INFO, "Failed to get "
-                            + nextFile.getName() + " timeline by "
-                            + nextFile.getAccount().getUsername() + ".", ex);
+                    log(Level.INFO, "Failed to get timeline.", ex, nextFile);
                 }
             } catch (Exception ex)
             {
-                logger.log(
-                        Level.INFO, "User timeline watcher thread "
-                        + "got an Exception.", ex);
+                log(Level.INFO, "User timeline watcher thread got an Exception.", 
+                        ex, nextFile);
             }
         }
+    }
+    
+    protected void log(
+            Level level, 
+            String msg, 
+            Throwable thrown,
+            NormalTimelineFile file)
+    {
+        logger.log(
+                level, 
+                file.getAccount().getUsername() + ":" + file.getName() + 
+                        " " + msg, 
+                thrown);
     }
 }

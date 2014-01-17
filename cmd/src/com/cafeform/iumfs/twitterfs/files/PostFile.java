@@ -101,12 +101,10 @@ public class PostFile extends TwitterFsFileImpl
             {
                 case 185: // User is over daily status update limit.
                 case 187: // Status is a duplicate. Have written already.                                        
-                    log(INFO, getAccount().getUsername() + " : " +
-                            ex.getErrorMessage());
+                    log(INFO, ex.getErrorMessage());
                     break;
                 default:
-                    log(SEVERE, getAccount().getUsername() + 
-                            " failed to post status.", ex);
+                    log(SEVERE, "Failed to post status.", ex);
             }
             // We need to return 0 (= means success) even in this situaion.
             // Otherwise kernel module continually send write request.
