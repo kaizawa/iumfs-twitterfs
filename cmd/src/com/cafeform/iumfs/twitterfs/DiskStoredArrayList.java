@@ -118,7 +118,7 @@ public class DiskStoredArrayList<T> implements List<T>, Serializable
             CopyOnWriteArrayList<T> arrayList
                     = (CopyOnWriteArrayList<T>) inputStream.readObject();
             return arrayList;
-        } catch (OptionalDataException ex)
+        } catch (IOException ex)
         {
             logger.log(WARNING, "Backup list file "
                     + backupFile.getFileName() + " is corrupted. Recreating.");
@@ -132,7 +132,7 @@ public class DiskStoredArrayList<T> implements List<T>, Serializable
                         + backupFile.getFileName(),
                         exi);
             }
-        } catch (IOException | ClassNotFoundException ex)
+        } catch (ClassNotFoundException ex)
         {
             throw new IllegalStateException("Cannot deserialize "
                     + backupFile.getFileName() + ".", ex);
