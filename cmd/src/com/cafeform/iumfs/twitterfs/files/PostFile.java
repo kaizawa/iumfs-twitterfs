@@ -28,9 +28,13 @@ import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import static java.util.logging.Level.*;
+import java.util.logging.Logger;
 
 public class PostFile extends TwitterFsFileImpl 
 {
+    private static final Logger logger = 
+            Logger.getLogger(PostFile.class.getName());
+
     protected static final int MAX_LENGTH = 140;
     private String prefix;
 
@@ -71,8 +75,8 @@ public class PostFile extends TwitterFsFileImpl
              * Get a strings written as a file data.
              */
             String wholeMessage = new String(buf);
-            log (FINER, "Orig Text:" + wholeMessage);
-            log (FINEST, "whole_msg.length() = " + wholeMessage.length());
+            log (logger, FINER, "Orig Text:" + wholeMessage);
+            log (logger, FINEST, "whole_msg.length() = " + wholeMessage.length());
             int left = wholeMessage.length();
             /*
              * Post strings to twitter every 140 characters.
@@ -85,8 +89,8 @@ public class PostFile extends TwitterFsFileImpl
                 String msg = (String) sep.next();
 
                 status = twitter.updateStatus(msg);
-                log(FINEST, "Text: " + msg);
-                log(FINE, "Status updated");
+                log(logger, FINEST, "Text: " + msg);
+                log(logger, FINE, "Status updated");
             }
             Date now = new Date();
             setAtime(now.getTime());            
@@ -100,11 +104,11 @@ public class PostFile extends TwitterFsFileImpl
             {
                 case 185: // User is over daily status update limit.
                 case 187: // Status is a duplicate. Have written already.                                        
-                    log(INFO, "Failed to post status. " +
+                    log(logger, INFO, "Failed to post status. " +
                             ex.getErrorMessage());
                     break;
                 default:
-                    log(SEVERE, "Failed to post status.", ex);
+                    log(logger, SEVERE, "Failed to post status.", ex);
             }
             // We need to return 0 (= means success) even in this situaion.
             // Otherwise kernel module continually send write request.

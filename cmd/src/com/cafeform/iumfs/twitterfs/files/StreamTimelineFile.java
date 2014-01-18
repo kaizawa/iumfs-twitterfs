@@ -2,19 +2,15 @@ package com.cafeform.iumfs.twitterfs.files;
 
 import com.cafeform.iumfs.twitterfs.Account;
 import com.cafeform.iumfs.twitterfs.TwitterFactoryAdapter;
-import com.cafeform.iumfs.twitterfs.Prefs;
-import static com.cafeform.iumfs.twitterfs.files.TwitterFsFileImpl.logger;
-import java.util.logging.Level;
 import twitter4j.DirectMessage;
 import twitter4j.StallWarning;
 import twitter4j.Status;
 import twitter4j.StatusDeletionNotice;
-import twitter4j.TwitterStream;
-import twitter4j.TwitterStreamFactory;
 import twitter4j.User;
 import twitter4j.UserList;
 import twitter4j.UserStreamListener;
 import static java.util.logging.Level.*;
+import java.util.logging.Logger;
 
 
 /**
@@ -23,7 +19,8 @@ import static java.util.logging.Level.*;
  */
 public class StreamTimelineFile extends AbstractTimelineFile
 {
-
+    private static final Logger logger = 
+            Logger.getLogger(StreamTimelineFile.class.getName());
     public StreamTimelineFile (Account account, String pathname)
     {
         super(account, pathname);
@@ -36,8 +33,8 @@ public class StreamTimelineFile extends AbstractTimelineFile
         @Override
         public void onStatus (Status status)
         {
-            log(FINER, "Read Status id=" + status.getId());
-            log(FINEST, AbstractTimelineFile.statusToFormattedString(status));
+            log(logger, FINER, "Read Status id=" + status.getId());
+            log(logger, FINEST, AbstractTimelineFile.statusToFormattedString(status));
             addStatusToList(status);
         }
 

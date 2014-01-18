@@ -8,6 +8,7 @@ import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import static java.util.logging.Level.*;
+import java.util.logging.Logger;
 
 /**
  * Represents Authenticated user timeline and friends timeline which is affected
@@ -17,7 +18,8 @@ import static java.util.logging.Level.*;
  */
 public class UserTimelineFileImpl extends AbstractNonStreamTimelineFile
 {
-
+    private static final Logger logger = 
+            Logger.getLogger(UserTimelineFileImpl.class.getName());
     public UserTimelineFileImpl (Account account, String pathname)
     {
         super(account, pathname);
@@ -33,7 +35,7 @@ public class UserTimelineFileImpl extends AbstractNonStreamTimelineFile
 
         statuses = twitter.getUserTimeline(name, paging);
 
-        log(FINER, "UserTimeline rate limit for "
+        log(logger, FINER, "UserTimeline rate limit for "
                 + getAccount().getUsername()
                 + ": "
                 + statuses.getRateLimitStatus().getRemaining()

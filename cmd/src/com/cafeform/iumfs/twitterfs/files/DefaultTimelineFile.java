@@ -2,21 +2,18 @@ package com.cafeform.iumfs.twitterfs.files;
 
 import com.cafeform.iumfs.twitterfs.Account;
 import com.cafeform.iumfs.twitterfs.TwitterFactoryAdapter;
-import static com.cafeform.iumfs.twitterfs.files.AbstractNonStreamTimelineFile.RATE_LIMIT_WINDOW;
 import static com.cafeform.iumfs.twitterfs.files.AbstractNonStreamTimelineFile.getWaitSec;
-import static com.cafeform.iumfs.twitterfs.files.TwitterFsFileImpl.logger;
 import com.cafeform.iumfs.utilities.Util;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import static java.util.logging.Level.*;
 import twitter4j.Paging;
 import twitter4j.ResponseList;
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import static java.util.logging.Level.*;
+import java.util.logging.Logger;
 
 /**
  * Represents non-streaming timelines. That includs mentions, home and
@@ -26,6 +23,8 @@ import static java.util.logging.Level.*;
  */
 public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
 {
+   private static final Logger logger = 
+            Logger.getLogger(DefaultTimelineFile.class.getName());
 
     public DefaultTimelineFile (
             Account account,
@@ -54,7 +53,7 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
             getTimeline();
         } catch (TwitterException ex)
         {
-            log(INFO, "Cannot get " + getName() + " timeline: " + 
+            log(logger, INFO, "Cannot get " + getName() + " timeline: " + 
                     ex.getErrorMessage(), ex);
         }
     }
@@ -80,7 +79,7 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
                 statuses = twitter.getRetweetsOfMe(paging);
                 break;
             default:
-                log(SEVERE, "Unknown timeline(\"" + name
+                log(logger, SEVERE, "Unknown timeline(\"" + name
                         + "\") specified.");
                 System.exit(1);
         }
@@ -110,7 +109,7 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
                         // User Timeline rate limit exceeds.                                            
                         // wait for reset time.                                            
                         long waitSec = getWaitSec(ex.getRateLimitStatus());
-                        log(INFO,
+                        log(logger, INFO,
                                 getAccount().getUsername()
                                 + " exceeds rate limit for "
                                 + getName()
@@ -121,7 +120,7 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
                     }
                     else 
                     {
-                        log(INFO, getAccount().getUsername() + 
+                        log(logger, INFO, getAccount().getUsername() + 
                             ": Cannot get " + getName() + " timeline.", ex);
                     }
                 }

@@ -12,6 +12,7 @@ import twitter4j.TwitterException;
 import java.util.Collections;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.FINER;
+import java.util.logging.Logger;
 
 /**
  * Represents non-streaming timelines.
@@ -19,6 +20,8 @@ import static java.util.logging.Level.FINER;
 abstract public class AbstractNonStreamTimelineFile
         extends AbstractTimelineFile implements NormalTimelineFile
 {
+    private static final Logger logger = 
+            Logger.getLogger(AbstractNonStreamTimelineFile.class.getName());
 
     // Rate limit for each timeline is copied from
     // https://dev.twitter.com/docs/rate-limiting/1.1/limits
@@ -74,7 +77,7 @@ abstract public class AbstractNonStreamTimelineFile
 
         if (logger.isLoggable(FINER))      
         {
-            log(FINER, "getTimeline took " + stopWatch.stop().toString());
+            log(logger, FINER, "getTimeline took " + stopWatch.stop().toString());
         }
     }
 
@@ -123,7 +126,7 @@ abstract public class AbstractNonStreamTimelineFile
         Paging paging = new Paging(page, count, since);
         statuses = getTimeline(paging);
 
-        log(FINE, "Got " + name + " timeline, "
+        log(logger, FINE, "Got " + name + " timeline, "
                 + statuses.size() + " Statuses in page " + page);
 
         if (statuses.size() == 0)
@@ -142,7 +145,7 @@ abstract public class AbstractNonStreamTimelineFile
         {
             // Set first status(oldest) to base_id.
             baseId = statuses.get(0).getId();
-            log(FINER, "base_id = " + baseId);
+            log(logger, FINER, "base_id = " + baseId);
             initialRead = false;
         }
         return statuses.size();

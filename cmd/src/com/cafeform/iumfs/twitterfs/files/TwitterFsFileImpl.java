@@ -23,14 +23,11 @@ import com.cafeform.iumfs.twitterfs.Account;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static java.util.logging.Level.*;
 
 abstract public class TwitterFsFileImpl extends AbstractIumfsFile 
 implements TwitterFsFile
 {
     protected boolean isTimeline = false;
-    protected static final Logger logger = 
-            Logger.getLogger(TwitterFsFileImpl.class.getName());
     protected Account account;
 
     @Override
@@ -121,7 +118,7 @@ implements TwitterFsFile
         return true;
     }
     
-    protected void log(Level level, String msg, Throwable thrown)
+    protected void log(Logger logger, Level level, String msg, Throwable thrown)
     {
         logger.log(
                 level, 
@@ -129,10 +126,9 @@ implements TwitterFsFile
                 thrown);
     }
     
-    protected void log(Level level, String msg)
+    protected void log(Logger logger, Level level, String msg)
     {
-        logger.log(
-                level, 
+        logger.log(level, 
                 getAccount().getUsername() + ":" + getName() + " " + msg);
     }
 }
