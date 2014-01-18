@@ -24,7 +24,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Date;
-import java.util.logging.Level;
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -101,7 +100,8 @@ public class PostFile extends TwitterFsFileImpl
             {
                 case 185: // User is over daily status update limit.
                 case 187: // Status is a duplicate. Have written already.                                        
-                    log(INFO, ex.getErrorMessage());
+                    log(INFO, "Failed to post status. " +
+                            ex.getErrorMessage());
                     break;
                 default:
                     log(SEVERE, "Failed to post status.", ex);

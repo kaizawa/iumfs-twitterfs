@@ -140,24 +140,23 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
                     // wait for reset time.                                            
                     long waitSec = getWaitSec(ex.getRateLimitStatus());
                     log(Level.INFO, "Exceeds rate limit for timeline. wait for " 
-                                    + waitSec + " sec.", ex, nextFile);                    
+                                    + waitSec + " sec.", nextFile);                    
                     Util.sleep(waitSec * 1000);
                 }
                 else if (401 == ex.getStatusCode())
                 {
                     // Authentication error. could be locked account.                                                            
-                    log(Level.INFO, "Not authorized to get timeline.",
-                            ex, nextFile);
+                    log(Level.INFO, "Not authorized to get timeline.",nextFile);
                 } 
                 else 
                 {
                     // Unknown TwitterException
-                    log(Level.INFO, "Failed to get timeline.", ex, nextFile);
+                    log(Level.INFO, "Failed to get timeline.", nextFile, ex);
                 }
             } catch (Exception ex)
             {
                 log(Level.INFO, "User timeline watcher thread got an Exception.", 
-                        ex, nextFile);
+                        nextFile, ex);
             }
         }
     }
@@ -165,13 +164,24 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
     protected void log(
             Level level, 
             String msg, 
-            Throwable thrown,
-            NormalTimelineFile file)
+            NormalTimelineFile file,
+            Throwable thrown)
     {
         logger.log(
                 level, 
                 file.getAccount().getUsername() + ":" + file.getName() + 
                         " " + msg, 
                 thrown);
+    }
+    
+    protected void log(
+            Level level, 
+            String msg, 
+            NormalTimelineFile file)
+    {
+        logger.log(
+                level, 
+                file.getAccount().getUsername() + ":" + file.getName() + 
+                        " " + msg);
     }
 }
