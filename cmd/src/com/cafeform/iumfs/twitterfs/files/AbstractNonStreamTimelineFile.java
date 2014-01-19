@@ -12,6 +12,7 @@ import twitter4j.TwitterException;
 import java.util.Collections;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.FINER;
+import static java.util.logging.Level.SEVERE;
 import java.util.logging.Logger;
 
 /**
@@ -77,7 +78,8 @@ abstract public class AbstractNonStreamTimelineFile
 
         if (logger.isLoggable(FINER))      
         {
-            log(logger, FINER, "getTimeline took " + stopWatch.stop().toString());
+            logger.log(FINER, getUserAndName() + 
+                    " getTimeline took " + stopWatch.stop().toString());
         }
     }
 
@@ -126,8 +128,8 @@ abstract public class AbstractNonStreamTimelineFile
         Paging paging = new Paging(page, count, since);
         statuses = getTimeline(paging);
 
-        log(logger, FINE, "Got " + name + " timeline, "
-                + statuses.size() + " Statuses in page " + page);
+        logger.log(FINE, getUserAndName() + 
+                " Got " + statuses.size() + " statuses in page " + page);
 
         if (statuses.size() == 0)
         {
@@ -145,7 +147,7 @@ abstract public class AbstractNonStreamTimelineFile
         {
             // Set first status(oldest) to base_id.
             baseId = statuses.get(0).getId();
-            log(logger, FINER, "base_id = " + baseId);
+            logger.log(FINER, getUserAndName() + " base_id = " + baseId);
             initialRead = false;
         }
         return statuses.size();

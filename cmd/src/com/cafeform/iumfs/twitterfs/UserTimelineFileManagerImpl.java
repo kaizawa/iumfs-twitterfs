@@ -14,6 +14,7 @@ import static java.util.concurrent.TimeUnit.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import twitter4j.TwitterException;
+import static java.util.logging.Level.*;
 
 /**
  * Manage user timelines for each account. This can eliminate duplicate timeline
@@ -38,7 +39,7 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
         startScheduler();
         if (userTimelineQueue.contains(newFile))
         {
-            logger.log(Level.WARNING, "UserTimeline " + newFile.getName()
+            logger.log(WARNING, "UserTimeline " + newFile.getName()
                     + " has already exists.");
         } else
         {
@@ -78,11 +79,11 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
         {
             if (file.getName().equals(name))
             {
-                logger.log(Level.FINER, name + " found in existing list.");
+                logger.log(FINER, name + " found in existing list.");
                 return file;
             }
         }
-        logger.log(Level.FINER, name + " not found in existing list.");
+        logger.log(FINER, name + " not found in existing list.");
         return null;
     }
 
@@ -139,49 +140,33 @@ public class UserTimelineFileManagerImpl implements UserTimelineFileManager
                     // User Timeline rate limit exceeds.                                            
                     // wait for reset time.                                            
                     long waitSec = getWaitSec(ex.getRateLimitStatus());
-                    log(Level.INFO, "Exceeds rate limit for timeline. wait for " 
-                                    + waitSec + " sec.", nextFile);                    
+                    logger.log(INFO, getUserAndName(nextFile) +
+                            " Exceeds rate limit for timeline. wait for " 
+                                    + waitSec + " sec.");                    
                     Util.sleep(waitSec * 1000);
                 }
                 else if (401 == ex.getStatusCode())
                 {
                     // Authentication error. could be locked account.                                                            
-                    log(Level.INFO, "Not authorized to get timeline.",nextFile);
+                    logger.log(INFO, getUserAndName(nextFile) +
+                            " Not authorized to get timeline.");
                 } 
                 else 
                 {
                     // Unknown TwitterException
-                    log(Level.INFO, "Failed to get timeline.", nextFile, ex);
+                    logger.log(INFO, getUserAndName(nextFile) + 
+                            " Failed to get timeline.", ex);
                 }
             } catch (Exception ex)
             {
-                log(Level.INFO, "User timeline watcher thread got an Exception.", 
-                        nextFile, ex);
+                logger.log(INFO, getUserAndName(nextFile) + 
+                        "User timeline watcher thread got an Exception.", ex);
             }
         }
     }
     
-    protected void log(
-            Level level, 
-            String msg, 
-            NormalTimelineFile file,
-            Throwable thrown)
+    protected String getUserAndName (NormalTimelineFile file) 
     {
-        logger.log(
-                level, 
-                file.getAccount().getUsername() + ":" + file.getName() + 
-                        " " + msg, 
-                thrown);
-    }
-    
-    protected void log(
-            Level level, 
-            String msg, 
-            NormalTimelineFile file)
-    {
-        logger.log(
-                level, 
-                file.getAccount().getUsername() + ":" + file.getName() + 
-                        " " + msg);
-    }
+        return file.getAccount().getUsername() + ":" + file.getName();
+    } 
 }

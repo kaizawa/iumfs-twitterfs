@@ -57,7 +57,7 @@ abstract public class AbstractUsersDirectory extends TwitterFsDirectory
             }
         } else
         {
-            log(logger, FINER, "updater not called");
+            logger.log(FINER, getUserAndName() + " updater not called");
         }
         return super.listFiles();
     }
@@ -72,11 +72,11 @@ abstract public class AbstractUsersDirectory extends TwitterFsDirectory
         @Override
         public void run ()
         {
-            log(logger, FINER, "updater for " + getName() + " is called");
+            logger.log(FINER, getUserAndName() + " updater  is called");
             PagableResponseList<User> usersList = null;
             while (true)
             {
-                log(logger, FINER, "cursor = " + cursor);
+                logger.log(FINER, getUserAndName() +  " cursor = " + cursor);
                 try
                 {
                     usersList = getUsersList(cursor);
@@ -96,9 +96,10 @@ abstract public class AbstractUsersDirectory extends TwitterFsDirectory
                     handleTwitterException(ex);
                 }
 
-                log(logger, FINER, "Got " + usersList.size()
-                        + " users data for " + getName()
-                        + ". Next cursor = " + cursor);
+                logger.log(FINER, getUserAndName() + 
+                        " Got " + usersList.size() + 
+                        " users data for " + getName() + 
+                        ". Next cursor = " + cursor);
 
                 // Wait REQUEST_INTERVAL to avoid exceeding 
                 // rate limit of twitter api.
@@ -118,23 +119,17 @@ abstract public class AbstractUsersDirectory extends TwitterFsDirectory
         {
             if (ex.exceededRateLimitation())
             {
-                        // User Timeline rate limit exceeds.                                            
+                // User Timeline rate limit exceeds.                                            
                 // wait for reset time.                                            
                 long waitSec = getWaitSec(ex.getRateLimitStatus());
-                log(logger, INFO,
-                        getAccount().getUsername()
-                        + " exceeds rate limit for retrieving "
-                        + getName()
-                        + " list. wait for " + waitSec
-                        + " sec.");
+                logger.log(INFO, getUserAndName() + 
+                        " Exceeds rate limit for retrieving users list. " + 
+                        "Wait for " + waitSec + " sec.");
                 Util.sleep(waitSec * 1000);
-
-                log(logger, INFO, getAccount().getUsername()
-                        + ": " + ex.getErrorMessage());
             } else
             {
-                log(logger, WARNING, "Unable to get users list for "
-                        + getName() + ". " + ex.getMessage(), ex);
+                logger.log(WARNING, getUserAndName() + 
+                        "Unable to get users list." + ex.getMessage(), ex);
             }
         }
     }
@@ -145,7 +140,7 @@ abstract public class AbstractUsersDirectory extends TwitterFsDirectory
     @Override
     public void addFile (IumfsFile file) throws NotADirectoryException
     {
-        log(logger, FINEST, file.getName() + " is added.");
+        logger.log(FINEST, getUserAndName() + " Added " + file.getName());
         super.addFile(file);
     }
 }

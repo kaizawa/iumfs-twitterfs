@@ -33,8 +33,10 @@ public class StreamTimelineFile extends AbstractTimelineFile
         @Override
         public void onStatus (Status status)
         {
-            log(logger, FINER, "Read Status id=" + status.getId());
-            log(logger, FINEST, AbstractTimelineFile.statusToFormattedString(status));
+            logger.log(FINER, getUserAndName() + 
+                    " Read Status id=" + status.getId());
+            logger.log(FINEST, getUserAndName() + 
+                    " " + AbstractTimelineFile.statusToFormattedString(status));
             addStatusToList(status);
         }
 

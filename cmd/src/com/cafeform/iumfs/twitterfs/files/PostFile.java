@@ -75,8 +75,10 @@ public class PostFile extends TwitterFsFileImpl
              * Get a strings written as a file data.
              */
             String wholeMessage = new String(buf);
-            log (logger, FINER, "Orig Text:" + wholeMessage);
-            log (logger, FINEST, "whole_msg.length() = " + wholeMessage.length());
+            logger.log(FINER, getUserAndName () +
+                        " Orig Text:" + wholeMessage);
+            logger.log(FINEST, getUserAndName () +  
+                            " whole_msg.length() = " + wholeMessage.length());
             int left = wholeMessage.length();
             /*
              * Post strings to twitter every 140 characters.
@@ -89,8 +91,8 @@ public class PostFile extends TwitterFsFileImpl
                 String msg = (String) sep.next();
 
                 status = twitter.updateStatus(msg);
-                log(logger, FINEST, "Text: " + msg);
-                log(logger, FINE, "Status updated");
+                logger.log(FINEST, getUserAndName() + " Text: " + msg);
+                logger.log(FINE, getUserAndName() + "Status updated");
             }
             Date now = new Date();
             setAtime(now.getTime());            
@@ -104,11 +106,12 @@ public class PostFile extends TwitterFsFileImpl
             {
                 case 185: // User is over daily status update limit.
                 case 187: // Status is a duplicate. Have written already.                                        
-                    log(logger, INFO, "Failed to post. " +
-                            ex.getErrorMessage());
+                    logger.log(INFO, getUserAndName() +
+                            " Failed to post. " + ex.getErrorMessage());
                     break;
                 default:
-                    log(logger, SEVERE, "Failed to post.", ex);
+                    logger.log(SEVERE, getUserAndName() + 
+                            " Failed to post.", ex);
             }
             // We need to return 0 (= means success) even in this situaion.
             // Otherwise kernel module continually send write request.

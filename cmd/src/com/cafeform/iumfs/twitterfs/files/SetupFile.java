@@ -71,7 +71,7 @@ public class SetupFile extends TwitterFsFileImpl {
             byte[] bytes = script.getBytes("UTF-8");        
             setLength(bytes.length);            
         } catch (UnsupportedEncodingException ex) {
-            log(logger, SEVERE, ex.getMessage());
+            logger.log(SEVERE, getUserAndName() + " " + ex.getMessage());
         }        
     }
 

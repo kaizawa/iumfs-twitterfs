@@ -54,8 +54,8 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
             getTimeline();
         } catch (TwitterException ex)
         {
-            log(logger, INFO, "Cannot get " + getName() + " timeline: " + 
-                    ex.getErrorMessage(), ex);
+            logger.log(INFO, getUserAndName() + 
+                    " Cannot get timeline. " + ex.getErrorMessage(), ex);
         }
     }
 
@@ -80,8 +80,8 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
                 statuses = twitter.getRetweetsOfMe(paging);
                 break;
             default:
-                log(logger, SEVERE, "Unknown timeline(\"" + name
-                        + "\") specified.");
+                logger.log(SEVERE, getUserAndName() + 
+                        " Unknown timeline. Maybe bug. Terminate process.");
                 System.exit(1);
         }
 
@@ -110,14 +110,15 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
                         // User Timeline rate limit exceeds.                                            
                         // wait for reset time.                                            
                         long waitSec = getWaitSec(ex.getRateLimitStatus());
-                        log(logger, Level.INFO, 
-                                "Exceeds rate limit for timeline. wait for " 
+                        logger.log(Level.INFO, getUserAndName() + 
+                                " Exceeds rate limit for timeline. wait for " 
                                     + waitSec + " sec.");                    
                         Util.sleep(waitSec * 1000);
                     }
                     else 
                     {
-                        log(logger, INFO, "Cannot get timeline.", ex);
+                        logger.log(INFO, getUserAndName() + 
+                                "Cannot get timeline.", ex);
                     }
                 }
             }

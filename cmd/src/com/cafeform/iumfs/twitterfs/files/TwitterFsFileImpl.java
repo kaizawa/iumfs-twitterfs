@@ -118,17 +118,8 @@ implements TwitterFsFile
         return true;
     }
     
-    protected void log(Logger logger, Level level, String msg, Throwable thrown)
+    protected String getUserAndName () 
     {
-        logger.log(
-                level, 
-                getAccount().getUsername() + ":" + getName() + " " + msg, 
-                thrown);
-    }
-    
-    protected void log(Logger logger, Level level, String msg)
-    {
-        logger.log(level, 
-                getAccount().getUsername() + ":" + getName() + " " + msg);
-    }
+        return getAccount().getUsername() + ":" + getName();
+    }    
 }

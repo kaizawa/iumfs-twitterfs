@@ -35,15 +35,14 @@ public class UserTimelineFileImpl extends AbstractNonStreamTimelineFile
 
         statuses = twitter.getUserTimeline(name, paging);
 
-        log(logger, FINER, "UserTimeline rate limit for "
-                + getAccount().getUsername()
-                + ": "
-                + statuses.getRateLimitStatus().getRemaining()
-                + "/"
-                + statuses.getRateLimitStatus().getLimit()
-                + " reset in "
-                + statuses.getRateLimitStatus().getSecondsUntilReset()
-                + " sec.");
+        logger.log(FINER,  getUserAndName() + 
+                " Rate limit: " +
+                statuses.getRateLimitStatus().getRemaining() +
+                "/" +
+                statuses.getRateLimitStatus().getLimit() + 
+                " reset in " + 
+                statuses.getRateLimitStatus().getSecondsUntilReset() +
+                " sec.");
         return statuses;
     }
 
