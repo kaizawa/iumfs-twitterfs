@@ -7,6 +7,7 @@ import com.cafeform.iumfs.utilities.Util;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import twitter4j.Paging;
 import twitter4j.ResponseList;
 import twitter4j.Status;
@@ -109,19 +110,14 @@ public class DefaultTimelineFile extends AbstractNonStreamTimelineFile
                         // User Timeline rate limit exceeds.                                            
                         // wait for reset time.                                            
                         long waitSec = getWaitSec(ex.getRateLimitStatus());
-                        log(logger, INFO,
-                                getAccount().getUsername()
-                                + " exceeds rate limit for "
-                                + getName()
-                                + " timeline. wait for " + waitSec
-                                + " sec.");
-                        
+                        log(logger, Level.INFO, 
+                                "Exceeds rate limit for timeline. wait for " 
+                                    + waitSec + " sec.");                    
                         Util.sleep(waitSec * 1000);
                     }
                     else 
                     {
-                        log(logger, INFO, getAccount().getUsername() + 
-                            ": Cannot get " + getName() + " timeline.", ex);
+                        log(logger, INFO, "Cannot get timeline.", ex);
                     }
                 }
             }
